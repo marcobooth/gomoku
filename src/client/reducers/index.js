@@ -1,5 +1,2 @@
-import alert from './alert'
-export default alert
-
-
-
+import addMessage from './addMessage'
+export default addMessage

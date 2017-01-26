@@ -1,18 +1,22 @@
 import React from 'react'
+import Messages from './messages'
+import CreateMessage from './createMessage'
 import { connect } from 'react-redux'
+import _ from "underscore"
 
 
-const App = ({message}) => {
+const App = () => {
   return (
-    <span>{message}</span>
-  )
+    <div>
+      <Messages />
+      <CreateMessage />
+    </div>
+  );
 }
 
 const mapStateToProps = (state) => {
   return {
-    message: state.message
+    // messages: state.messages
   }
 }
 export default connect(mapStateToProps, null)(App)
-
-
