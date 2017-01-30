@@ -17,7 +17,7 @@ export const setState = (state) => {
   }
 }
 
-export const JOIN_GAME = 'JOIN_GAME',
+export const JOIN_GAME = 'JOIN_GAME'
 
 export const joinGame = () => {
   return {
@@ -25,7 +25,7 @@ export const joinGame = () => {
   }
 }
 
-export const START_GAME = 'START_GAME',
+export const START_GAME = 'START_GAME'
 
 export const startGame = () => {
   return {
@@ -33,7 +33,7 @@ export const startGame = () => {
   }
 }
 
-export const MOVE_PIECE = 'MOVE_PIECE',
+export const MOVE_PIECE = 'MOVE_PIECE'
 
 export const movePiece = (direction) => {
   return {
