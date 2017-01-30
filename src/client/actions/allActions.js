@@ -16,3 +16,8 @@ export const setState = (state) => {
     state
   }
 }
+
+// export const START_GAME = 'START_GAME',
+
+// start game
+// move(right, left, down)
