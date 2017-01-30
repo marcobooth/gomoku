@@ -26,7 +26,7 @@ export const INITIAL_STATE = Map({
     ],
     "masterUsername": "tfleming",
     "alreadyStarted": true,
-    "roomName": "42",
+    // "roomName": "42",
   },
   "clients": {
     "tfleming": {
