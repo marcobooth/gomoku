@@ -4,29 +4,26 @@ import createLogger from 'redux-logger'
 import thunk from 'redux-thunk'
 import { createStore, applyMiddleware } from 'redux'
 import { Provider } from 'react-redux'
-import {storeStateMiddleWare} from './middleware/storeStateMiddleWare'
-import reducer from './reducers'
+import io from 'socket.io-client';
+import remoteActionMiddleware from './middleware/storeStateMiddleWare'
+import reducer from './reducers/allReducers'
 import App from './containers/app'
-import {addMessage} from './actions/addMessage'
+import {addMessage, setState} from './actions/allActions'
 // import { Map, List } from "immutable"
 
-const initialState = {
-  messages: []
-}
+const socket = io(`${location.protocol}//${location.hostname}:8090`);
+socket.on('state', state => {
+  console.log("state:", state);
+  store.dispatch(setState(state))
+});
 
-const store = createStore(
-  reducer,
-  initialState,
-  applyMiddleware(thunk, createLogger())
-)
+const createStoreWithMiddleware = applyMiddleware(
+  remoteActionMiddleware(socket)
+)(createStore);
+const store = createStoreWithMiddleware(reducer);
 
 ReactDom.render((
   <Provider store={store}>
     <App/>
   </Provider>
 ), document.getElementById('tetris'))
-
-store.dispatch(addMessage('Hello, my name is Teo'))
-store.dispatch(addMessage('Hello, my name is Marco'))
-store.dispatch(addMessage('Hello, my name is Tamra'))
-store.dispatch(addMessage('Hello, my name is Judy'))

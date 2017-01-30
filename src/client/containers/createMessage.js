@@ -1,7 +1,7 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import _ from "underscore"
-import { addMessage } from "../actions/addMessage"
+import { addMessage } from "../actions/allActions"
 
 const CreateMessage = ({ dispatch }) => {
   let input
