@@ -1,9 +1,51 @@
 import {List, Map} from 'immutable';
 
 export const INITIAL_STATE = Map({
-  messages: [
-    "hi"
-  ]
+  "messages": [
+    {
+      "username": "tfleming",
+      "message": "Hello world!",
+      "dateCreated": new Date(),
+    },
+  ],
+  "pieces": {
+    "long-straight": {
+      "color": "FFFFFF",
+      "size": 4,
+    },
+  },
+  "game": {
+    "pieces": [
+      {
+        "type": "long-straight",
+        "color": "FFFFFF",
+        "rotation": 0,
+        "row": -4,
+        "col": 0,
+      },
+    ],
+    "masterUsername": "tfleming",
+    "alreadyStarted": true,
+    "roomName": "42",
+  },
+  "clients": {
+    "tfleming": {
+      "currentPiece": {
+        "type": "long-straight",
+        "rotation": 0,
+        "row": -4,
+        "col": 0,
+      },
+      "currentPieceIndex": 0,
+      "board": [
+        [ null, null, "FFFFFF" ],
+        [ null, null, "FFFFFF" ],
+        [ null, null, "FFFFFF" ],
+        [ null, null, "FFFFFF" ],
+      ],
+      "winnerState": "winner/loser",
+    },
+  },
 });
 
 export function addMessage(state, message) {
