@@ -11,9 +11,9 @@ import _ from 'underscore'
 
 export const putPieceOnBoard = (board, piece) => {
   let pieceInfo = _.findWhere(pieces, { type: piece.type })
-  let piecePositions = pieceInfo.positions[piece.rotation]
+  let pieceLocations = pieceInfo.positions[piece.rotation]
 
-  for ({row, col} in piecePositions) {
+  for ({row, col} in pieceLocations) {
     // figure out where to fill in
     let fillRow = piece.row + row
     let fillCol = piece.col + col
@@ -30,8 +30,8 @@ export const putPieceOnBoard = (board, piece) => {
       return false
     }
 
-    board[fillRow][fillCol] = piece.color;
-  });
+    board[fillRow][fillCol] = piece.color
+  }
 
-  return board;
+  return board
 };
