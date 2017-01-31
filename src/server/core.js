@@ -16,24 +16,23 @@ export function addPiece(state, action) {
     var randomPiece = listOfPieces.toArray()[randomNumber];
     var gamePieces = state.getIn(['game', 'pieces']).concat([randomPiece]);
     console.log(gamePieces);
-    return state.setIn(['game', 'pieces'], gamePieces);
+    return state.updateIn(['game', 'pieces'], gamePieces);
   }
   return state;
 }
 
 export function movePiece(state, action) {
-  var newState = state.updateIn(['clients', action.player, 'currentPieceIndex'], 0, index => index + 1);
   switch (action.direction) {
     case 'left':
-      return newState.updateIn(['clients', action.player, 'currentPiece', 'col'], 0, row => row + 1);
+      return state.updateIn(['clients', action.player, 'currentPiece', 'col'], 0, col => col + 1);
     case 'right':
-      return newState.updateIn(['clients', action.player, 'currentPiece', 'col'], 0, row => row - 1);
+      return state.updateIn(['clients', action.player, 'currentPiece', 'col'], 0, col => col - 1);
     default:
-      return newState.updateIn(['clients', action.player, 'currentPiece', 'row'], 0, row => row + 1);
+      return state.updateIn(['clients', action.player, 'currentPiece', 'row'], 0, row => row + 1);
   }
 }
 
-export function startGame(state, action) {
+export function createGame(state, action) {
   if (state.getIn(['game', 'alreadyStarted']) === false || state.getIn(['game', 'winner']) === true) {
     var newGame = Map ({ "pieces": List(), "masterUsername": action.player, "alreadyStarted": true, "winner": false });
     return state.updateIn(['game'], currentGame => newGame);
