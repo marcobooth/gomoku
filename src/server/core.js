@@ -1,5 +1,6 @@
 import Immutable from 'immutable';
 import {List, Map} from 'immutable';
+import {putPieceOnBoard} from '../both/utilities'
 
 export function addMessage(state, message) {
   return state.updateIn(['messages'], arr => {
@@ -22,16 +23,35 @@ export function addPiece(state, action) {
 }
 
 export function movePiece(state, action) {
-  switch (action.direction) {
-    case 'left':
-      let potentialState = state.updateIn(['clients', action.player, 'currentPiece', 'col'], 0, col => col + 1);
-      if (potentialState) {
-        return potentialState;
-      }
-    case 'right':
-      return state.updateIn(['clients', action.player, 'currentPiece', 'col'], 0, col => col - 1);
-    default:
-      return state.updateIn(['clients', action.player, 'currentPiece', 'row'], 0, row => row + 1);
+  let potentialState
+  let currentPiecePath = ['clients', action.player, 'currentPiece']
+
+  if (action.direction === 'left') {
+    potentialState = state.updateIn(currentPiecePath.concat(['col']), col => col - 1)
+  } else if (action.direction === 'right') {
+    potentialState = state.updateIn(currentPiecePath.concat(['col']), col => col + 1)
+  } else if (action.direction === 'down') {
+    potentialState = state.updateIn(currentPiecePath.concat(['row']), row => row + 1)
+  } else {
+    return state
+  }
+
+  let boardPath = ['clients', action.player, 'board'];
+  let potentialBoard = potentialState.getIn(boardPath)
+  let newBoard = putPieceOnBoard(potentialBoard, potentialState.getIn(currentPiecePath))
+
+  if (newBoard) {
+    console.log("here");
+    return potentialState
+  } else if (action.direction === "down") {
+    console.log("or here");
+    let boardUpdateFunc = (oldBoard) => {
+      return putPieceOnBoard(oldBoard, state.getIn(currentPiecePath))
+    }
+    return state.updateIn(boardPath, boardUpdateFunc)
+  } else {
+    console.log("maybe here");
+    return state
   }
 }
 
@@ -64,7 +84,6 @@ export const INITIAL_STATE = Immutable.fromJS({
     "pieces": [
       {
         "type": "long-straight",
-        "color": "FFFFFF",
         "rotation": 0,
         "row": -4,
         "col": 0,
@@ -80,15 +99,31 @@ export const INITIAL_STATE = Immutable.fromJS({
       "currentPiece": {
         "type": "long-straight",
         "rotation": 0,
-        "row": -4,
+        "row": 4,
         "col": 0,
       },
       "currentPieceIndex": 0,
       "board": [
-        [ null, "FF0000", "FFFFFF" ],
-        [ null, "00FF00", "FFFFFF" ],
-        [ null, "00FF00", "FFFFFF" ],
-        [ null, "00FF00", "FFFFFF" ],
+        [ null, null, null, null, null, null, null, null, null, null ],
+        [ null, null, null, null, null, null, null, null, null, null ],
+        [ null, null, null, null, null, null, null, null, null, null ],
+        [ null, null, null, null, null, null, null, null, null, null ],
+        [ null, null, null, null, null, null, null, null, null, null ],
+        [ null, null, null, null, null, null, null, null, null, null ],
+        [ null, null, null, null, null, null, null, null, null, null ],
+        [ null, null, null, null, null, null, null, null, null, null ],
+        [ null, null, null, null, null, null, null, null, null, null ],
+        [ null, null, null, null, null, null, null, null, null, null ],
+        [ null, null, null, null, null, null, null, null, null, null ],
+        [ null, null, null, null, null, null, null, null, null, null ],
+        [ null, null, null, null, null, null, null, null, null, null ],
+        [ null, null, null, null, null, null, null, null, null, null ],
+        [ null, null, null, null, null, null, null, null, null, null ],
+        [ null, null, null, null, null, null, null, null, null, null ],
+        [ null, null, null, null, null, null, null, null, null, null ],
+        [ null, null, null, null, null, null, null, null, null, null ],
+        [ null, null, null, null, null, null, null, null, null, null ],
+        [ null, null, null, null, null, null, null, null, null, null ],
       ],
       "winnerState": "winner/loser",
     },

@@ -1,5 +1,5 @@
 import React from 'react'
-import { Tetris } from '../components/components'
+import { BoardContainer } from './board'
 import Messages from './messages'
 import Buttons from './buttons'
 import CreateMessage from './createMessage'
@@ -12,7 +12,8 @@ const App = () => {
   // <CreateMessage />
   return (
     <div>
-      <Tetris />
+      <BoardContainer />
+      <Buttons />
     </div>
   );
 }
@@ -22,4 +23,4 @@ const mapStateToProps = (state) => {
     // messages: state.messages
   }
 }
-export default connect(mapStateToProps, null)(App)
+export default connect(mapStateToProps)(App)

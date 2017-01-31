@@ -10,7 +10,7 @@
 import {expect} from 'chai';
 import Immutable from 'immutable'
 import _ from 'underscore'
-import { putPieceOnBoard } from '../src/both/utility'
+import { putPieceOnBoard } from '../src/both/utilities'
 
 var emptyBoard = Immutable.fromJS([
   [ null, null, null, null, null ],
