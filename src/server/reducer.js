@@ -2,7 +2,6 @@ import {addMessage, addPiece, endGame, movePiece, createGame, INITIAL_STATE} fro
 
 export default function reducer(state = INITIAL_STATE, action) {
   // console.log("state, action:", state, action);
-  // console.log(state);
   switch (action.type) {
   case 'ADD_MESSAGE':
     return addMessage(state, action.message);

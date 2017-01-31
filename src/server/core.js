@@ -14,9 +14,9 @@ export function addPiece(state, action) {
     var randomNumber = Math.floor((Math.random() * 3));
     var listOfPieces = state.get('pieces');
     var randomPiece = listOfPieces.toArray()[randomNumber];
-    var gamePieces = state.getIn(['game', 'pieces']).concat([randomPiece]);
-    console.log(gamePieces);
-    return state.updateIn(['game', 'pieces'], gamePieces);
+    return state.updateIn(['game', 'pieces'], pieces => {
+      return pieces.concat([randomPiece])
+    })
   }
   return state;
 }
