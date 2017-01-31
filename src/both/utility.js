@@ -13,7 +13,7 @@ export const putPieceOnBoard = (board, piece) => {
   let pieceInfo = _.findWhere(pieces, { type: piece.type })
   let piecePositions = pieceInfo.positions[piece.rotation]
 
-  _.each(piecePositions, ({ row, col }) => {
+  for ({row, col} in piecePositions) {
     // figure out where to fill in
     let fillRow = piece.row + row
     let fillCol = piece.col + col
