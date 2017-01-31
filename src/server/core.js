@@ -57,20 +57,40 @@ export const INITIAL_STATE = Immutable.fromJS({
   ],
   "pieces": [
     {
-      "type": "long-straight",
-      "color": "FFFFFF",
+      "long-straight",
+      "color": "EFA124",
       "size": 4,
     },
     {
-      "type": "straight-narrow",
-      "color": "blue",
+      "left-l",
+      "color": "4D5DB6",
       "size": 3,
     },
     {
-      "type": "square",
-      "color": "dark red",
-      "size": 1,
+      "right-l",
+      "color": "48A8F0",
+      "size": 3,
     },
+    {
+      "right-zag",
+      "color": "9CD35B",
+      "size": 3,
+    },
+    {
+      "left-zag",
+      "color": "D4E754",
+      "size": 3,
+    },
+    {
+      "sombrero",
+      "color": "962DAF",
+      "size": 3,
+    },
+    {
+      "square",
+      "color": "6C40B7",
+      "size": 2,
+    }
   ],
   "game": {
     "pieces": [
@@ -97,10 +117,10 @@ export const INITIAL_STATE = Immutable.fromJS({
       },
       "currentPieceIndex": 0,
       "board": [
-        [ null, null, "FFFFFF" ],
-        [ null, null, "FFFFFF" ],
-        [ null, null, "FFFFFF" ],
-        [ null, null, "FFFFFF" ],
+        [ null, "FF0000", "FFFFFF" ],
+        [ null, "00FF00", "FFFFFF" ],
+        [ null, "00FF00", "FFFFFF" ],
+        [ null, "00FF00", "FFFFFF" ],
       ],
       "winnerState": "winner/loser",
     },

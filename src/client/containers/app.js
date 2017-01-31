@@ -1,4 +1,5 @@
 import React from 'react'
+import { Tetris } from '../components/components'
 import Messages from './messages'
 import Buttons from './buttons'
 import CreateMessage from './createMessage'
@@ -7,11 +8,11 @@ import _ from "underscore"
 
 
 const App = () => {
+  // <Messages />
+  // <CreateMessage />
   return (
     <div>
-      <Messages />
-      <Buttons />
-      <CreateMessage />
+      <Tetris />
     </div>
   );
 }
