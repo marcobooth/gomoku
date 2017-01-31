@@ -1,3 +1,5 @@
-export const putPieceOnBoard(board, piece) {
-  
+import pieces from './pieces'
+
+export const putPieceOnBoard = (board, piece) => {
+
 };

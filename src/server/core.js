@@ -24,7 +24,10 @@ export function addPiece(state, action) {
 export function movePiece(state, action) {
   switch (action.direction) {
     case 'left':
-      return state.updateIn(['clients', action.player, 'currentPiece', 'col'], 0, col => col + 1);
+      let potentialState = state.updateIn(['clients', action.player, 'currentPiece', 'col'], 0, col => col + 1);
+      if (potentialState) {
+        return potentialState;
+      }
     case 'right':
       return state.updateIn(['clients', action.player, 'currentPiece', 'col'], 0, col => col - 1);
     default:
@@ -47,6 +50,8 @@ export function endGame(state, action) {
   return state;
 }
 
+
+
 export const INITIAL_STATE = Immutable.fromJS({
   "messages": [
     {
@@ -54,43 +59,6 @@ export const INITIAL_STATE = Immutable.fromJS({
       "message": "Hello world!",
       "dateCreated": new Date(),
     },
-  ],
-  "pieces": [
-    {
-      "type": "long-straight",
-      "color": "EFA124",
-      "size": 4,
-    },
-    {
-      "type": "left-l",
-      "color": "4D5DB6",
-      "size": 3,
-    },
-    {
-      "type": "right-l",
-      "color": "48A8F0",
-      "size": 3,
-    },
-    {
-      "type": "right-zag",
-      "color": "9CD35B",
-      "size": 3,
-    },
-    {
-      "type": "left-zag",
-      "color": "D4E754",
-      "size": 3,
-    },
-    {
-      "type": "sombrero",
-      "color": "962DAF",
-      "size": 3,
-    },
-    {
-      "type": "square",
-      "color": "6C40B7",
-      "size": 2,
-    }
   ],
   "game": {
     "pieces": [
