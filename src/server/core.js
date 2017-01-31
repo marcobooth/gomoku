@@ -11,7 +11,7 @@ export function addMessage(state, message) {
 export function addPiece(state, action) {
   var numberOfPieces = state.getIn(['game', 'pieces']).count();
   if (numberOfPieces <= state.getIn(['clients', action.player, 'currentPieceIndex'])) {
-    var randomNumber = Math.floor((Math.random() * 3));
+    var randomNumber = Math.floor((Math.random() * 7));
     var listOfPieces = state.get('pieces');
     var randomPiece = listOfPieces.toArray()[randomNumber];
     return state.updateIn(['game', 'pieces'], pieces => {
@@ -57,37 +57,37 @@ export const INITIAL_STATE = Immutable.fromJS({
   ],
   "pieces": [
     {
-      "long-straight",
+      "type": "long-straight",
       "color": "EFA124",
       "size": 4,
     },
     {
-      "left-l",
+      "type": "left-l",
       "color": "4D5DB6",
       "size": 3,
     },
     {
-      "right-l",
+      "type": "right-l",
       "color": "48A8F0",
       "size": 3,
     },
     {
-      "right-zag",
+      "type": "right-zag",
       "color": "9CD35B",
       "size": 3,
     },
     {
-      "left-zag",
+      "type": "left-zag",
       "color": "D4E754",
       "size": 3,
     },
     {
-      "sombrero",
+      "type": "sombrero",
       "color": "962DAF",
       "size": 3,
     },
     {
-      "square",
+      "type": "square",
       "color": "6C40B7",
       "size": 2,
     }
