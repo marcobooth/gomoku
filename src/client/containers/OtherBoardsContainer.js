@@ -4,7 +4,7 @@ import { connect } from 'react-redux'
 export const OtherBoardsContainer = () => {
   return (
     <div>
-      
+
     </div>
   );
 }
@@ -12,4 +12,4 @@ export const OtherBoardsContainer = () => {
 const mapStateToProps = (state) => {
   // return state.getIn("clients", "tfleming");
 }
-export default connect(mapStateToProps, null)(OtherBoardsContainer)
+export default connect(mapStateToProps)(OtherBoardsContainer)
