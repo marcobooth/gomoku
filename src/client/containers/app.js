@@ -1,6 +1,7 @@
 import React from 'react'
 import { Tetris } from '../components/components'
 import Messages from './messages'
+import Buttons from './buttons'
 import CreateMessage from './createMessage'
 import { connect } from 'react-redux'
 import _ from "underscore"

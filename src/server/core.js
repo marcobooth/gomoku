@@ -1,6 +1,53 @@
+import Immutable from 'immutable';
 import {List, Map} from 'immutable';
 
-export const INITIAL_STATE = Map({
+export function addMessage(state, message) {
+  return state.updateIn(['messages'], arr => {
+    arr.push(message)
+    return arr
+  });
+}
+
+export function addPiece(state, action) {
+  var numberOfPieces = state.getIn(['game', 'pieces']).count();
+  if (numberOfPieces <= state.getIn(['clients', action.player, 'currentPieceIndex'])) {
+    var randomNumber = Math.floor((Math.random() * 7));
+    var listOfPieces = state.get('pieces');
+    var randomPiece = listOfPieces.toArray()[randomNumber];
+    return state.updateIn(['game', 'pieces'], pieces => {
+      return pieces.concat([randomPiece])
+    })
+  }
+  return state;
+}
+
+export function movePiece(state, action) {
+  switch (action.direction) {
+    case 'left':
+      return state.updateIn(['clients', action.player, 'currentPiece', 'col'], 0, col => col + 1);
+    case 'right':
+      return state.updateIn(['clients', action.player, 'currentPiece', 'col'], 0, col => col - 1);
+    default:
+      return state.updateIn(['clients', action.player, 'currentPiece', 'row'], 0, row => row + 1);
+  }
+}
+
+export function createGame(state, action) {
+  if (state.getIn(['game', 'alreadyStarted']) === false || state.getIn(['game', 'winner']) === true) {
+    var newGame = Map ({ "pieces": List(), "masterUsername": action.player, "alreadyStarted": true, "winner": false });
+    return state.updateIn(['game'], currentGame => newGame);
+  }
+  return state;
+}
+
+export function endGame(state, action) {
+  if (state.getIn(['game', 'alreadyStarted']) === true && state.getIn(['game', 'winner']) === false) {
+    return state.updateIn(['game', 'winner'], winnerValue => true);
+  }
+  return state;
+}
+
+export const INITIAL_STATE = Immutable.fromJS({
   "messages": [
     {
       "username": "tfleming",
@@ -8,36 +55,43 @@ export const INITIAL_STATE = Map({
       "dateCreated": new Date(),
     },
   ],
-  "pieces": {
-    "long-straight": {
+  "pieces": [
+    {
+      "type": "long-straight",
       "color": "EFA124",
       "size": 4,
     },
-    "left-l": {
+    {
+      "type": "left-l",
       "color": "4D5DB6",
       "size": 3,
     },
-    "right-l": {
+    {
+      "type": "right-l",
       "color": "48A8F0",
       "size": 3,
     },
-    "right-zag": {
+    {
+      "type": "right-zag",
       "color": "9CD35B",
       "size": 3,
     },
-    "left-zag": {
+    {
+      "type": "left-zag",
       "color": "D4E754",
       "size": 3,
     },
-    "sombrero": {
+    {
+      "type": "sombrero",
       "color": "962DAF",
       "size": 3,
     },
-    "square": {
+    {
+      "type": "square",
       "color": "6C40B7",
       "size": 2,
     }
-  },
+  ],
   "game": {
     "pieces": [
       {
@@ -48,8 +102,9 @@ export const INITIAL_STATE = Map({
         "col": 0,
       },
     ],
-    "masterUsername": "tfleming",
-    "alreadyStarted": true,
+    "masterUsername": "",
+    "alreadyStarted": false,
+    "winner": false,
     // "roomName": "42",
   },
   "clients": {
@@ -71,14 +126,6 @@ export const INITIAL_STATE = Map({
     },
   },
 });
-
-export function addMessage(state, message) {
-  return state.updateIn(['messages'], arr => {
-    arr.push(message)
-    return arr
-  });
-}
-
 
 
 
