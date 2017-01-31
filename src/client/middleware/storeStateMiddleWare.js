@@ -1,7 +1,6 @@
 export default socket => store => next => action => {
-  console.log("in middleware");
   if (action.meta && action.meta.remote) {
-    console.log("emitting action");
+    console.log("emitting action:", action);
     socket.emit('action', action);
   }
   return next(action);

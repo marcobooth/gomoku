@@ -1,4 +1,5 @@
 import React from 'react'
+import { Tetris } from '../components/components'
 import Messages from './messages'
 import CreateMessage from './createMessage'
 import { connect } from 'react-redux'
@@ -6,10 +7,11 @@ import _ from "underscore"
 
 
 const App = () => {
+  // <Messages />
+  // <CreateMessage />
   return (
     <div>
-      <Messages />
-      <CreateMessage />
+      <Tetris />
     </div>
   );
 }
