@@ -10,27 +10,25 @@ import _ from 'underscore'
 // },
 
 export const putPieceOnBoard = (board, piece) => {
-  let pieceInfo = _.findWhere(pieces, { type: piece.type })
-  let pieceLocations = pieceInfo.positions[piece.rotation]
-
-  for ({row, col} in pieceLocations) {
+  let pieceInfo = _.findWhere(pieces, { type: piece.get("type") })
+  let pieceLocations = pieceInfo.positions[piece.get('rotation')]
+  for (let {row, col} of pieceLocations) {
     // figure out where to fill in
-    let fillRow = piece.row + row
-    let fillCol = piece.col + col
-
+    let fillRow = piece.get('row') + row
+    let fillCol = piece.get('col') + col
     // check if it's outside the board
-    if (fillRow < 0 || fillRow >= board.length ||
-        fillCol < 0 || fillCol >= board[0].length) {
+    if (fillRow < -4 || fillRow >= board.size ||
+        fillCol < 0 || fillCol >= board.get(0).size) {
       return false
     }
 
     // check if it's already filled
     // (do this after checking if it's outside the board so it doesn't break)
-    if (board[newRow][fillCol]) {
+    if (board.getIn([fillRow, fillCol])) {
       return false
     }
 
-    board[fillRow][fillCol] = piece.color
+    board = board.setIn([fillRow, fillCol], piece.get("color"))
   }
 
   return board
