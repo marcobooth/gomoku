@@ -5,7 +5,7 @@ export default function startServer(store) {
 
   store.subscribe(
     () => {
-      console.log("new state:", store.getState().toJS().messages)
+      // console.log("new state:", store.getState().toJS().messages)
       io.emit('state', store.getState().toJS())
     }
   );

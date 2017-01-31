@@ -1,5 +1,6 @@
 import React from 'react'
 import Messages from './messages'
+import Buttons from './buttons'
 import CreateMessage from './createMessage'
 import { connect } from 'react-redux'
 import _ from "underscore"
@@ -9,6 +10,7 @@ const App = () => {
   return (
     <div>
       <Messages />
+      <Buttons />
       <CreateMessage />
     </div>
   );
