@@ -36,6 +36,18 @@ export function nextPiece(state, action) {
   return state.setIn(['clients', action.player, 'currentPiece'], currentPiece)
 }
 
+export function checkForFullLine(state, player) {
+  let board = state.getIn(['clients', player, 'board']).toJS()
+  board.forEach(function (row, index) {
+    if (!row.includes(null)) {
+      state = state.deleteIn(['clients', player, 'board', index])
+      let boardToChange = state.getIn(['clients', player, 'board']).unshift(List([null, null, null, null, null, null, null, null, null, null]))
+      state = state.setIn(['clients', player, 'board'], boardToChange)
+    }
+  })
+  return state
+}
+
 export function movePiece(state, action) {
   let potentialState
   let currentPiecePath = ['clients', action.player, 'currentPiece']
@@ -61,7 +73,8 @@ export function movePiece(state, action) {
     let boardUpdateFunc = (oldBoard) => {
       return putPieceOnBoard(oldBoard, state.getIn(currentPiecePath))
     }
-    return newState.updateIn(boardPath, boardUpdateFunc)
+    newState = newState.updateIn(boardPath, boardUpdateFunc)
+    return checkForFullLine(newState, action.player)
   } else {
     return state
   }
@@ -141,42 +154,3 @@ export const INITIAL_STATE = Immutable.fromJS({
     },
   },
 });
-
-
-
-// export function setEntries(state, entries) {
-//   return state.set('entries', List(entries));
-// }
-//
-// export function next(state) {
-//   const entries = state.get('entries').concat(getWinners(state.get('vote')));
-//   if (entries.size === 1) {
-//     return state.remove('vote')
-//                 .remove('entries')
-//                 .set('winner', entries.first());
-//   }
-//   else {
-//     return state.merge({
-//       vote: Map({pair: entries.take(2)}),
-//       entries: entries.skip(2)
-//     });
-//   }
-// }
-//
-// export function vote(voteState, entry) {
-//   return voteState.updateIn(
-//     ['tally', entry],
-//     0,
-//     tally => tally + 1
-//   );
-// }
-//
-// function getWinners(vote) {
-//   if (!vote) return [];
-//   const [a, b] = vote.get('pair');
-//   const aVotes = vote.getIn(['tally', a], 0);
-//   const bVotes = vote.getIn(['tally', b], 0);
-//   if      (aVotes > bVotes)  return [a];
-//   else if (aVotes < bVotes)  return [b];
-//   else                       return [a, b];
-// }
