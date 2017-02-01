@@ -19,8 +19,8 @@ function subtractFromSize(positions, size) {
 function createPositions(initialPositions, size) {
   return [
     initialPositions,
-    switchRowsCols(subtractFromSize(initialPositions, size)),
     subtractFromSize(initialPositions, size),
+    switchRowsCols(subtractFromSize(initialPositions, size)),
     switchRowsCols(initialPositions),
   ]
 }

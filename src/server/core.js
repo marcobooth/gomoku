@@ -10,8 +10,8 @@ export function addMessage(state, message) {
   });
 }
 
-export function nextPiece(state, action) {
-  let currentPieceIndexPath = ['clients', action.player, 'currentPieceIndex']
+function nextPiece(state, player) {
+  let currentPieceIndexPath = ['clients', player, 'currentPieceIndex']
   state = state.updateIn(currentPieceIndexPath, cp => cp + 1)
   let numberOfPieces = state.getIn(['game', 'pieces']).count();
   let currentPieceIndex = state.getIn(currentPieceIndexPath)
@@ -33,12 +33,13 @@ export function nextPiece(state, action) {
     // console.log("state.getIn(['game', 'pieces']:", state.getIn(['game', 'pieces']))
   }
   let currentPiece = state.getIn(['game', 'pieces', currentPieceIndex])
-  return state.setIn(['clients', action.player, 'currentPiece'], currentPiece)
+  return state.setIn(['clients', player, 'currentPiece'], currentPiece)
 }
 
 export function checkForFullLine(state, player) {
   let board = state.getIn(['clients', player, 'board']).toJS()
   board.forEach(function (row, index) {
+    console.log("row:", row);
     if (!row.includes(null)) {
       state = state.deleteIn(['clients', player, 'board', index])
       let boardToChange = state.getIn(['clients', player, 'board']).unshift(List([null, null, null, null, null, null, null, null, null, null]))
@@ -48,33 +49,33 @@ export function checkForFullLine(state, player) {
   return state
 }
 
-export function movePiece(state, action) {
+export function movePiece(state, player, direction) {
   let potentialState
-  let currentPiecePath = ['clients', action.player, 'currentPiece']
+  let currentPiecePath = ['clients', player, 'currentPiece']
 
-  if (action.direction === 'left') {
+  if (direction === 'left') {
     potentialState = state.updateIn(currentPiecePath.concat(['col']), col => col - 1)
-  } else if (action.direction === 'right') {
+  } else if (direction === 'right') {
     potentialState = state.updateIn(currentPiecePath.concat(['col']), col => col + 1)
-  } else if (action.direction === 'down') {
+  } else if (direction === 'down') {
     potentialState = state.updateIn(currentPiecePath.concat(['row']), row => row + 1)
   } else {
     return state
   }
 
-  let boardPath = ['clients', action.player, 'board'];
+  let boardPath = ['clients', player, 'board'];
   let potentialBoard = potentialState.getIn(boardPath)
   let newBoard = putPieceOnBoard(potentialBoard, potentialState.getIn(currentPiecePath))
 
   if (newBoard) {
     return potentialState
-  } else if (action.direction === "down") {
-    var newState = nextPiece(state, action);
+  } else if (direction === "down") {
+    var newState = nextPiece(state, player);
     let boardUpdateFunc = (oldBoard) => {
       return putPieceOnBoard(oldBoard, state.getIn(currentPiecePath))
     }
     newState = newState.updateIn(boardPath, boardUpdateFunc)
-    return checkForFullLine(newState, action.player)
+    return checkForFullLine(newState, player)
   } else {
     return state
   }
@@ -95,7 +96,28 @@ export function endGame(state, action) {
   return state;
 }
 
+export function rotatePiece(state, action) {
+  return state.updateIn(["clients", "tfleming", "currentPiece", "rotation"], rotation => {
+    let newRotation = rotation + 1;
 
+    if (newRotation > 3) {
+      newRotation = 0;
+    }
+
+    return newRotation;
+  });
+}
+
+export function placePiece(state, player) {
+  let currPiecePath = ["clients", "tfleming", "currentPieceIndex"];
+  let startIndex = state.getIn(currPiecePath);
+
+  while (state.getIn(currPiecePath) === startIndex) {
+    state = movePiece(state, player, "down");
+  }
+
+  return state;
+}
 
 export const INITIAL_STATE = Immutable.fromJS({
   "messages": [
@@ -108,7 +130,7 @@ export const INITIAL_STATE = Immutable.fromJS({
   "game": {
     "pieces": [
       {
-        "type": "long-straight",
+        "type": "left-l",
         "rotation": 0,
         "row": 4,
         "col": 0,
@@ -122,7 +144,7 @@ export const INITIAL_STATE = Immutable.fromJS({
   "clients": {
     "tfleming": {
       "currentPiece": {
-        "type": "long-straight",
+        "type": "left-l",
         "rotation": 0,
         "row": 4,
         "col": 0,

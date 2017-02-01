@@ -57,5 +57,25 @@ export const movePiece = (direction) => {
   }
 }
 
+export const ROTATE_PIECE = 'ROTATE_PIECE'
+
+export const rotatePiece = (direction) => {
+  return {
+    meta: { remote: true },
+    type: ROTATE_PIECE,
+    player: 'tfleming',
+  }
+}
+
+export const PLACE_PIECE = 'PLACE_PIECE'
+
+export const placePiece = (direction) => {
+  return {
+    meta: { remote: true },
+    type: PLACE_PIECE,
+    player: 'tfleming',
+  }
+}
+
 // start game
 // move(right, left, down)
