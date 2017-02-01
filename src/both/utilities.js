@@ -12,7 +12,7 @@ import _ from 'underscore'
 export const putPieceOnBoard = (board, piece) => {
   let pieceInfo = _.findWhere(pieces, { type: piece.get("type") })
   let pieceLocations = pieceInfo.positions[piece.get('rotation')]
-
+  console.log("piece:", piece);
   console.log("pieceLocations:", pieceLocations);
 
   for (let {row, col} of pieceLocations) {
@@ -29,15 +29,19 @@ export const putPieceOnBoard = (board, piece) => {
       return false
     }
 
-    // check if it's already filled
-    // (do this after checking if it's outside the board so it doesn't break)
-    if (board.getIn([fillRow, fillCol])) {
-      console.log("board.getIn([fillRow, fillCol]):", board.getIn([fillRow, fillCol]));
-      console.log("hitting something");
-      return false
-    }
+    // only set the color if it's on the board
+    // (otherwise Immutable loops back to the bottom of the board)
+    if (fillRow >= 0) {
+      // check if it's already filled
+      // (do this after checking if it's outside the board so it doesn't break)
+      if (board.getIn([fillRow, fillCol])) {
+        // console.log("board.getIn([fillRow, fillCol]):", board.getIn([fillRow, fillCol]));
+        // console.log("hitting something");
+        return false
+      }
 
-    board = board.setIn([fillRow, fillCol], pieceInfo.color)
+      board = board.setIn([fillRow, fillCol], pieceInfo.color)
+    }
   }
 
   return board

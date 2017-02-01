@@ -1,6 +1,7 @@
 import Immutable from 'immutable';
 import {List, Map} from 'immutable';
 import {putPieceOnBoard} from '../both/utilities'
+import pieces from '../both/pieces'
 
 export function addMessage(state, message) {
   return state.updateIn(['messages'], arr => {
@@ -9,17 +10,30 @@ export function addMessage(state, message) {
   });
 }
 
-export function addPiece(state, action) {
-  var numberOfPieces = state.getIn(['game', 'pieces']).count();
-  if (numberOfPieces <= state.getIn(['clients', action.player, 'currentPieceIndex'])) {
-    var randomNumber = Math.floor((Math.random() * 7));
-    var listOfPieces = state.get('pieces');
-    var randomPiece = listOfPieces.toArray()[randomNumber];
-    return state.updateIn(['game', 'pieces'], pieces => {
-      return pieces.concat([randomPiece])
+export function nextPiece(state, action) {
+  let currentPieceIndexPath = ['clients', action.player, 'currentPieceIndex']
+  state = state.updateIn(currentPieceIndexPath, cp => cp + 1)
+  let numberOfPieces = state.getIn(['game', 'pieces']).count();
+  let currentPieceIndex = state.getIn(currentPieceIndexPath)
+  if (numberOfPieces <= currentPieceIndex) {
+    let randomNumber = Math.floor((Math.random() * 7));
+    let listOfPieces = state.get('pieces');
+    let randomPiece = pieces[randomNumber];
+
+    // console.log("randomPiece:", randomPiece);
+    state = state.updateIn(['game', 'pieces'], pieces => {
+      return pieces.concat([Map({
+        type: randomPiece.type,
+        rotation: Math.floor((Math.random() * 4)),
+        row: -(randomPiece.size),
+        col: Math.floor((Math.random() * (10 - randomPiece.size))),
+      })])
     })
+
+    // console.log("state.getIn(['game', 'pieces']:", state.getIn(['game', 'pieces']))
   }
-  return state;
+  let currentPiece = state.getIn(['game', 'pieces', currentPieceIndex])
+  return state.setIn(['clients', action.player, 'currentPiece'], currentPiece)
 }
 
 export function movePiece(state, action) {
@@ -41,16 +55,14 @@ export function movePiece(state, action) {
   let newBoard = putPieceOnBoard(potentialBoard, potentialState.getIn(currentPiecePath))
 
   if (newBoard) {
-    console.log("here");
     return potentialState
   } else if (action.direction === "down") {
-    console.log("or here");
+    var newState = nextPiece(state, action);
     let boardUpdateFunc = (oldBoard) => {
       return putPieceOnBoard(oldBoard, state.getIn(currentPiecePath))
     }
-    return state.updateIn(boardPath, boardUpdateFunc)
+    return newState.updateIn(boardPath, boardUpdateFunc)
   } else {
-    console.log("maybe here");
     return state
   }
 }
@@ -85,7 +97,7 @@ export const INITIAL_STATE = Immutable.fromJS({
       {
         "type": "long-straight",
         "rotation": 0,
-        "row": -4,
+        "row": 4,
         "col": 0,
       },
     ],
