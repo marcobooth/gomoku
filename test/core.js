@@ -5,15 +5,15 @@ import { EXAMPLE_STATE } from './stateExample'
 import { checkForFullLine } from '../src/server/core'
 
 
-describe('piece that is not in board area', () => {
-  it('outside right', () => {
-    const board = Immutable.fromJS(
+describe('full line removal', () => {
+  it('multiple lines', () => {
+    const emptyBoard = Immutable.fromJS(
     [
       [null, null, null, null, null, null, null, null, null, null],
       [null, null, null, null, null, null, null, null, null, null],
     ]);
     const nextState = checkForFullLine(EXAMPLE_STATE, 'tfleming');
     let newBoard = nextState.getIn(['clients', 'tfleming', 'board'])
-    expect(newBoard).to.equal(board);
+    expect(newBoard).to.equal(emptyBoard);
   });
 });

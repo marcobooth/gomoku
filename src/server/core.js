@@ -39,8 +39,7 @@ function nextPiece(state, player) {
 export function checkForFullLine(state, player) {
   let board = state.getIn(['clients', player, 'board']).toJS()
   board.forEach(function (row, index) {
-    console.log("row:", row);
-    if (!row.includes(null)) {
+    if (row.indexOf(null) === -1) {
       state = state.deleteIn(['clients', player, 'board', index])
       let boardToChange = state.getIn(['clients', player, 'board']).unshift(List([null, null, null, null, null, null, null, null, null, null]))
       state = state.setIn(['clients', player, 'board'], boardToChange)

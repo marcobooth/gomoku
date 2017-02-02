@@ -1,11 +1,118 @@
-import makeStore from './store';
-import startServer from './server';
+import Server from 'socket.io';
+import {createStore} from 'redux';
+import reducer from './reducer';
 
-export const store = makeStore();
-startServer(store);
+export default function startServer(store) {
+  const io = new Server().attach(8090);
 
-// store.dispatch({
-//   type: 'SET_ENTRIES',
-//   entries: require('./entries.json')
-// });
-// store.dispatch({type: 'NEXT'});
+  store.subscribe(
+    () => {
+      // console.log("new state:", store.getState().toJS().messages)
+      io.emit('state', store.getState().toJS())
+    }
+  );
+
+  io.on('connection', (socket) => {
+    console.log("on connection");
+    socket.emit('state', store.getState().toJS());
+    socket.on('action', store.dispatch.bind(store));
+  });
+}
+
+// startServer(createStore(reducer));
+
+
+
+
+
+import fs  from 'fs'
+import debug from 'debug'
+
+const logerror = debug('tetris:error')
+  , loginfo = debug('tetris:info')
+
+const initApp = (app, params, cb) => {
+  const {host, port} = params
+  const handler = (req, res) => {
+    console.log("help me");
+    const file = req.url === '/bundle.js' ? '/../../build/bundle.js' : '/../../index.html'
+    fs.readFile(__dirname + file, (err, data) => {
+      if (err) {
+        logerror(err)
+        res.writeHead(500)
+        return res.end('Error loading index.html')
+      }
+      res.writeHead(200)
+      res.end(data)
+    })
+  }
+
+  app.on('request', handler)
+
+  app.get('*', (request, response) => {
+    console.log("hi");
+  })
+
+  app.listen({host, port}, () =>{
+    console.log("hi");
+
+    console.log("params.url:", params.url);
+    loginfo(`tetris listen on ${params.url}`)
+    cb()
+  })
+}
+
+const initEngine = io => {
+  let store = createStore(reducer);
+
+  store.subscribe(
+    () => {
+      // console.log("new state:", store.getState().toJS().messages)
+      io.emit('state', store.getState().toJS())
+    }
+  );
+
+  io.on('connection', (socket) => {
+    loginfo("Socket connected: " + socket.id)
+
+    socket.emit('state', store.getState().toJS());
+    socket.on('action', store.dispatch.bind(store));
+  });
+
+  // io.on('connection', function(socket){
+  //   loginfo("Socket connected: " + socket.id)
+  //   socket.on('action', (action) => {
+  //     if(action.type === 'server/ping'){
+  //       socket.emit('action', {type: 'pong'})
+  //     }
+  //   })
+  // })
+}
+
+export function create(params){
+  return new Promise( (resolve, reject) => {
+    const app = require('http').createServer()
+
+    initApp(app, params, () =>{
+      console.log("init");
+      const io = require('socket.io')(app)
+      const stop = (cb) => {
+        io.close()
+        app.close( () => {
+          app.unref()
+        })
+        loginfo(`Engine stopped.`)
+        cb()
+      }
+
+      initEngine(io)
+      resolve({stop})
+    })
+  })
+}
+
+create({
+  host: '0.0.0.0',
+  port: 8090,
+  get url(){ return 'http://' + this.host + ':' + this.port }
+}).then( () => console.log('not yet ready to play tetris with U ...') )

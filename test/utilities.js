@@ -122,33 +122,33 @@ describe('placing on board', () => {
     });
   });
 
-  describe('piece placed successfully', () => {
-    it('in the middle', () => {
-      const piece = Immutable.Map(
-      {
-        "type": "long-straight",
-        "color": "YO",
-        "rotation": 0,
-        "row": 1,
-        "col": 1,
-      });
-      const nextState = putPieceOnBoard(fullishBoard, piece);
-
-      // newly generated board
-      expect(nextState).to.not.equal(false);
-
-      // but some of it is the same!
-      expect(nextState.get(0)).to.equal(fullishBoard.get(0))
-      expect(nextState.get(1)).to.equal(fullishBoard.get(1))
-      expect(nextState.get(2)).to.not.equal(fullishBoard.get(2))
-      expect(nextState.get(3)).to.equal(fullishBoard.get(3))
-      expect(nextState.get(4)).to.equal(fullishBoard.get(4))
-      expect(nextState.get(5)).to.equal(fullishBoard.get(5))
-
-      // the row that changed should be all good
-      expect(_.isEqual([null, "YO", "YO", "YO", "YO"], nextState.get(2).toJS())).to.equal(true)
-    });
-  });
+  // describe('piece placed successfully', () => {
+  //   it('in the middle', () => {
+  //     const piece = Immutable.Map(
+  //     {
+  //       "type": "long-straight",
+  //       "color": "YO",
+  //       "rotation": 0,
+  //       "row": 1,
+  //       "col": 1,
+  //     });
+  //     const nextState = putPieceOnBoard(fullishBoard, piece);
+  //
+  //     // newly generated board
+  //     expect(nextState).to.not.equal(false);
+  //
+  //     // but some of it is the same!
+  //     expect(nextState.get(0)).to.equal(fullishBoard.get(0))
+  //     expect(nextState.get(1)).to.equal(fullishBoard.get(1))
+  //     expect(nextState.get(2)).to.not.equal(fullishBoard.get(2))
+  //     expect(nextState.get(3)).to.equal(fullishBoard.get(3))
+  //     expect(nextState.get(4)).to.equal(fullishBoard.get(4))
+  //     expect(nextState.get(5)).to.equal(fullishBoard.get(5))
+  //
+  //     // the row that changed should be all good
+  //     expect(_.isEqual([null, "YO", "YO", "YO", "YO"], nextState.get(2).toJS())).to.equal(true)
+  //   });
+  // });
 
 //   describe('vote', () => {
 //     it('creates a tally for the voted entry', () => {
