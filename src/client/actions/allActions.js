@@ -1,9 +1,11 @@
 export const ADD_MESSAGE = 'ADD_MESSAGE'
 
-export const addMessage = (message) => {
+export const addMessage = (roomName, username, message) => {
   return {
     meta: { remote: true },
     type: ADD_MESSAGE,
+    roomName,
+    username,
     message
   }
 }
@@ -19,63 +21,66 @@ export const setState = (state) => {
 
 export const JOIN_GAME = 'JOIN_GAME'
 
-export const joinGame = () => {
+export const joinGame = (roomName, username) => {
   return {
+    meta: { remote: true },
     type: JOIN_GAME,
+    roomName,
+    username,
   }
 }
 
 export const START_GAME = 'START_GAME'
 
-export const startGame = () => {
+export const startGame = (roomName, username) => {
   return {
     meta: { remote: true },
-    roomName: '42',
-    player: 'tfleming',
     type: START_GAME,
+    roomName,
+    username,
   }
 }
 
-export const END_GAME = 'END_GAME'
-
-export const endGame = () => {
-  return {
-    meta: { remote: true },
-    roomName: '42',
-    type: END_GAME,
-  }
-}
+// export const END_GAME = 'END_GAME'
+//
+// export const endGame = () => {
+//   return {
+//     meta: { remote: true },
+//     roomName: '42',
+//     type: END_GAME,
+//   }
+// }
 
 export const MOVE_PIECE = 'MOVE_PIECE'
 
-export const movePiece = (direction) => {
+export const movePiece = (roomName, username, direction) => {
   return {
     meta: { remote: true },
     type: MOVE_PIECE,
-    player: 'tfleming',
+    roomName,
+    username,
     direction
   }
 }
 
 export const ROTATE_PIECE = 'ROTATE_PIECE'
 
-export const rotatePiece = (direction) => {
+export const rotatePiece = (roomName, username, direction) => {
   return {
     meta: { remote: true },
     type: ROTATE_PIECE,
-    player: 'tfleming',
+    roomName,
+    username,
   }
 }
 
 export const PLACE_PIECE = 'PLACE_PIECE'
 
-export const placePiece = (direction) => {
+export const placePiece = (roomName, username) => {
   return {
     meta: { remote: true },
     type: PLACE_PIECE,
-    player: 'tfleming',
+    roomName,
+    username,
   }
 }
-
-// start game
-// move(right, left, down)

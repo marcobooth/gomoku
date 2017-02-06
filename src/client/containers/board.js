@@ -7,27 +7,33 @@ import {
   rotatePiece,
   movePiece,
   placePiece,
+  joinGame
 } from "../actions/allActions"
 
 export const Board = React.createClass({
   mixins: [PureRenderMixin],
 
   handleKeys(event) {
+    let { roomName, username } = this.props.params
+
     if (event.key === 'ArrowUp') {
-      this.props.dispatch(rotatePiece())
+      this.props.dispatch(rotatePiece(roomName, username))
     } else if (event.key === 'ArrowDown') {
-      this.props.dispatch(movePiece("down"))
+      this.props.dispatch(movePiece(roomName, username, "down"))
     } else if (event.key === 'ArrowRight') {
-      this.props.dispatch(movePiece("right"))
+      this.props.dispatch(movePiece(roomName, username, "right"))
     } else if (event.key === 'ArrowLeft') {
-      this.props.dispatch(movePiece("left"))
+      this.props.dispatch(movePiece(roomName, username, "left"))
     } else if (event.key === ' ') {
-      this.props.dispatch(placePiece())
+      this.props.dispatch(placePiece(roomName, username))
     }
   },
 
   componentWillMount() {
     document.addEventListener("keydown", this.handleKeys, false);
+
+    let { roomName, username } = this.props.params
+    this.props.dispatch(joinGame(roomName, username))
   },
   componentWillUnmount() {
     document.removeEventListener("keydown", this.handleKeys, false);

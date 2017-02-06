@@ -1,6 +1,6 @@
 import React from 'react'
 import ReactDom from 'react-dom'
-import {Router, Route, browserHistory} from 'react-router';
+import {Router, Route, hashHistory} from 'react-router';
 import { createStore, applyMiddleware } from 'redux'
 import { Provider } from 'react-redux'
 import io from 'socket.io-client';
@@ -22,12 +22,13 @@ const createStoreWithMiddleware = applyMiddleware(
 )(createStore);
 const store = createStoreWithMiddleware(reducer);
 
+// TODO: invalid routes
 const routes = <Route component={App}>
-  <Route path="/asdf" component={BoardContainer} />
+  <Route path="/:roomName/:username" component={BoardContainer} />
 </Route>;
 
 ReactDom.render((
   <Provider store={store}>
-    <Router history={browserHistory}>{routes}</Router>
+    <Router history={hashHistory}>{routes}</Router>
   </Provider>
 ), document.getElementById('tetris'))

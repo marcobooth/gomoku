@@ -2,6 +2,7 @@ import Immutable from 'immutable';
 import {List, Map} from 'immutable';
 import {putPieceOnBoard} from '../both/utilities'
 import pieces from '../both/pieces'
+import {NEW_GAME, NEW_CLIENT} from './defaultStates'
 
 export function addMessage(state, message) {
   return state.updateIn(['messages'], arr => {
@@ -80,20 +81,40 @@ export function movePiece(state, player, direction) {
   }
 }
 
-export function createGame(state, action) {
-  if (state.getIn(['game', 'alreadyStarted']) === false || state.getIn(['game', 'winner']) === true) {
-    var newGame = Map ({ "pieces": List(), "masterUsername": action.player, "alreadyStarted": true, "winner": false });
-    return state.updateIn(['game'], currentGame => newGame);
+export function joinGame(state, socketId, roomName, username) {
+  if (!state.get(roomName)) {
+    return state.set(roomName, NEW_GAME)
+        .setIn([roomName, 'clients', username], NEW_CLIENT)
+        .setIn([roomName, 'game', 'masterUsername'], username)
+  } else if (!state.getIn([roomName, 'clients', username])) {
+    return state.setIn([roomName, 'clients', username], NEW_CLIENT)
+  } else {
+    console.log("multiplayer or a problem. TODO: store sockets per client");
   }
+
   return state;
 }
 
-export function endGame(state, action) {
-  if (state.getIn(['game', 'alreadyStarted']) === true && state.getIn(['game', 'winner']) === false) {
-    return state.updateIn(['game', 'winner'], winnerValue => true);
+export function leaveGame(state, roomName, username) {
+  if (!state.get(roomName)) {
+    return state.set(roomName, NEW_GAME)
+        .setIn([roomName, 'clients', username], NEW_CLIENT)
+        .setIn([roomName, 'game', 'masterUsername'], username)
+  } else if (!state.getIn([roomName, 'clients', username])) {
+    return state.setIn([roomName, 'clients', username], NEW_CLIENT)
+  } else {
+    console.log("multiplayer or a problem. TODO: store sockets per client");
   }
+
   return state;
 }
+
+// export function endGame(state, action) {
+//   if (state.getIn(['game', 'alreadyStarted']) === true && state.getIn(['game', 'winner']) === false) {
+//     return state.updateIn(['game', 'winner'], winnerValue => true);
+//   }
+//   return state;
+// }
 
 export function rotatePiece(state, action) {
   return state.updateIn(["clients", "tfleming", "currentPiece", "rotation"], rotation => {
@@ -119,59 +140,64 @@ export function placePiece(state, player) {
 }
 
 export const INITIAL_STATE = Immutable.fromJS({
-  "messages": [
-    {
-      "username": "tfleming",
-      "message": "Hello world!",
-      "dateCreated": new Date(),
-    },
-  ],
-  "game": {
-    "pieces": [
-      {
-        "type": "left-l",
-        "rotation": 0,
-        "row": 4,
-        "col": 0,
-      },
-    ],
-    "masterUsername": "",
-    "alreadyStarted": false,
-    "winner": false,
-    // "roomName": "42",
-  },
-  "clients": {
-    "tfleming": {
-      "currentPiece": {
-        "type": "left-l",
-        "rotation": 0,
-        "row": 4,
-        "col": 0,
-      },
-      "currentPieceIndex": 0,
-      "board": [
-        [ null, null, null, null, null, null, null, null, null, null ],
-        [ null, null, null, null, null, null, null, null, null, null ],
-        [ null, null, null, null, null, null, null, null, null, null ],
-        [ null, null, null, null, null, null, null, null, null, null ],
-        [ null, null, null, null, null, null, null, null, null, null ],
-        [ null, null, null, null, null, null, null, null, null, null ],
-        [ null, null, null, null, null, null, null, null, null, null ],
-        [ null, null, null, null, null, null, null, null, null, null ],
-        [ null, null, null, null, null, null, null, null, null, null ],
-        [ null, null, null, null, null, null, null, null, null, null ],
-        [ null, null, null, null, null, null, null, null, null, null ],
-        [ null, null, null, null, null, null, null, null, null, null ],
-        [ null, null, null, null, null, null, null, null, null, null ],
-        [ null, null, null, null, null, null, null, null, null, null ],
-        [ null, null, null, null, null, null, null, null, null, null ],
-        [ null, null, null, null, null, null, null, null, null, null ],
-        [ null, null, null, null, null, null, null, null, null, null ],
-        [ null, null, null, null, null, null, null, null, null, null ],
-        [ null, null, null, null, null, null, null, null, null, null ],
-        [ null, null, null, null, null, null, null, null, null, null ],
-      ],
-      "winnerState": "winner/loser",
-    },
-  },
+  // "sockets": {
+  //   "asdklfjsoifj": { "roomName": "42", "username": "3ldsjkf" }
+  // }
+  // "42": {
+    // "messages": [
+    //   {
+    //     "username": "tfleming",
+    //     "message": "Hello world!",
+    //     "dateCreated": new Date(),
+    //   },
+    // ],
+    // "game": {
+    //   "pieces": [
+    //     {
+    //       "type": "left-l",
+    //       "rotation": 0,
+    //       "row": 4,
+    //       "col": 0,
+    //     },
+    //   ],
+    //   "masterUsername": "",
+    //   "alreadyStarted": false,
+    //   "winner": false,
+    //   // "roomName": "42",
+    // },
+    // "clients": {
+    //   "tfleming": {
+    //     "currentPiece": {
+    //       "type": "left-l",
+    //       "rotation": 0,
+    //       "row": 4,
+    //       "col": 0,
+    //     },
+    //     "currentPieceIndex": 0,
+    //     "board": [
+    //       [ null, null, null, null, null, null, null, null, null, null ],
+    //       [ null, null, null, null, null, null, null, null, null, null ],
+    //       [ null, null, null, null, null, null, null, null, null, null ],
+    //       [ null, null, null, null, null, null, null, null, null, null ],
+    //       [ null, null, null, null, null, null, null, null, null, null ],
+    //       [ null, null, null, null, null, null, null, null, null, null ],
+    //       [ null, null, null, null, null, null, null, null, null, null ],
+    //       [ null, null, null, null, null, null, null, null, null, null ],
+    //       [ null, null, null, null, null, null, null, null, null, null ],
+    //       [ null, null, null, null, null, null, null, null, null, null ],
+    //       [ null, null, null, null, null, null, null, null, null, null ],
+    //       [ null, null, null, null, null, null, null, null, null, null ],
+    //       [ null, null, null, null, null, null, null, null, null, null ],
+    //       [ null, null, null, null, null, null, null, null, null, null ],
+    //       [ null, null, null, null, null, null, null, null, null, null ],
+    //       [ null, null, null, null, null, null, null, null, null, null ],
+    //       [ null, null, null, null, null, null, null, null, null, null ],
+    //       [ null, null, null, null, null, null, null, null, null, null ],
+    //       [ null, null, null, null, null, null, null, null, null, null ],
+    //       [ null, null, null, null, null, null, null, null, null, null ],
+    //     ],
+    //     "winnerState": "winner/loser",
+    //   },
+    // },
+  // }
 });

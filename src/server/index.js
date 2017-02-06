@@ -13,9 +13,14 @@ export default function startServer(store) {
   );
 
   io.on('connection', (socket) => {
-    console.log("on connection");
+console.log("hi");
+
+    // set up the state and action bits to connect to the client
     socket.emit('state', store.getState().toJS());
     socket.on('action', store.dispatch.bind(store));
+
+    // join the game and set up what happens on disconnect
+
   });
 }
 
@@ -49,10 +54,6 @@ const initApp = (app, params, cb) => {
 
   app.on('request', handler)
 
-  app.get('*', (request, response) => {
-    console.log("hi");
-  })
-
   app.listen({host, port}, () =>{
     console.log("hi");
 
@@ -67,7 +68,7 @@ const initEngine = io => {
 
   store.subscribe(
     () => {
-      // console.log("new state:", store.getState().toJS().messages)
+      console.log("new state:", store.getState().toJS())
       io.emit('state', store.getState().toJS())
     }
   );
@@ -75,8 +76,12 @@ const initEngine = io => {
   io.on('connection', (socket) => {
     loginfo("Socket connected: " + socket.id)
 
+    // set up the state and action bits to connect to the client
     socket.emit('state', store.getState().toJS());
     socket.on('action', store.dispatch.bind(store));
+
+    // set up what happens on disconnect
+    socket.on('disconnect', function(){ console.log("TODO: leave game"); });
   });
 
   // io.on('connection', function(socket){
