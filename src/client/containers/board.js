@@ -1,7 +1,6 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import PureRenderMixin from 'react-addons-pure-render-mixin'
-import {BoardRow} from './boardRow'
 import {putPieceOnBoard} from '../../both/utilities'
 import {
   rotatePiece,
@@ -15,19 +14,24 @@ export const Board = React.createClass({
   mixins: [PureRenderMixin],
 
   handleKeys(event) {
-    let { params: {roomName, username}, masterUsername } = this.props
+    let {
+      params: {roomName, username},
+      masterUsername,
+      alreadyStarted,
+    } = this.props
 
-    if (event.key === 'ArrowUp') {
+    if (alreadyStarted && event.key === 'ArrowUp') {
       this.props.dispatch(rotatePiece(roomName, username))
-    } else if (event.key === 'ArrowDown') {
+    } else if (alreadyStarted && event.key === 'ArrowDown') {
       this.props.dispatch(movePiece(roomName, username, "down"))
-    } else if (event.key === 'ArrowRight') {
+    } else if (alreadyStarted && event.key === 'ArrowRight') {
       this.props.dispatch(movePiece(roomName, username, "right"))
-    } else if (event.key === 'ArrowLeft') {
+    } else if (alreadyStarted && event.key === 'ArrowLeft') {
       this.props.dispatch(movePiece(roomName, username, "left"))
-    } else if (event.key === ' ') {
+    } else if (alreadyStarted && event.key === ' ') {
       this.props.dispatch(placePiece(roomName, username))
-    } else if (event.key === 'Enter' && username === masterUsername) {
+    } else if (event.key === 'Enter' &&
+        username === masterUsername && !alreadyStarted) {
       this.props.dispatch(startGame(roomName, username))
     }
   },
