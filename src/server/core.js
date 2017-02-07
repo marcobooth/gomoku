@@ -2,7 +2,7 @@ import Immutable from 'immutable';
 import {List, Map} from 'immutable';
 import {NEW_GAME, NEW_CLIENT} from './defaultStates'
 // import {putPieceOnBoard} from '../both/utilities'
-// import pieces from '../both/pieces'
+import pieces from '../both/pieces'
 
 export function connected(state, socketId) {
   return state.setIn(['sockets', socketId], Immutable.fromJS({}))
@@ -24,6 +24,14 @@ export function joinGame(state, socketId, roomName, username) {
   }
 
   return state;
+}
+
+export function startGame(state, roomName) {
+  let players = state.getIn(['games', roomName, 'clients']).keySeq().toArray()
+  players.forEach( function (player) {
+    state = nextPiece(state, roomName, player)
+  })
+  return state.updateIn(['games', roomName, 'game', 'alreadyStarted'], value => { return true })
 }
 
 export function leaveGame(state, socketId) {
@@ -54,25 +62,26 @@ export function leaveGame(state, socketId) {
   return state.deleteIn(['sockets', socketId])
 }
 
-export function addMessage(state, message) {
-  return state.updateIn(['messages'], arr => {
-    arr.push(message)
-    return arr
+export function addMessage(state, roomName, username, message) {
+  return state.updateIn(['games', roomName, 'messages'], messages => {
+    return messages.push({
+      username,
+      message,
+      "dateCreated": new Date(),
+    })
   });
 }
 
-function nextPiece(state, player) {
-  let currentPieceIndexPath = ['clients', player, 'currentPieceIndex']
+function nextPiece(state, roomName, player) {
+  let currentPieceIndexPath = ['games', roomName, 'clients', player, 'currentPieceIndex']
   state = state.updateIn(currentPieceIndexPath, cp => cp + 1)
-  let numberOfPieces = state.getIn(['game', 'pieces']).count();
+  let numberOfPieces = state.getIn(['games', roomName, 'game', 'pieces']).count();
   let currentPieceIndex = state.getIn(currentPieceIndexPath)
   if (numberOfPieces <= currentPieceIndex) {
     let randomNumber = Math.floor((Math.random() * 7));
-    let listOfPieces = state.get('pieces');
     let randomPiece = pieces[randomNumber];
 
-    // console.log("randomPiece:", randomPiece);
-    state = state.updateIn(['game', 'pieces'], pieces => {
+    state = state.updateIn(['games', roomName, 'game', 'pieces'], pieces => {
       return pieces.concat([Map({
         type: randomPiece.type,
         rotation: Math.floor((Math.random() * 4)),
@@ -80,11 +89,9 @@ function nextPiece(state, player) {
         col: Math.floor((Math.random() * (10 - randomPiece.size))),
       })])
     })
-
-    // console.log("state.getIn(['game', 'pieces']:", state.getIn(['game', 'pieces']))
   }
-  let currentPiece = state.getIn(['game', 'pieces', currentPieceIndex])
-  return state.setIn(['clients', player, 'currentPiece'], currentPiece)
+  let currentPiece = state.getIn(['games', roomName, 'game', 'pieces', currentPieceIndex])
+  return state.setIn(['games', roomName, 'clients', player, 'currentPiece'], currentPiece)
 }
 
 export function checkForFullLine(state, player) {

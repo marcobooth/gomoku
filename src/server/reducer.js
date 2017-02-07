@@ -25,8 +25,8 @@ export default function reducer(state = INITIAL_STATE, action) {
       return joinGame(state, action.socketId, action.roomName, action.username)
     case 'LEAVE_GAME':
       return leaveGame(state, action.socketId)
-    // case 'START_GAME':
-    //   return createGame(state, action);
+    case 'START_GAME':
+      return startGame(state, action.roomName);
     // case 'END_GAME':
     //   return endGame(state, action);
   }
