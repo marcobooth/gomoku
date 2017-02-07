@@ -28,7 +28,7 @@ const store = createStoreWithMiddleware(reducer);
 
 // TODO: invalid routes
 const routes = <Route component={App}>
-  <Route path="/:roomName/:username" component={BoardContainer} />
+  <Route path="/:roomName[:username]" component={BoardContainer} />
   <Route path='/create' component={CreateGameContainer} />
   <Redirect from='*' to='/create' />
 </Route>

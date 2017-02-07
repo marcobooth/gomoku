@@ -36,7 +36,7 @@ const initEngine = io => {
   let store = createStore(reducer);
 
   store.subscribe(() => {
-    console.log("store.getState():", store.getState());
+    console.log("STATE:", store.getState());
     io.emit('state', store.getState().toJS())
   });
 
