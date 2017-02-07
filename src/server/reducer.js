@@ -16,9 +16,9 @@ export default function reducer(state = INITIAL_STATE, action) {
     case 'MOVE_PIECE':
       return movePiece(state, action.roomName, action.username, action.direction)
     case 'ROTATE_PIECE':
-      return rotatePiece(state, action)
+      return rotatePiece(state, action.roomName, action.username)
     case 'PLACE_PIECE':
-      return placePiece(state, action.username)
+      return placePiece(state, action.roomName, action.username)
     case 'JOIN_GAME':
       return joinGame(state, action.socketId, action.roomName, action.username)
     case 'LEAVE_GAME':

@@ -28,8 +28,8 @@ export function joinGame(state, socketId, roomName, username) {
 
 export function startGame(state, roomName) {
   let players = state.getIn(['games', roomName, 'clients']).keySeq().toArray()
-  players.forEach( function (player) {
-    state = nextPiece(state, roomName, player)
+  players.forEach( function (username) {
+    state = nextPiece(state, roomName, username)
   })
   return state.updateIn(['games', roomName, 'game', 'alreadyStarted'], value => { return true })
 }
@@ -72,13 +72,13 @@ export function addMessage(state, roomName, username, message) {
   });
 }
 
-export function nextPiece(state, roomName, player) {
-  let currentPieceIndexPath = ['games', roomName, 'clients', player, 'currentPieceIndex']
+export function nextPiece(state, roomName, username) {
+  let currentPieceIndexPath = ['games', roomName, 'clients', username, 'currentPieceIndex']
   state = state.updateIn(currentPieceIndexPath, cp => cp + 1)
   let numberOfPieces = state.getIn(['games', roomName, 'game', 'pieces']).count();
   let currentPieceIndex = state.getIn(currentPieceIndexPath)
   if (numberOfPieces <= currentPieceIndex) {
-    let randomNumber = Math.floor((Math.random() * 7));
+    let randomNumber = Math.floor((Math.random() * pieces.length));
     let randomPiece = pieces[randomNumber];
 
     state = state.updateIn(['games', roomName, 'game', 'pieces'], pieces => {
@@ -91,25 +91,25 @@ export function nextPiece(state, roomName, player) {
     })
   }
   let currentPiece = state.getIn(['games', roomName, 'game', 'pieces', currentPieceIndex])
-  return state.setIn(['games', roomName, 'clients', player, 'currentPiece'], currentPiece)
+  return state.setIn(['games', roomName, 'clients', username, 'currentPiece'], currentPiece)
 }
 
-export function checkForFullLine(state, roomName, player) {
-  let board = state.getIn(['games', roomName, 'clients', player, 'board']).toJS()
+export function checkForFullLine(state, roomName, username) {
+  let board = state.getIn(['games', roomName, 'clients', username, 'board']).toJS()
   board.forEach(function (row, index) {
     if (row.indexOf(null) === -1) {
-      state = state.deleteIn(['games', roomName, 'clients', player, 'board', index])
-      let boardToChange = state.getIn(['games', roomName, 'clients', player, 'board']).unshift(List([null, null, null, null, null, null, null, null, null, null]))
-      state = state.setIn(['games', roomName, 'clients', player, 'board'], boardToChange)
+      state = state.deleteIn(['games', roomName, 'clients', username, 'board', index])
+      let boardToChange = state.getIn(['games', roomName, 'clients', username, 'board'])
+          .unshift(List([null, null, null, null, null, null, null, null, null, null]))
+      state = state.setIn(['games', roomName, 'clients', username, 'board'], boardToChange)
     }
   })
   return state
 }
 
-export function movePiece(state, roomName, player, direction) {
+export function movePiece(state, roomName, username, direction) {
   let potentialState
-  let currentPiecePath = ['games', roomName, 'clients', player, 'currentPiece']
-  console.log("currentPiecePath:", currentPiecePath);
+  let currentPiecePath = ['games', roomName, 'clients', username, 'currentPiece']
 
   if (direction === 'left') {
     potentialState = state.updateIn(currentPiecePath.concat(['col']), col => col - 1)
@@ -118,31 +118,29 @@ export function movePiece(state, roomName, player, direction) {
   } else if (direction === 'down') {
     potentialState = state.updateIn(currentPiecePath.concat(['row']), row => row + 1)
   } else {
-    console.log("invalid direction");
     return state
   }
 
-  let boardPath = ['games', roomName, 'clients', player, 'board'];
+  let boardPath = ['games', roomName, 'clients', username, 'board'];
   let potentialBoard = potentialState.getIn(boardPath)
-  console.log("potentialState.getIn(currentPiecePath):", potentialState.getIn(currentPiecePath).toJS());
   let newBoard = putPieceOnBoard(potentialBoard, potentialState.getIn(currentPiecePath))
 
   if (newBoard) {
     return potentialState
   } else if (direction === "down") {
-    var newState = nextPiece(state, roomName, player);
+    var newState = nextPiece(state, roomName, username);
     let boardUpdateFunc = (oldBoard) => {
       return putPieceOnBoard(oldBoard, state.getIn(currentPiecePath))
     }
     newState = newState.updateIn(boardPath, boardUpdateFunc)
-    return checkForFullLine(newState, roomName, player)
+    return checkForFullLine(newState, roomName, username)
   } else {
     return state
   }
 }
 
-export function rotatePiece(state, roomName, player) {
-  return state.updateIn(["games", roomName, "clients", player, "currentPiece", "rotation"], rotation => {
+export function rotatePiece(state, roomName, username) {
+  return state.updateIn(["games", roomName, "clients", username, "currentPiece", "rotation"], rotation => {
     let newRotation = rotation + 1;
 
     if (newRotation > 3) {
@@ -153,12 +151,12 @@ export function rotatePiece(state, roomName, player) {
   });
 }
 
-export function placePiece(state, roomName, player) {
-  let currPiecePath = ["games", roomName, "clients", player, "currentPieceIndex"];
+export function placePiece(state, roomName, username) {
+  let currPiecePath = ["games", roomName, "clients", username, "currentPieceIndex"];
   let startIndex = state.getIn(currPiecePath);
 
   while (state.getIn(currPiecePath) === startIndex) {
-    state = movePiece(state, roomName, player, "down");
+    state = movePiece(state, roomName, username, "down");
   }
   return state;
 }
