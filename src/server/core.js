@@ -27,8 +27,6 @@ export function joinGame(state, socketId, roomName, username) {
 }
 
 export function leaveGame(state, socketId) {
-  console.log("leaveGame running");
-
   let socketInfo = state.getIn(['sockets', socketId])
   if (!socketInfo) {
     return state;

@@ -27,9 +27,6 @@ const initApp = (app, params, cb) => {
   app.on('request', handler)
 
   app.listen({host, port}, () =>{
-    console.log("hi");
-
-    console.log("params.url:", params.url);
     loginfo(`tetris listen on ${params.url}`)
     cb()
   })
