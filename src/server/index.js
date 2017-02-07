@@ -1,7 +1,6 @@
 import Server from 'socket.io';
 import {createStore} from 'redux';
 import reducer from './reducer';
-import {leaveGame, connected} from './core'
 
 import fs  from 'fs'
 import debug from 'debug'
@@ -39,12 +38,12 @@ const initApp = (app, params, cb) => {
 const initEngine = io => {
   let store = createStore(reducer);
 
-  store.subscribe(
-    () => {
-      console.log("new state:", store.getState().toJS())
-      io.emit('state', store.getState().toJS())
-    }
-  );
+  store.subscribe(() => {
+    console.log("store:", store);
+    console.log("store.getState():", store.getState());
+    console.log("new state:", store.getState().toJS())
+    io.emit('state', store.getState().toJS())
+  });
 
   io.on('connection', (socket) => {
     loginfo("Socket connected: " + socket.id)
@@ -77,7 +76,6 @@ export function create(params){
     const app = require('http').createServer()
 
     initApp(app, params, () => {
-      console.log("init");
       const io = require('socket.io')(app)
       const stop = (cb) => {
         io.close()

@@ -27,11 +27,13 @@ export function joinGame(state, socketId, roomName, username) {
 }
 
 export function leaveGame(state, socketId) {
-  let socketInfo = state.getIn(['sockets', socketId])
+  console.log("leaveGame running");
 
+  let socketInfo = state.getIn(['sockets', socketId])
   if (!socketInfo) {
-    return;
+    return state;
   }
+
   let { roomName, username } = socketInfo.toJS()
 
   if (state.getIn(['games', roomName, 'clients']).size > 1) {
