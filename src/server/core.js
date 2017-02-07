@@ -62,10 +62,13 @@ export function leaveGame(state, socketId) {
   return state.deleteIn(['sockets', socketId])
 }
 
-export function addMessage(state, message) {
-  return state.updateIn(['messages'], arr => {
-    arr.push(message)
-    return arr
+export function addMessage(state, roomName, username, message) {
+  return state.updateIn(['games', roomName, 'messages'], messages => {
+    return messages.push({
+      username,
+      message,
+      "dateCreated": new Date(),
+    })
   });
 }
 

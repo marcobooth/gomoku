@@ -3,7 +3,7 @@ import Immutable from 'immutable'
 import { Map } from 'immutable'
 import _ from 'underscore'
 import { EXAMPLE_STATE } from './stateExample'
-import { checkForFullLine, joinGame, leaveGame, startGame } from '../src/server/core'
+import { checkForFullLine, joinGame, leaveGame, startGame, connected, addMessage } from '../src/server/core'
 
 
 describe('full line removal', () => {
@@ -68,21 +68,51 @@ describe('clients joining and leaving', () => {
     state = leaveGame(state, '2345')
     expect(state.getIn(['games', '42'])).to.not.exist
   })
+})
 
-  it ('creates the game', () => {
+describe('starting the game', () => {
+  it ('single player', () => {
     let state = Map({})
     state = joinGame(state, '1234', '42', 'tfleming')
-    // list of pieces, alreadyStarted, currentPiece, currentPieceIndex (for all players)
     state = startGame(state, '42')
-    console.log("game state:", state);
     expect(state.getIn(['games', '42', 'game', 'pieces']).size).to.equal(1)
     expect(state.getIn(['games', '42', 'game', 'alreadyStarted'])).to.equal(true)
     expect(state.getIn(['games', '42', 'clients', 'tfleming', 'currentPiece'])).to.exist
     expect(state.getIn(['games', '42', 'clients', 'tfleming', 'currentPieceIndex'])).to.equal(0)
+  })
 
+  it ('multi player', () => {
+    let state = Map({})
+    state = joinGame(state, '1234', '42', 'tfleming')
+    state = joinGame(state, '2345', '42', 'mbooth')
 
+    // list of pieces, alreadyStarted, currentPiece, currentPieceIndex (for all players)
+    state = startGame(state, '42')
+    expect(state.getIn(['games', '42', 'game', 'pieces']).size).to.equal(1)
+    expect(state.getIn(['games', '42', 'game', 'alreadyStarted'])).to.equal(true)
+    expect(state.getIn(['games', '42', 'clients', 'tfleming', 'currentPiece'])).to.exist
+    expect(state.getIn(['games', '42', 'clients', 'tfleming', 'currentPieceIndex'])).to.equal(0)
+    expect(state.getIn(['games', '42', 'clients', 'mbooth', 'currentPiece'])).to.exist
+    expect(state.getIn(['games', '42', 'clients', 'mbooth', 'currentPieceIndex'])).to.equal(0)
+  })
+})
 
+describe('connecting', () => {
+  it('adds the socket', () => {
+    let state = Map({})
+    state = connected(state, '234')
+    expect(state.get("sockets")).to.equal(Map({
+      "234": Map({})
+    }));
+  })
+})
 
-
+describe('sending a message', () => {
+  it ('basic version', () => {
+    let state = Map({})
+    state = joinGame(state, '1234', '42', 'tfleming')
+    state = addMessage(state, '42', 'tfleming', 'well hello there')
+    state = addMessage(state, '42', 'tfleming', 'well hello buddy')
+    expect(state.getIn(['games', '42', 'messages']).size).to.equal(2)
   })
 })
