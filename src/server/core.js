@@ -160,3 +160,8 @@ export function placePiece(state, roomName, username) {
   }
   return state;
 }
+
+export const INITIAL_STATE = Immutable.fromJS({
+  sockets: {},
+  games: {},
+});
