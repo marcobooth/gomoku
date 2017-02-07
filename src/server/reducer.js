@@ -12,7 +12,7 @@ import {
 export default function reducer(state = INITIAL_STATE, action) {
   switch (action.type) {
     case 'ADD_MESSAGE':
-      return addMessage(state, action.message)
+      return addMessage(state, action.roomName, action.username, action.message)
     case 'MOVE_PIECE':
       return movePiece(state, action.roomName, action.username, action.direction)
     case 'ROTATE_PIECE':
@@ -24,9 +24,7 @@ export default function reducer(state = INITIAL_STATE, action) {
     case 'LEAVE_GAME':
       return leaveGame(state, action.socketId)
     case 'START_GAME':
-      return startGame(state, action.roomName);
-    // case 'END_GAME':
-    //   return endGame(state, action);
+      return startGame(state, action.roomName)
   }
 
   return state;

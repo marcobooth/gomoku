@@ -49,16 +49,6 @@ export const startGame = (roomName, username) => {
   }
 }
 
-// export const END_GAME = 'END_GAME'
-//
-// export const endGame = () => {
-//   return {
-//     meta: { remote: true },
-//     roomName: '42',
-//     type: END_GAME,
-//   }
-// }
-
 export const MOVE_PIECE = 'MOVE_PIECE'
 
 export const movePiece = (roomName, username, direction) => {
@@ -73,7 +63,7 @@ export const movePiece = (roomName, username, direction) => {
 
 export const ROTATE_PIECE = 'ROTATE_PIECE'
 
-export const rotatePiece = (roomName, username, direction) => {
+export const rotatePiece = (roomName, username) => {
   return {
     meta: { remote: true },
     type: ROTATE_PIECE,
