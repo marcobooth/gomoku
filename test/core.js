@@ -3,7 +3,7 @@ import Immutable from 'immutable'
 import { Map } from 'immutable'
 import _ from 'underscore'
 import { EXAMPLE_STATE } from './stateExample'
-import { checkForFullLine, joinGame, leaveGame } from '../src/server/core'
+import { checkForFullLine, joinGame, leaveGame, startGame } from '../src/server/core'
 
 
 describe('full line removal', () => {
@@ -67,5 +67,22 @@ describe('clients joining and leaving', () => {
 
     state = leaveGame(state, '2345')
     expect(state.getIn(['games', '42'])).to.not.exist
+  })
+
+  it ('creates the game', () => {
+    let state = Map({})
+    state = joinGame(state, '1234', '42', 'tfleming')
+    // list of pieces, alreadyStarted, currentPiece, currentPieceIndex (for all players)
+    state = startGame(state, '42')
+    console.log("game state:", state);
+    expect(state.getIn(['games', '42', 'game', 'pieces']).size).to.equal(1)
+    expect(state.getIn(['games', '42', 'game', 'alreadyStarted'])).to.equal(true)
+    expect(state.getIn(['games', '42', 'clients', 'tfleming', 'currentPiece'])).to.exist
+    expect(state.getIn(['games', '42', 'clients', 'tfleming', 'currentPieceIndex'])).to.equal(0)
+
+
+
+
+
   })
 })
