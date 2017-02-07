@@ -109,7 +109,6 @@ export function checkForFullLine(state, roomName, player) {
 export function movePiece(state, roomName, player, direction) {
   let potentialState
   let currentPiecePath = ['games', roomName, 'clients', player, 'currentPiece']
-  console.log("currentPiecePath:", currentPiecePath);
 
   if (direction === 'left') {
     potentialState = state.updateIn(currentPiecePath.concat(['col']), col => col - 1)
@@ -118,13 +117,11 @@ export function movePiece(state, roomName, player, direction) {
   } else if (direction === 'down') {
     potentialState = state.updateIn(currentPiecePath.concat(['row']), row => row + 1)
   } else {
-    console.log("invalid direction");
     return state
   }
 
   let boardPath = ['games', roomName, 'clients', player, 'board'];
   let potentialBoard = potentialState.getIn(boardPath)
-  console.log("potentialState.getIn(currentPiecePath):", potentialState.getIn(currentPiecePath).toJS());
   let newBoard = putPieceOnBoard(potentialBoard, potentialState.getIn(currentPiecePath))
 
   if (newBoard) {
@@ -162,68 +159,3 @@ export function placePiece(state, roomName, player) {
   }
   return state;
 }
-
-export const INITIAL_STATE = Immutable.fromJS({
-  sockets: {},
-  games: {},
-  // "sockets": {
-  //   "asdklfjsoifj": { "roomName": "42", "username": "3ldsjkf" }
-  // }
-  // "42": {
-    // "messages": [
-    //   {
-    //     "username": "tfleming",
-    //     "message": "Hello world!",
-    //     "dateCreated": new Date(),
-    //   },
-    // ],
-    // "game": {
-    //   "pieces": [
-    //     {
-    //       "type": "left-l",
-    //       "rotation": 0,
-    //       "row": 4,
-    //       "col": 0,
-    //     },
-    //   ],
-    //   "masterUsername": "",
-    //   "alreadyStarted": false,
-    //   "winner": false,
-    //   // "roomName": "42",
-    // },
-    // "clients": {
-    //   "tfleming": {
-    //     "currentPiece": {
-    //       "type": "left-l",
-    //       "rotation": 0,
-    //       "row": 4,
-    //       "col": 0,
-    //     },
-    //     "currentPieceIndex": 0,
-    //     "board": [
-    //       [ null, null, null, null, null, null, null, null, null, null ],
-    //       [ null, null, null, null, null, null, null, null, null, null ],
-    //       [ null, null, null, null, null, null, null, null, null, null ],
-    //       [ null, null, null, null, null, null, null, null, null, null ],
-    //       [ null, null, null, null, null, null, null, null, null, null ],
-    //       [ null, null, null, null, null, null, null, null, null, null ],
-    //       [ null, null, null, null, null, null, null, null, null, null ],
-    //       [ null, null, null, null, null, null, null, null, null, null ],
-    //       [ null, null, null, null, null, null, null, null, null, null ],
-    //       [ null, null, null, null, null, null, null, null, null, null ],
-    //       [ null, null, null, null, null, null, null, null, null, null ],
-    //       [ null, null, null, null, null, null, null, null, null, null ],
-    //       [ null, null, null, null, null, null, null, null, null, null ],
-    //       [ null, null, null, null, null, null, null, null, null, null ],
-    //       [ null, null, null, null, null, null, null, null, null, null ],
-    //       [ null, null, null, null, null, null, null, null, null, null ],
-    //       [ null, null, null, null, null, null, null, null, null, null ],
-    //       [ null, null, null, null, null, null, null, null, null, null ],
-    //       [ null, null, null, null, null, null, null, null, null, null ],
-    //       [ null, null, null, null, null, null, null, null, null, null ],
-    //     ],
-    //     "winnerState": "winner/loser",
-    //   },
-    // },
-  // }
-});

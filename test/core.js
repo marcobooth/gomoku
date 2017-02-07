@@ -16,7 +16,7 @@ describe('full line removal', () => {
   });
 });
 
-describe('clients joining and leaving', () => {
+describe('clients joining', () => {
   it('creates a new game', () => {
     const state = Map({});
     const nextState = joinGame(state, '1234', '42', 'tfleming');
@@ -49,6 +49,24 @@ describe('clients joining and leaving', () => {
     expect(state.getIn(['games', '42', 'game', 'masterUsername'])).to.equal('tfleming')
   })
 
+  it('multi multiplayer game', () => {
+    let state = Map({});
+    state = joinGame(state, '2345', '42', 'mbooth');
+    state = joinGame(state, '2346', '42', 'mbooth');
+
+    expect(state.getIn(['sockets', '2345'])).to.equal(Map({
+      'roomName': '42',
+      'username': 'mbooth',
+    }))
+
+    expect(state.getIn(['sockets', '2346'])).to.equal(Map({
+      'roomName': '42',
+      'username': 'mbooth',
+    }))
+  })
+})
+
+describe('clients leaving', () => {
   it ('leave da game', () => {
     let state = Map({});
     state = joinGame(state, '1234', '42', 'tfleming');
@@ -64,6 +82,14 @@ describe('clients joining and leaving', () => {
 
     state = leaveGame(state, '2345')
     expect(state.getIn(['games', '42'])).to.not.exist
+  })
+
+  it ('with no socket info', () => {
+    let state = Map({});
+    state = joinGame(state, '1234', '42', 'tfleming');
+    let nextState = leaveGame(state, '')
+
+    expect(state).to.equal(nextState)
   })
 })
 
@@ -146,12 +172,68 @@ describe('place piece', () => {
 })
 
 describe('rotate piece', () => {
-  it('around', () => {
-    // let state = Map({})
-    // state = joinGame(state, '1234', '42', 'tfleming')
-    // state = startGame(state, '42')
-    // state = rotatePiece(state, '42', 'tfleming')
-    //
-    // expect(state.getIn(['games', '42', 'clients', 'tfleming', 'currentPieceIndex'])).to.equal(1)
+  it('around 1', () => {
+    let state = Map({})
+    state = joinGame(state, '1234', '42', 'tfleming')
+    state = startGame(state, '42')
+    state = state.updateIn(['games', '42', 'clients', 'tfleming', 'currentPiece', 'rotation'], rotation => { return 0 } )
+    state = rotatePiece(state, '42', 'tfleming')
+
+    expect(state.getIn(['games', '42', 'clients', 'tfleming', 'currentPiece', 'rotation'])).to.equal(1)
+  })
+  it('fully', () => {
+    let state = Map({})
+    state = joinGame(state, '1234', '42', 'tfleming')
+    state = startGame(state, '42')
+    state = state.updateIn(['games', '42', 'clients', 'tfleming', 'currentPiece', 'rotation'], rotation => { return 3 } )
+    state = rotatePiece(state, '42', 'tfleming')
+
+    expect(state.getIn(['games', '42', 'clients', 'tfleming', 'currentPiece', 'rotation'])).to.equal(0)
+  })
+})
+
+describe('move piece', () => {
+  it('moves to the left and right and down', () => {
+    let state = Map({})
+    state = joinGame(state, '1234', '42', 'tfleming')
+    state = startGame(state, '42')
+
+    state = state.updateIn(['games', '42', 'clients', 'tfleming', 'currentPiece', 'col'], col => { return 5 } )
+    state = movePiece(state, '42', 'tfleming', 'left')
+    expect(state.getIn(['games', '42', 'clients', 'tfleming', 'currentPiece', 'col'])).to.equal(4)
+
+    state = state.updateIn(['games', '42', 'clients', 'tfleming', 'currentPiece', 'col'], col => { return 5 } )
+    state = movePiece(state, '42', 'tfleming', 'right')
+    expect(state.getIn(['games', '42', 'clients', 'tfleming', 'currentPiece', 'col'])).to.equal(6)
+
+    state = state.updateIn(['games', '42', 'clients', 'tfleming', 'currentPiece', 'row'], row => { return 5 } )
+    state = movePiece(state, '42', 'tfleming', 'down')
+    expect(state.getIn(['games', '42', 'clients', 'tfleming', 'currentPiece', 'row'])).to.equal(6)
+  })
+
+  it('piece does not move', () => {
+    let state = Map({})
+    state = joinGame(state, '1234', '42', 'tfleming')
+    state = startGame(state, '42')
+
+    state = state.updateIn(['games', '42', 'clients', 'tfleming', 'currentPiece'], piece => {
+      return Map({
+        "type": "left-l",
+        "rotation": 0,
+        "row": 4,
+        "col": 0,
+      })
+     })
+    state = movePiece(state, '42', 'tfleming', 'left')
+    expect(state.getIn(['games', '42', 'clients', 'tfleming', 'currentPiece', 'col'])).to.equal(0)
+  })
+
+  it('invalid move', () => {
+    let state = Map({})
+    state = joinGame(state, '1234', '42', 'tfleming')
+    state = startGame(state, '42')
+    let nextState = movePiece(state, '42', 'tfleming', 'wrong')
+
+    expect(state).to.equal(nextState)
   })
 })
