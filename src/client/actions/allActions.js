@@ -19,6 +19,14 @@ export const setState = (state) => {
   }
 }
 
+export const CONNECTED = 'CONNECTED'
+
+export const connected = (connected) => {
+  return {
+    type: CONNECTED,
+  }
+}
+
 export const JOIN_GAME = 'JOIN_GAME'
 
 export const joinGame = (roomName, username) => {

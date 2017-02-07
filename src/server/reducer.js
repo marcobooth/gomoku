@@ -6,11 +6,14 @@ import {
   rotatePiece,
   placePiece,
   joinGame,
+  leaveGame,
   // createGame,
   INITIAL_STATE,
 } from './core';
 
 export default function reducer(state = INITIAL_STATE, action) {
+  console.log("state:", state);;
+  console.log("action.type:", action.type);
   switch (action.type) {
     case 'ADD_MESSAGE':
       return addMessage(state, action.message)
@@ -21,7 +24,9 @@ export default function reducer(state = INITIAL_STATE, action) {
     case 'PLACE_PIECE':
       return placePiece(state, action.player)
     case 'JOIN_GAME':
-      return joinGame(state, action.roomName, action.username)
+      return joinGame(state, action.socketId, action.roomName, action.username)
+    case 'LEAVE_GAME':
+      return leaveGame(state, action.socketId)
     // case 'START_GAME':
     //   return createGame(state, action);
     // case 'END_GAME':

@@ -1,34 +1,7 @@
 import Server from 'socket.io';
 import {createStore} from 'redux';
 import reducer from './reducer';
-
-export default function startServer(store) {
-  const io = new Server().attach(8090);
-
-  store.subscribe(
-    () => {
-      // console.log("new state:", store.getState().toJS().messages)
-      io.emit('state', store.getState().toJS())
-    }
-  );
-
-  io.on('connection', (socket) => {
-console.log("hi");
-
-    // set up the state and action bits to connect to the client
-    socket.emit('state', store.getState().toJS());
-    socket.on('action', store.dispatch.bind(store));
-
-    // join the game and set up what happens on disconnect
-
-  });
-}
-
-// startServer(createStore(reducer));
-
-
-
-
+import {leaveGame, connected} from './core'
 
 import fs  from 'fs'
 import debug from 'debug'
@@ -77,11 +50,16 @@ const initEngine = io => {
     loginfo("Socket connected: " + socket.id)
 
     // set up the state and action bits to connect to the client
-    socket.emit('state', store.getState().toJS());
+    socket.emit('connected', store.getState().toJS());
     socket.on('action', store.dispatch.bind(store));
 
     // set up what happens on disconnect
-    socket.on('disconnect', function(){ console.log("TODO: leave game"); });
+    socket.on('disconnect', () => {
+      store.dispatch({
+        type: 'LEAVE_GAME',
+        socketId: socket.id,
+      })
+    });
   });
 
   // io.on('connection', function(socket){
@@ -98,7 +76,7 @@ export function create(params){
   return new Promise( (resolve, reject) => {
     const app = require('http').createServer()
 
-    initApp(app, params, () =>{
+    initApp(app, params, () => {
       console.log("init");
       const io = require('socket.io')(app)
       const stop = (cb) => {

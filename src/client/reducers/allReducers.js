@@ -1,4 +1,4 @@
-import { ADD_MESSAGE, SET_STATE } from '../actions/allActions'
+import { ADD_MESSAGE, SET_STATE, CONNECTED } from '../actions/allActions'
 import { Map } from 'immutable'
 
 export function mergeState(state, newState) {
@@ -15,6 +15,8 @@ export default (state = Map() , action) => {
       // }
     case SET_STATE:
       return mergeState(state, action.state)
+    case CONNECTED:
+      return state.set('connected', true)
     default:
       return state
   }

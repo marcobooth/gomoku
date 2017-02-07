@@ -3,7 +3,7 @@ import Immutable from 'immutable'
 import { Map } from 'immutable'
 import _ from 'underscore'
 import { EXAMPLE_STATE } from './stateExample'
-import { checkForFullLine, joinGame } from '../src/server/core'
+import { checkForFullLine, joinGame, leaveGame } from '../src/server/core'
 
 
 describe('full line removal', () => {
@@ -24,19 +24,48 @@ describe('clients joining and leaving', () => {
     const state = Map({});
     const nextState = joinGame(state, '1234', '42', 'tfleming');
 
-    expect(nextState.getIn(['sockets',]))
-    expect(nextState.getIn(['42', 'clients', 'tfleming'])).to.exist
-    expect(nextState.getIn(['42', 'game', 'masterUsername'])).to.equal('tfleming')
+    expect(nextState.getIn(['sockets', '1234'])).to.equal(Map({
+      'roomName': '42',
+      'username': 'tfleming',
+    }))
+    expect(nextState.getIn(['games', '42', 'clients', 'tfleming'])).to.exist
+    expect(nextState.getIn(['games', '42', 'game', 'masterUsername'])).to.equal('tfleming')
   })
 
   it('multiplayer game', () => {
     let state = Map({});
-    state = joinGame(state, '42', 'tfleming');
-    state = joinGame(state, '42', 'mbooth');
+    state = joinGame(state, '1234', '42', 'tfleming');
+    state = joinGame(state, '2345', '42', 'mbooth');
 
-    expect(state.getIn(['42', 'clients', 'tfleming'])).to.exist
-    expect(state.getIn(['42', 'clients', 'mbooth'])).to.exist
+    expect(state.getIn(['games', '42', 'clients', 'tfleming'])).to.exist
+    expect(state.getIn(['games', '42', 'clients', 'mbooth'])).to.exist
 
-    expect(state.getIn(['42', 'game', 'masterUsername'])).to.equal('tfleming')
+    expect(state.getIn(['sockets', '1234'])).to.equal(Map({
+      'roomName': '42',
+      'username': 'tfleming',
+    }))
+    expect(state.getIn(['sockets', '2345'])).to.equal(Map({
+      'roomName': '42',
+      'username': 'mbooth',
+    }))
+
+    expect(state.getIn(['games', '42', 'game', 'masterUsername'])).to.equal('tfleming')
+  })
+
+  it ('leave da game', () => {
+    let state = Map({});
+    state = joinGame(state, '1234', '42', 'tfleming');
+    state = joinGame(state, '2345', '42', 'mbooth');
+    state = leaveGame(state, '1234')
+
+    expect(state.getIn(['games', '42', 'clients', 'tfleming'])).to.not.exist
+    expect(state.getIn(['games', '42', 'clients', 'mbooth'])).to.exist
+
+    expect(state.getIn(['sockets', '1234'])).to.not.exist
+
+    expect(state.getIn(['games', '42', 'game', 'masterUsername'])).to.equal('mbooth')
+
+    state = leaveGame(state, '2345')
+    expect(state.getIn(['games', '42'])).to.not.exist
   })
 })

@@ -7,15 +7,18 @@ import io from 'socket.io-client';
 import remoteActionMiddleware from './middleware/storeStateMiddleWare'
 import reducer from './reducers/allReducers'
 import App from './containers/app'
-import {addMessage, setState} from './actions/allActions'
+import {addMessage, setState, connected} from './actions/allActions'
 import { BoardContainer } from './containers/board'
 // import { Map, List } from "immutable"
 
 const socket = io(`${location.protocol}//${location.hostname}:8090`);
 socket.on('state', state => {
-  console.log("state:", state);
   store.dispatch(setState(state))
 });
+socket.on('connected', (state) => {
+  store.dispatch(connected(state))
+  store.dispatch(setState(state))
+})
 
 const createStoreWithMiddleware = applyMiddleware(
   remoteActionMiddleware(socket)

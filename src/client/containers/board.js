@@ -31,15 +31,18 @@ export const Board = React.createClass({
 
   componentWillMount() {
     document.addEventListener("keydown", this.handleKeys, false);
-
-    let { roomName, username } = this.props.params
-    this.props.dispatch(joinGame(roomName, username))
   },
   componentWillUnmount() {
     document.removeEventListener("keydown", this.handleKeys, false);
   },
 
   render: function() {
+    if (this.props.connected && !this.joinedGame) {
+      let { roomName, username } = this.props.params
+      this.props.dispatch(joinGame(roomName, username))
+      this.joinedGame = true;
+    }
+
     let squareSize = 30
 
     if (!this.props.board) {
@@ -59,10 +62,13 @@ export const Board = React.createClass({
 });
 
 function mapStateToProps(state) {
-  let currentPiece = state.getIn(['clients', 'tfleming', 'currentPiece']);
-  let board = state.getIn(['clients', 'tfleming', 'board'])
+  console.log("mapStateToProps state:", state.toJS());
 
-  return { board, currentPiece }
+  return {
+    currentPiece: state.getIn(['clients', 'tfleming', 'currentPiece']),
+    board: state.getIn(['clients', 'tfleming', 'board']),
+    connected: state.get("connected"),
+  }
 }
 
 export const BoardContainer = connect(mapStateToProps)(Board);

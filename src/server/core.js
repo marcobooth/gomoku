@@ -1,8 +1,58 @@
 import Immutable from 'immutable';
 import {List, Map} from 'immutable';
-import {putPieceOnBoard} from '../both/utilities'
-import pieces from '../both/pieces'
 import {NEW_GAME, NEW_CLIENT} from './defaultStates'
+// import {putPieceOnBoard} from '../both/utilities'
+// import pieces from '../both/pieces'
+
+export function connected(state, socketId) {
+  return state.setIn(['sockets', socketId], Immutable.fromJS({}))
+}
+
+export function joinGame(state, socketId, roomName, username) {
+  state = state.setIn(['sockets', socketId], Immutable.fromJS({
+    roomName, username
+  }))
+
+  if (!state.getIn(['games', roomName])) {
+    return state.setIn(['games', roomName], NEW_GAME)
+        .setIn(['games', roomName, 'clients', username], NEW_CLIENT)
+        .setIn(['games', roomName, 'game', 'masterUsername'], username)
+  } else if (!state.getIn(['games', roomName, 'clients', username])) {
+    return state.setIn(['games', roomName, 'clients', username], NEW_CLIENT)
+  } else {
+    console.log("multiplayer or a problem. TODO: store sockets per client");
+  }
+
+  return state;
+}
+
+export function leaveGame(state, socketId) {
+  let socketInfo = state.getIn(['sockets', socketId])
+
+  if (!socketInfo) {
+    return;
+  }
+  let { roomName, username } = socketInfo.toJS()
+
+  if (state.getIn(['games', roomName, 'clients']).size > 1) {
+    // remove the client
+    state = state.deleteIn(['games', roomName, 'clients', username])
+
+    // then we can change the master user if necessary
+    state = state.updateIn(['games', roomName, 'game', 'masterUsername'], currentMaster => {
+      if (currentMaster === username) {
+        return state.getIn(['games', roomName, 'clients']).findKey(() => { return true })
+      }
+
+      return currentMaster
+    })
+  } else {
+    // delete the game
+    state = state.deleteIn(['games', roomName])
+  }
+
+  return state.deleteIn(['sockets', socketId])
+}
 
 export function addMessage(state, message) {
   return state.updateIn(['messages'], arr => {
@@ -81,40 +131,12 @@ export function movePiece(state, player, direction) {
   }
 }
 
-export function joinGame(state, socketId, roomName, username) {
-  if (!state.get(roomName)) {
-    return state.set(roomName, NEW_GAME)
-        .setIn([roomName, 'clients', username], NEW_CLIENT)
-        .setIn([roomName, 'game', 'masterUsername'], username)
-  } else if (!state.getIn([roomName, 'clients', username])) {
-    return state.setIn([roomName, 'clients', username], NEW_CLIENT)
-  } else {
-    console.log("multiplayer or a problem. TODO: store sockets per client");
+export function endGame(state, action) {
+  if (state.getIn(['game', 'alreadyStarted']) === true && state.getIn(['game', 'winner']) === false) {
+    return state.updateIn(['game', 'winner'], winnerValue => true);
   }
-
   return state;
 }
-
-export function leaveGame(state, roomName, username) {
-  if (!state.get(roomName)) {
-    return state.set(roomName, NEW_GAME)
-        .setIn([roomName, 'clients', username], NEW_CLIENT)
-        .setIn([roomName, 'game', 'masterUsername'], username)
-  } else if (!state.getIn([roomName, 'clients', username])) {
-    return state.setIn([roomName, 'clients', username], NEW_CLIENT)
-  } else {
-    console.log("multiplayer or a problem. TODO: store sockets per client");
-  }
-
-  return state;
-}
-
-// export function endGame(state, action) {
-//   if (state.getIn(['game', 'alreadyStarted']) === true && state.getIn(['game', 'winner']) === false) {
-//     return state.updateIn(['game', 'winner'], winnerValue => true);
-//   }
-//   return state;
-// }
 
 export function rotatePiece(state, action) {
   return state.updateIn(["clients", "tfleming", "currentPiece", "rotation"], rotation => {
@@ -140,6 +162,8 @@ export function placePiece(state, player) {
 }
 
 export const INITIAL_STATE = Immutable.fromJS({
+  sockets: {},
+  games: {},
   // "sockets": {
   //   "asdklfjsoifj": { "roomName": "42", "username": "3ldsjkf" }
   // }
