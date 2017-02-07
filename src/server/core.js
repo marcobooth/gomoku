@@ -1,8 +1,8 @@
 import Immutable from 'immutable';
 import {List, Map} from 'immutable';
 import {NEW_GAME, NEW_CLIENT} from './defaultStates'
-import {putPieceOnBoard} from '../both/utilities'
 import pieces from '../both/pieces'
+import {putPieceOnBoard} from '../both/utilities'
 
 export function connected(state, socketId) {
   return state.setIn(['sockets', socketId], Immutable.fromJS({}))
@@ -36,10 +36,10 @@ export function startGame(state, roomName) {
 
 export function leaveGame(state, socketId) {
   let socketInfo = state.getIn(['sockets', socketId])
-
   if (!socketInfo) {
-    return;
+    return state;
   }
+
   let { roomName, username } = socketInfo.toJS()
 
   if (state.getIn(['games', roomName, 'clients']).size > 1) {
