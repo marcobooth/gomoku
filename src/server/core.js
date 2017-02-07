@@ -109,6 +109,7 @@ export function checkForFullLine(state, roomName, player) {
 export function movePiece(state, roomName, player, direction) {
   let potentialState
   let currentPiecePath = ['games', roomName, 'clients', player, 'currentPiece']
+  console.log("currentPiecePath:", currentPiecePath);
 
   if (direction === 'left') {
     potentialState = state.updateIn(currentPiecePath.concat(['col']), col => col - 1)
@@ -117,11 +118,13 @@ export function movePiece(state, roomName, player, direction) {
   } else if (direction === 'down') {
     potentialState = state.updateIn(currentPiecePath.concat(['row']), row => row + 1)
   } else {
+    console.log("invalid direction");
     return state
   }
 
   let boardPath = ['games', roomName, 'clients', player, 'board'];
   let potentialBoard = potentialState.getIn(boardPath)
+  console.log("potentialState.getIn(currentPiecePath):", potentialState.getIn(currentPiecePath).toJS());
   let newBoard = putPieceOnBoard(potentialBoard, potentialState.getIn(currentPiecePath))
 
   if (newBoard) {

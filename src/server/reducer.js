@@ -14,11 +14,11 @@ export default function reducer(state = INITIAL_STATE, action) {
     case 'ADD_MESSAGE':
       return addMessage(state, action.message)
     case 'MOVE_PIECE':
-      return movePiece(state, action.player, action.direction)
+      return movePiece(state, action.roomName, action.username, action.direction)
     case 'ROTATE_PIECE':
       return rotatePiece(state, action)
     case 'PLACE_PIECE':
-      return placePiece(state, action.player)
+      return placePiece(state, action.username)
     case 'JOIN_GAME':
       return joinGame(state, action.socketId, action.roomName, action.username)
     case 'LEAVE_GAME':
