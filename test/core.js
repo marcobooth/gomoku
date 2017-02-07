@@ -1,21 +1,18 @@
 import {expect} from 'chai';
 import Immutable from 'immutable'
-import { Map } from 'immutable'
+import { Map, List } from 'immutable'
 import _ from 'underscore'
-import { EXAMPLE_STATE } from './stateExample'
-import { checkForFullLine, joinGame, leaveGame, startGame, connected, addMessage } from '../src/server/core'
+import { checkForFullLine, joinGame, leaveGame, startGame, connected, addMessage, nextPiece, placePiece, rotatePiece, movePiece } from '../src/server/core'
 
 
 describe('full line removal', () => {
-  it('multiple lines', () => {
-    const emptyBoard = Immutable.fromJS(
-    [
-      [null, null, null, null, null, null, null, null, null, null],
-      [null, null, null, null, null, null, null, null, null, null],
-    ]);
-    const nextState = checkForFullLine(EXAMPLE_STATE, 'tfleming');
-    let newBoard = nextState.getIn(['clients', 'tfleming', 'board'])
-    expect(newBoard).to.equal(emptyBoard);
+  it('single line', () => {
+    let state = Map({})
+    state = joinGame(state, '1234', '42', 'tfleming')
+    state = startGame(state, '42')
+    state = state.updateIn(['games', '42', 'clients', 'tfleming', 'board', 0], row => { return ["colour", "colour", "colour", "colour", "colour", "colour", "colour", "colour", "colour", "colour"] })
+    state = checkForFullLine(state, '42', 'tfleming');
+    expect(state.getIn(['games', '42', 'clients', 'tfleming', 'board', 0])).to.equal(List([null, null, null, null, null, null, null, null, null, null]));
   });
 });
 
@@ -114,5 +111,47 @@ describe('sending a message', () => {
     state = addMessage(state, '42', 'tfleming', 'well hello there')
     state = addMessage(state, '42', 'tfleming', 'well hello buddy')
     expect(state.getIn(['games', '42', 'messages']).size).to.equal(2)
+  })
+})
+
+describe('next piece', () => {
+  it('must create a new piece', () => {
+    let state = Map({})
+    state = joinGame(state, '1234', '42', 'tfleming')
+    state = startGame(state, '42')
+    state = nextPiece(state, '42', 'tfleming')
+    expect(state.getIn(['games', '42', 'game', 'pieces']).size).to.equal(2)
+  })
+
+  it('must not create a new piece', () => {
+    let state = Map({})
+    state = joinGame(state, '1234', '42', 'tfleming')
+    state = joinGame(state, '2345', '42', 'mbooth')
+    state = startGame(state, '42')
+    state = nextPiece(state, '42', 'tfleming')
+    state = nextPiece(state, '42', 'mbooth')
+    expect(state.getIn(['games', '42', 'game', 'pieces']).size).to.equal(2)
+
+  })
+})
+
+describe('place piece', () => {
+  it('well', () => {
+    let state = Map({})
+    state = joinGame(state, '1234', '42', 'tfleming')
+    state = startGame(state, '42')
+    state = placePiece(state, '42', 'tfleming')
+    expect(state.getIn(['games', '42', 'clients', 'tfleming', 'currentPieceIndex'])).to.equal(1)
+  })
+})
+
+describe('rotate piece', () => {
+  it('around', () => {
+    // let state = Map({})
+    // state = joinGame(state, '1234', '42', 'tfleming')
+    // state = startGame(state, '42')
+    // state = rotatePiece(state, '42', 'tfleming')
+    //
+    // expect(state.getIn(['games', '42', 'clients', 'tfleming', 'currentPieceIndex'])).to.equal(1)
   })
 })
