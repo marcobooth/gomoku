@@ -14,7 +14,6 @@ export const CreateGame = React.createClass({
     return (
       <ul>
         {this.props.games.entrySeq().map(([key, value], index) => {
-          console.log("value, key:", value, key);
           return <li key={index}>
             {key}: {value.get('clients').size} player{value.get('clients').size > 1 ? "s" : ""}
           </li>
@@ -25,6 +24,8 @@ export const CreateGame = React.createClass({
 });
 
 function mapStateToProps(state) {
+  console.log("state.toJS():", state.toJS());
+
   return {
     games: state.get('games')
   }
