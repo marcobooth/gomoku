@@ -1,13 +1,11 @@
 import {
   addMessage,
-  addPiece,
-  // endGame,
   movePiece,
   rotatePiece,
   placePiece,
   joinGame,
   leaveGame,
-  // createGame,
+  startGame,
   INITIAL_STATE,
 } from './core';
 

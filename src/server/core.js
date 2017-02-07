@@ -1,8 +1,8 @@
 import Immutable from 'immutable';
 import {List, Map} from 'immutable';
 import {NEW_GAME, NEW_CLIENT} from './defaultStates'
-// import {putPieceOnBoard} from '../both/utilities'
 import pieces from '../both/pieces'
+import {putPieceOnBoard} from '../both/utilities'
 
 export function connected(state, socketId) {
   return state.setIn(['sockets', socketId], Immutable.fromJS({}))

@@ -17,8 +17,8 @@ socket.on('state', state => {
   store.dispatch(setState(state))
 });
 socket.on('connected', (state) => {
-  store.dispatch(connected(state))
   store.dispatch(setState(state))
+  store.dispatch(connected(state))
 })
 
 const createStoreWithMiddleware = applyMiddleware(

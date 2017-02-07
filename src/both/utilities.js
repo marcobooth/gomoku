@@ -2,6 +2,10 @@ import pieces from './pieces'
 import _ from 'underscore'
 
 export const putPieceOnBoard = (board, piece) => {
+  console.log("pieces:", pieces);
+  console.log("piece.get():", piece.get());
+  console.log("piece.get('type'):", piece.get('type'));
+
   let pieceInfo = _.findWhere(pieces, { type: piece.get("type") })
   let pieceLocations = pieceInfo.positions[piece.get('rotation')]
 

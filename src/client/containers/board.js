@@ -40,18 +40,20 @@ export const Board = React.createClass({
   },
 
   render: function() {
-    if (!this.props.connected || !this.props.board) {
-      // join the game if necessary
-      if (!this.joinedGame) {
-        let { roomName, username } = this.props.params
-        this.props.dispatch(joinGame(roomName, username))
+    // join the game
+    if (this.props.connected && !this.joinedGame) {
+      let { roomName, username } = this.props.params
+      this.props.dispatch(joinGame(roomName, username))
 
-        this.joinedGame = true
-      }
+      this.joinedGame = true
+    }
 
+    // wait for the board to load
+    if (!this.props.board) {
       return <div>Loading...</div>
     }
 
+    // make sure it's started
     if (!this.props.alreadyStarted) {
       let { masterUsername } = this.props
 
@@ -62,14 +64,28 @@ export const Board = React.createClass({
       }
     }
 
-    let squareSize = 30
-
+    // draw the board
     let board = putPieceOnBoard(this.props.board, this.props.currentPiece)
+
+    let squareSize = 30
+    let boxStyle = {
+      height: `${squareSize}px`,
+      width: `${squareSize}px`,
+    }
 
     return (
       <div style={{width: `${squareSize * 10}px`, height: `${squareSize * 20}px`}}>
-        {board.map((row, index) => {
-          return <BoardRow row={row} squareSize={squareSize} key={index} />
+        {board.entrySeq().map(([key, value], index) => {
+          return <div key={index} style={{display: 'flex'}}>
+            {value.entrySeq().map(([key, squareColor], index) => {
+              let style = {
+                "backgroundColor": squareColor ? `#${squareColor}` : null,
+                ...boxStyle
+              }
+
+              return <div style={style} key={index}></div>
+            })}
+          </div>
         })}
       </div>
     )
