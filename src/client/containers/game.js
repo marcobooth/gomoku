@@ -82,7 +82,14 @@ export const Game = React.createClass({
     var ghostList = this.props.otherBoards.entrySeq().map(([key, value], index) => {
       if (!(this.props.params.username === key)) {
         let clientBoard = value.get('board')
-        return <Board key={index} board={clientBoard} squareSize={15}/>
+        return (
+          <div>
+            <h3>{key}</h3>
+            <div style={{border: '1px solid red'}}>
+              <Board key={index} board={clientBoard} squareSize={15}/>
+            </div>
+          </div>
+        )
       }
     })
 
