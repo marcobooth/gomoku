@@ -15,10 +15,10 @@ const pieces = [
     "color": "4D5DB6",
     "size": 3,
     "positions": [
-      [ {row: 0, col: 1}, {row: 1, col: 1}, {row: 2, col: 1}, {row: 2, col: 0} ],
-      [ {row: 1, col: 2}, {row: 1, col: 1}, {row: 1, col: 0}, {row: 2, col: 0} ],
+      [ {row: 1, col: 2}, {row: 1, col: 1}, {row: 1, col: 0}, {row: 0, col: 0} ],
       [ {row: 2, col: 1}, {row: 1, col: 1}, {row: 0, col: 1}, {row: 0, col: 2} ],
-      [ {row: 1, col: 0}, {row: 1, col: 1}, {row: 1, col: 2}, {row: 0, col: 2} ],
+      [ {row: 1, col: 0}, {row: 1, col: 1}, {row: 1, col: 2}, {row: 2, col: 2} ],
+      [ {row: 0, col: 1}, {row: 1, col: 1}, {row: 2, col: 1}, {row: 2, col: 0} ],
     ],
   },
   {
@@ -26,10 +26,10 @@ const pieces = [
     "color": "48A8F0",
     "size": 3,
     "positions": [
+      [ {row: 1, col: 0}, {row: 1, col: 1}, {row: 1, col: 2}, {row: 0, col: 2} ],
       [ {row: 0, col: 1}, {row: 1, col: 1}, {row: 2, col: 1}, {row: 2, col: 2} ],
-      [ {row: 1, col: 2}, {row: 1, col: 1}, {row: 1, col: 0}, {row: 0, col: 0} ],
+      [ {row: 1, col: 2}, {row: 1, col: 1}, {row: 1, col: 0}, {row: 2, col: 0} ],
       [ {row: 2, col: 1}, {row: 1, col: 1}, {row: 0, col: 1}, {row: 0, col: 0} ],
-      [ {row: 1, col: 0}, {row: 1, col: 1}, {row: 1, col: 2}, {row: 2, col: 2} ],
     ],
   },
   {
