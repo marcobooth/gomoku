@@ -7,15 +7,28 @@ export const CreateGame = React.createClass({
   mixins: [PureRenderMixin],
 
   render() {
+    <h1>Active games</h1>
+
     if (!this.props.games) {
       return ( <div>Loading...</div> )
+    }
+
+    // show a message if there's nothing there
+    if (!this.props.games.keySeq().size) {
+      return (
+        <div>No games active at this time</div>
+      )
     }
 
     return (
       <ul>
         {this.props.games.entrySeq().map(([key, value], index) => {
+          let clientCount = value.get('clients').size
+          let masterUsername = value.getIn(['game', 'masterUsername'])
+
           return <li key={index}>
-            {key}: {value.get('clients').size} player{value.get('clients').size > 1 ? "s" : ""}
+            {key}: {clientCount} player{clientCount > 1 ? "s" : ""}:
+            {value.getIn(['game', 'alreadyStarted']) ? "started!" : `Waiting for ${masterUsername} to start...`}
           </li>
         })}
       </ul>

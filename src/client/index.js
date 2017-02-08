@@ -9,7 +9,7 @@ import reducer from './reducers/allReducers'
 import {addMessage, setState, connected} from './actions/allActions'
 
 import App from './containers/app'
-import { BoardContainer } from './containers/board'
+import { GameContainer } from './containers/game'
 import { CreateGameContainer } from './containers/createGame'
 
 const socket = io(`${location.protocol}//${location.hostname}:8090`);
@@ -28,7 +28,7 @@ const store = createStoreWithMiddleware(reducer);
 
 // TODO: invalid routes
 const routes = <Route component={App}>
-  <Route path="/:roomName[:username]" component={BoardContainer} />
+  <Route path="/:roomName[:username]" component={GameContainer} />
   <Route path='/create' component={CreateGameContainer} />
   <Redirect from='*' to='/create' />
 </Route>
