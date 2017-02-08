@@ -37,7 +37,6 @@ export const CreateGame = React.createClass({
 });
 
 function mapStateToProps(state) {
-  console.log("state.toJS():", state.toJS());
 
   return {
     games: state.get('games')

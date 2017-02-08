@@ -11,7 +11,6 @@ const logerror = debug('tetris:error')
 const initApp = (app, params, cb) => {
   const {host, port} = params
   const handler = (req, res) => {
-    console.log("help me");
     const file = req.url === '/bundle.js' ? '/../../build/bundle.js' : '/../../index.html'
     fs.readFile(__dirname + file, (err, data) => {
       if (err) {
@@ -36,7 +35,6 @@ const initEngine = io => {
   let store = createStore(reducer);
 
   store.subscribe(() => {
-    console.log("STATE:", store.getState());
     io.emit('state', store.getState().toJS())
   });
 

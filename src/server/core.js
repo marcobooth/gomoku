@@ -4,10 +4,6 @@ import {NEW_GAME, NEW_CLIENT} from './defaultStates'
 import pieces from '../both/pieces'
 import {putPieceOnBoard} from '../both/utilities'
 
-export function connected(state, socketId) {
-  return state.setIn(['sockets', socketId], Immutable.fromJS({}))
-}
-
 export function joinGame(state, socketId, roomName, username) {
   state = state.setIn(['sockets', socketId], Immutable.fromJS({
     roomName, username
@@ -42,7 +38,8 @@ export function leaveGame(state, socketId) {
 
   let { roomName, username } = socketInfo.toJS()
 
-  if (state.getIn(['games', roomName, 'clients']).size > 1) {
+  let clients = state.getIn(['games', roomName, 'clients'])
+  if (clients && clients.size > 1) {
     // remove the client
     state = state.deleteIn(['games', roomName, 'clients', username])
 
@@ -58,7 +55,7 @@ export function leaveGame(state, socketId) {
     // delete the game
     state = state.deleteIn(['games', roomName])
   }
-
+  console.log("state:", state);
   return state.deleteIn(['sockets', socketId])
 }
 
