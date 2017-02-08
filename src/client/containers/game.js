@@ -10,6 +10,7 @@ import {
   joinGame,
   startGame,
 } from "../actions/allActions"
+import _ from 'underscore'
 
 export const Game = React.createClass({
   mixins: [PureRenderMixin],
@@ -19,21 +20,22 @@ export const Game = React.createClass({
       params: {roomName, username},
       masterUsername,
       alreadyStarted,
+      dispatch
     } = this.props
 
     if (alreadyStarted && event.key === 'ArrowUp') {
-      this.props.dispatch(rotatePiece(roomName, username))
+      dispatch(rotatePiece(roomName, username))
     } else if (alreadyStarted && event.key === 'ArrowDown') {
-      this.props.dispatch(movePiece(roomName, username, "down"))
+      dispatch(movePiece(roomName, username, "down"))
     } else if (alreadyStarted && event.key === 'ArrowRight') {
-      this.props.dispatch(movePiece(roomName, username, "right"))
+      dispatch(movePiece(roomName, username, "right"))
     } else if (alreadyStarted && event.key === 'ArrowLeft') {
-      this.props.dispatch(movePiece(roomName, username, "left"))
+      dispatch(movePiece(roomName, username, "left"))
     } else if (alreadyStarted && event.key === ' ') {
-      this.props.dispatch(placePiece(roomName, username))
+      dispatch(placePiece(roomName, username))
     } else if (event.key === 'Enter' &&
         username === masterUsername && !alreadyStarted) {
-      this.props.dispatch(startGame(roomName, username))
+      dispatch(startGame(roomName, username))
     }
   },
 
@@ -42,6 +44,33 @@ export const Game = React.createClass({
   },
   componentWillUnmount() {
     document.removeEventListener("keydown", this.handleKeys, false);
+  },
+
+  componentDidUpdate() {
+    let {
+      params: { roomName, username },
+      otherBoards,
+      alreadyStarted,
+      masterUsername,
+      dispatch
+    } = this.props
+
+    // first update the list of current users
+    if (otherBoards) {
+      this.currentUsernames = otherBoards.keySeq().toArray()
+
+      // start the timer if necessary
+      if (masterUsername === username &&
+          alreadyStarted && !this.intervalStarted) {
+        setInterval(() => {
+          _.each(this.currentUsernames, (username) => {
+            dispatch(movePiece(roomName, username, "down"))
+          })
+        }, 500)
+
+        this.intervalStarted = true
+      }
+    }
   },
 
   render: function() {
@@ -83,7 +112,7 @@ export const Game = React.createClass({
       if (!(this.props.params.username === key)) {
         let clientBoard = value.get('board')
         return (
-          <div>
+          <div key={index}>
             <h3>{key}</h3>
             <div style={{border: '1px solid red'}}>
               <Board key={index} board={clientBoard} squareSize={15}/>
