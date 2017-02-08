@@ -70,7 +70,6 @@ export const Game = React.createClass({
     }
 
     // draw the board
-    console.log("this.props.currentPiece.toJS():", this.props.currentPiece.toJS());
     let board = putPieceOnBoard(this.props.board, this.props.currentPiece)
 
     let squareSize = 30
@@ -80,7 +79,9 @@ export const Game = React.createClass({
     }
 
     return (
-      <Board board={board} squareSize={30}/>
+      <div>
+        <Board board={board} squareSize={30}/>
+      </div>
     )
   }
 });
