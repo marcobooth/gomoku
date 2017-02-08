@@ -121,16 +121,6 @@ describe('starting the game', () => {
   })
 })
 
-describe('connecting', () => {
-  it('adds the socket', () => {
-    let state = Map({})
-    state = connected(state, '234')
-    expect(state.get("sockets")).to.equal(Map({
-      "234": Map({})
-    }));
-  })
-})
-
 describe('sending a message', () => {
   it ('basic version', () => {
     let state = Map({})
@@ -230,17 +220,34 @@ describe('rotate piece', () => {
   let rotationState = joinGame(Map({}), '1234', '42', 'tfleming')
   rotationState = startGame(rotationState, '42')
   rotationState = rotationState.setIn(['games', '42', 'clients', 'tfleming', 'board'], Immutable.fromJS([
-    ['F', 'F', 'F', null, null, null, null, 'F', 'F', 'F'],
-    ['F', 'F', 'F', null, null, null, null, 'F', 'F', 'F'],
-    ['F', 'F', 'F', null, null, null, null, 'F', 'F', 'F'],
-    ['F', 'F', 'F', null, null, null, null, 'F', 'F', 'F'],
-    ['F', 'F', 'F', null, null, null, null, 'F', 'F', 'F'],
-    ['F', 'F', 'F', null, null, null, null, 'F', 'F', 'F'],
+    ['F', 'F', 'F', null, null, null, 'F', 'F', 'F', 'F'],
+    ['F', 'F', 'F', null, null, null, 'F', 'F', 'F', 'F'],
+    ['F', 'F', 'F', null, null, null, 'F', 'F', 'F', 'F'],
+    ['F', 'F', 'F', null, null, null, 'F', 'F', 'F', 'F'],
+    ['F', 'F', 'F', null, null, null, 'F', 'F', 'F', 'F'],
+    ['F', 'F', 'F', null, null, null, 'F', 'F', 'F', 'F'],
   ]))
 
+  it('where it can actually rotate unobstructed', () => {
+    let state = rotationState.setIn(['games', '42', 'clients', 'tfleming', 'currentPiece'], Immutable.fromJS({
+      col: 3,
+      row: 1,
+      rotation: 1,
+      type: "sombrero",
+    }))
 
+    state = rotatePiece(state, '42', 'tfleming')
 
-  it('along a line of pieces that will obstruct it', () => {
+    expect(state.getIn(['games', '42', 'clients', 'tfleming', 'currentPiece', 'col'])).to.equal(3)
+    expect(state.getIn(['games', '42', 'clients', 'tfleming', 'currentPiece', 'row'])).to.equal(1)
+    expect(state.getIn(['games', '42', 'clients', 'tfleming', 'currentPiece', 'rotation'])).to.equal(2)
+
+    state = rotatePiece(state, '42', 'tfleming')
+    state = rotatePiece(state, '42', 'tfleming')
+    expect(state.getIn(['games', '42', 'clients', 'tfleming', 'currentPiece', 'rotation'])).to.equal(0)
+  })
+
+  it('along a line of pieces that will obstruct it on the left', () => {
     let state = rotationState.setIn(['games', '42', 'clients', 'tfleming', 'currentPiece'], Immutable.fromJS({
       col: 2,
       row: 0,
@@ -250,7 +257,39 @@ describe('rotate piece', () => {
 
     state = rotatePiece(state, '42', 'tfleming')
 
-    expect(state.getIn(['games', '42', 'clients', 'tfleming', 'currentPiece', 'col'])).to.equal()
+    expect(state.getIn(['games', '42', 'clients', 'tfleming', 'currentPiece', 'col'])).to.equal(3)
+    expect(state.getIn(['games', '42', 'clients', 'tfleming', 'currentPiece', 'row'])).to.equal(0)
+    expect(state.getIn(['games', '42', 'clients', 'tfleming', 'currentPiece', 'rotation'])).to.equal(2)
+  })
+
+  it('along a line of pieces that will obstruct it on the right', () => {
+    let state = rotationState.setIn(['games', '42', 'clients', 'tfleming', 'currentPiece'], Immutable.fromJS({
+      col: 4,
+      row: 1,
+      rotation: 3,
+      type: "sombrero",
+    }))
+
+    state = rotatePiece(state, '42', 'tfleming')
+
+    expect(state.getIn(['games', '42', 'clients', 'tfleming', 'currentPiece', 'col'])).to.equal(3)
+    expect(state.getIn(['games', '42', 'clients', 'tfleming', 'currentPiece', 'row'])).to.equal(1)
+    expect(state.getIn(['games', '42', 'clients', 'tfleming', 'currentPiece', 'rotation'])).to.equal(0)
+  })
+
+  it("where it can't rotate", () => {
+    let state = rotationState.setIn(['games', '42', 'clients', 'tfleming', 'currentPiece'], Immutable.fromJS({
+      col: 3,
+      row: 0,
+      rotation: 1,
+      type: "long-straight",
+    }))
+
+    state = rotatePiece(state, '42', 'tfleming')
+
+    expect(state.getIn(['games', '42', 'clients', 'tfleming', 'currentPiece', 'col'])).to.equal(3)
+    expect(state.getIn(['games', '42', 'clients', 'tfleming', 'currentPiece', 'row'])).to.equal(0)
+    expect(state.getIn(['games', '42', 'clients', 'tfleming', 'currentPiece', 'rotation'])).to.equal(1)
   })
 })
 

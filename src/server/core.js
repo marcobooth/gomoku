@@ -137,14 +137,32 @@ export function movePiece(state, roomName, username, direction) {
 }
 
 export function rotatePiece(state, roomName, username) {
-  return state.updateIn(["games", roomName, "clients", username, "currentPiece", "rotation"], rotation => {
-    let newRotation = rotation + 1;
+  return state.updateIn(["games", roomName, "clients", username, "currentPiece"], originalPiece => {
+    let piece = originalPiece.update('rotation', rotation => rotation + 1)
 
-    if (newRotation > 3) {
-      newRotation = 0;
+    if (piece.get('rotation') > 3) {
+      piece = piece.set('rotation', 0)
     }
 
-    return newRotation;
+    // make sure it'll work rotated
+    let board = state.getIn(['games', roomName, 'clients', username, 'board'])
+    if (putPieceOnBoard(board, piece)) {
+      return piece
+    }
+
+    // okay, so it didn't work... let's try moving it around a bit
+    let possibleDeltas = [ -1, 1, -2, 2 ]
+
+    for (let deltaCol of possibleDeltas) {
+      let movedPiece = piece.update('col', (col) => { return col + deltaCol })
+
+      if (putPieceOnBoard(board, movedPiece)) {
+        return movedPiece
+      }
+    }
+
+    // the piece can't rotate :(
+    return originalPiece
   });
 }
 
