@@ -3,6 +3,7 @@ import Immutable from 'immutable'
 import { Map, List } from 'immutable'
 import _ from 'underscore'
 import { checkForFullLine, joinGame, leaveGame, startGame, connected, addMessage, nextPiece, placePiece, rotatePiece, movePiece } from '../src/server/core'
+import { putPieceOnBoard } from '../src/both/utilities'
 
 
 describe('full line removal', () => {
@@ -189,6 +190,67 @@ describe('rotate piece', () => {
     state = rotatePiece(state, '42', 'tfleming')
 
     expect(state.getIn(['games', '42', 'clients', 'tfleming', 'currentPiece', 'rotation'])).to.equal(0)
+  })
+
+  it('along the left edge where it has to move it to rotate', () => {
+    let state = joinGame(Map({}), '1234', '42', 'tfleming')
+    state = startGame(state, '42')
+    state = state.setIn(['games', '42', 'clients', 'tfleming', 'currentPiece'], Immutable.fromJS({
+      col: -2,
+      row: 0,
+      rotation: 1,
+      type: "long-straight",
+    }))
+
+    state = rotatePiece(state, '42', 'tfleming')
+
+    expect(state.getIn(['games', '42', 'clients', 'tfleming', 'currentPiece', 'rotation'])).to.equal(2)
+    expect(state.getIn(['games', '42', 'clients', 'tfleming', 'currentPiece', 'row'])).to.equal(0)
+    expect(state.getIn(['games', '42', 'clients', 'tfleming', 'currentPiece', 'col'])).to.equal(0)
+  })
+
+  it('along the right edge where it has to move it to rotate', () => {
+    let state = joinGame(Map({}), '1234', '42', 'tfleming')
+    state = startGame(state, '42')
+    state = state.setIn(['games', '42', 'clients', 'tfleming', 'currentPiece'], Immutable.fromJS({
+      col: 8,
+      row: 0,
+      rotation: 3,
+      type: "long-straight",
+    }))
+
+    state = rotatePiece(state, '42', 'tfleming')
+
+    expect(state.getIn(['games', '42', 'clients', 'tfleming', 'currentPiece', 'rotation'])).to.equal(0)
+    expect(state.getIn(['games', '42', 'clients', 'tfleming', 'currentPiece', 'row'])).to.equal(0)
+    expect(state.getIn(['games', '42', 'clients', 'tfleming', 'currentPiece', 'col'])).to.equal(6)
+  })
+
+  // set up a starting state for the following two tests
+  let rotationState = joinGame(Map({}), '1234', '42', 'tfleming')
+  rotationState = startGame(rotationState, '42')
+  rotationState = rotationState.setIn(['games', '42', 'clients', 'tfleming', 'board'], Immutable.fromJS([
+    ['F', 'F', 'F', null, null, null, null, 'F', 'F', 'F'],
+    ['F', 'F', 'F', null, null, null, null, 'F', 'F', 'F'],
+    ['F', 'F', 'F', null, null, null, null, 'F', 'F', 'F'],
+    ['F', 'F', 'F', null, null, null, null, 'F', 'F', 'F'],
+    ['F', 'F', 'F', null, null, null, null, 'F', 'F', 'F'],
+    ['F', 'F', 'F', null, null, null, null, 'F', 'F', 'F'],
+  ]))
+
+
+
+  it('along a line of pieces that will obstruct it', () => {
+    let state = rotationState.setIn(['games', '42', 'clients', 'tfleming', 'currentPiece'], Immutable.fromJS({
+      col: 2,
+      row: 0,
+      rotation: 1,
+      type: "sombrero",
+    }))
+
+    state = rotatePiece(state, '42', 'tfleming')
+
+    expect(state.getIn(['games', '42', 'clients', 'tfleming', 'currentPiece', 'col'])).to.equal()
   })
 })
 
