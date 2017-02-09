@@ -3,6 +3,7 @@ import { connect } from 'react-redux'
 import PureRenderMixin from 'react-addons-pure-render-mixin'
 import {putPieceOnBoard} from '../../both/utilities'
 import Board from './board'
+import Messages from './messages'
 import {
   rotatePiece,
   movePiece,
@@ -143,6 +144,7 @@ export const Game = React.createClass({
         <div style={{display: 'inline-block', opacity: 0.5}}>
           { ghostList }
         </div>
+        <Messages {...this.props}/>
       </div>
     )
   }
