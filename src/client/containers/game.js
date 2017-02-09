@@ -112,11 +112,24 @@ export const Game = React.createClass({
     var ghostList = this.props.otherBoards.entrySeq().map(([key, value], index) => {
       if (!(this.props.params.username === key)) {
         let clientBoard = value.get('board')
+        for (var i = 0; i < 20; i++) {
+          for (var j = 0; j < 10 ; j++) {
+            let currentPiece = clientBoard.getIn([i, j])
+            if (currentPiece != null) {
+              if (currentPiece != 'FF0000') {
+                clientBoard = clientBoard.updateIn([i, j], current => { return 'FF0000' })
+              }
+              if (i != 19) {
+                clientBoard = clientBoard.updateIn([i + 1, j], current => { return 'FF0000' })
+              }
+            }
+          }
+        }
         return (
           <div key={index}>
             <h3>{key}</h3>
             <div style={{border: '1px solid red'}}>
-              <Board key={index} board={clientBoard} squareSize={15} colourRed={true}/>
+              <Board key={index} board={clientBoard} squareSize={15} />
             </div>
           </div>
         )
