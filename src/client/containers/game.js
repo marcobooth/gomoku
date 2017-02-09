@@ -9,6 +9,7 @@ import {
   placePiece,
   joinGame,
   startGame,
+  restartGame,
 } from "../actions/allActions"
 import _ from 'underscore'
 
@@ -36,6 +37,9 @@ export const Game = React.createClass({
     } else if (event.key === 'Enter' &&
         username === masterUsername && !alreadyStarted) {
       dispatch(startGame(roomName, username))
+    } else if (event.key === 'r' &&
+        username === masterUsername && alreadyStarted) {
+      dispatch(restartGame(roomName, username))
     }
   },
 

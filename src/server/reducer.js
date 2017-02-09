@@ -6,6 +6,7 @@ import {
   joinGame,
   leaveGame,
   startGame,
+  restartGame,
   INITIAL_STATE,
 } from './core';
 
@@ -25,6 +26,8 @@ export default function reducer(state = INITIAL_STATE, action) {
       return leaveGame(state, action.socketId)
     case 'START_GAME':
       return startGame(state, action.roomName)
+    case 'RESTART_GAME':
+      return restartGame(state, action.socketId, action.roomName, action.username)
   }
 
   return state;

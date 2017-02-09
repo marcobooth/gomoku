@@ -82,3 +82,14 @@ export const placePiece = (roomName, username) => {
     username,
   }
 }
+
+export const RESTART_GAME = 'RESTART_GAME'
+
+export const restartGame = (roomName, username) => {
+  return {
+    meta: { remote: true },
+    type: RESTART_GAME,
+    roomName,
+    username
+  }
+}

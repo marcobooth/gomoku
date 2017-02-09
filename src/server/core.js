@@ -228,6 +228,11 @@ export function placePiece(state, roomName, username) {
   return state
 }
 
+export function restartGame(state, socketId, roomName, username) {
+  state = state.deleteIn(['games', roomName])
+  return joinGame(state, socketId, roomName, username)
+}
+
 export const INITIAL_STATE = Immutable.fromJS({
   sockets: {},
   games: {},
