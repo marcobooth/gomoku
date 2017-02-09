@@ -123,6 +123,7 @@ export const Game = React.createClass({
 
     return (
       <div>
+        <h1> { this.props.winnerState } </h1>
         <Board board={board} squareSize={30}/>
         <div style={{display: 'inline-block', opacity: 0.5}}>
           { ghostList }
@@ -141,6 +142,7 @@ function mapStateToProps(state, props) {
     alreadyStarted: state.getIn(gamePath.concat(['alreadyStarted'])),
     masterUsername: state.getIn(gamePath.concat(['masterUsername'])),
     currentPiece: state.getIn(clientPath.concat(['currentPiece'])),
+    winnerState: state.getIn(clientPath.concat(['winnerState'])),
     board: state.getIn(clientPath.concat(['board'])),
     connected: state.get("connected"),
     otherBoards: state.getIn(['games', roomName, 'clients']),

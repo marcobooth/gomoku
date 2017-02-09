@@ -4,7 +4,18 @@ import {NEW_GAME, NEW_CLIENT} from './defaultStates'
 import pieces from '../both/pieces'
 import {putPieceOnBoard} from '../both/utilities'
 
+function gameInvalidOrDead(state, roomName) {
+  return !state.getIn(['games', roomName]) ||
+      !state.getIn(['games', roomName, 'game', 'alreadyStarted']) ||
+      state.getIn(['games', roomName, 'game', 'gameOver'])
+}
+
 export function joinGame(state, socketId, roomName, username) {
+  // can't join the game if it's already started
+  if (state.getIn(['games', roomName, 'game', 'alreadyStarted'])) {
+    return state
+  }
+
   state = state.setIn(['sockets', socketId], Immutable.fromJS({
     roomName, username
   }))
@@ -15,8 +26,6 @@ export function joinGame(state, socketId, roomName, username) {
         .setIn(['games', roomName, 'game', 'masterUsername'], username)
   } else if (!state.getIn(['games', roomName, 'clients', username])) {
     return state.setIn(['games', roomName, 'clients', username], NEW_CLIENT)
-  } else {
-    console.log("multiplayer or a problem. TODO: store sockets per client");
   }
 
   return state;
@@ -55,7 +64,8 @@ export function leaveGame(state, socketId) {
     // delete the game
     state = state.deleteIn(['games', roomName])
   }
-  console.log("state:", state);
+
+  // remove the socket from the socket list
   return state.deleteIn(['sockets', socketId])
 }
 
@@ -104,7 +114,35 @@ export function checkForFullLine(state, roomName, username) {
   return state
 }
 
+function checkWinnerState(state, roomName, username) {
+  // if this is called for a username it's because they've lost - it's
+  // impossible for this to be called and for the user to have won
+  state = state.setIn(['games', roomName, 'clients', username, 'winnerState'], 'loser')
+
+  let players = state.getIn(['games', roomName, 'clients'])
+  if (players.size > 1) {
+    var nonLosers = players.entrySeq().filter(([key, value], index) => {
+        return username !== key && !value.get('winnerState')
+    })
+    if (nonLosers.count() === 1) {
+      return state
+          .setIn(['games', roomName, 'game', 'gameOver'], true)
+          .setIn(['games', roomName, 'clients', nonLosers.first()[0], 'winnerState'], 'winner')
+    }
+    else {
+      return state
+    }
+  }
+
+  // there's only one person so they've lost muhahaha--no winners here
+  return state.setIn(['games', roomName, 'game', 'gameOver'], true)
+}
+
 export function movePiece(state, roomName, username, direction) {
+  if (gameInvalidOrDead(state, roomName)) {
+    return state
+  }
+
   let potentialState
   let currentPiecePath = ['games', roomName, 'clients', username, 'currentPiece']
 
@@ -125,6 +163,10 @@ export function movePiece(state, roomName, username, direction) {
   if (newBoard) {
     return potentialState
   } else if (direction === "down") {
+    let finalRowPosition = state.getIn(currentPiecePath.concat(['row']))
+    if (finalRowPosition < 0) {
+      return checkWinnerState(state, roomName, username)
+    }
     var newState = nextPiece(state, roomName, username);
     let boardUpdateFunc = (oldBoard) => {
       return putPieceOnBoard(oldBoard, state.getIn(currentPiecePath))
@@ -137,6 +179,10 @@ export function movePiece(state, roomName, username, direction) {
 }
 
 export function rotatePiece(state, roomName, username) {
+  if (gameInvalidOrDead(state, roomName)) {
+    return state
+  }
+
   return state.updateIn(["games", roomName, "clients", username, "currentPiece"], originalPiece => {
     let piece = originalPiece.update('rotation', rotation => rotation + 1)
 
@@ -167,13 +213,18 @@ export function rotatePiece(state, roomName, username) {
 }
 
 export function placePiece(state, roomName, username) {
-  let currPiecePath = ["games", roomName, "clients", username, "currentPieceIndex"];
-  let startIndex = state.getIn(currPiecePath);
-
-  while (state.getIn(currPiecePath) === startIndex) {
-    state = movePiece(state, roomName, username, "down");
+  if (gameInvalidOrDead(state, roomName)) {
+    return state
   }
-  return state;
+
+  let pieceIndexPath = ["games", roomName, "clients", username, "currentPieceIndex"]
+  let startIndex = state.getIn(pieceIndexPath)
+
+  while (!state.getIn(['games', roomName, 'game', 'gameOver']) &&
+      state.getIn(pieceIndexPath) === startIndex) {
+    state = movePiece(state, roomName, username, "down")
+  }
+  return state
 }
 
 export const INITIAL_STATE = Immutable.fromJS({
