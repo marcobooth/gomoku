@@ -79,11 +79,9 @@ export const Game = React.createClass({
 
   render: function() {
     // join the game
-    if (this.props.connected && !this.joinedGame) {
+    if (this.props.connected && !this.props.joined && !this.props.alreadyStarted) {
       let { roomName, username } = this.props.params
       this.props.dispatch(joinGame(roomName, username))
-
-      this.joinedGame = true
     }
 
     // wait for the board to load
@@ -148,6 +146,7 @@ function mapStateToProps(state, props) {
     currentPiece: state.getIn(clientPath.concat(['currentPiece'])),
     winnerState: state.getIn(clientPath.concat(['winnerState'])),
     board: state.getIn(clientPath.concat(['board'])),
+    joined: state.getIn(clientPath.concat(['joined'])),
     connected: state.get("connected"),
     otherBoards: state.getIn(['games', roomName, 'clients']),
   }

@@ -13,6 +13,7 @@ export const NEW_GAME = Immutable.fromJS({
 export const NEW_CLIENT = Immutable.fromJS({
   "currentPieceIndex": -1,
   "currentPiece": {},
+  "joined": true,
   "board": [
     [ null, null, null, null, null, null, null, null, null, null ],
     [ null, null, null, null, null, null, null, null, null, null ],
