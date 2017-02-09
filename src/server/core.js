@@ -4,6 +4,7 @@ import {NEW_GAME, NEW_CLIENT} from './defaultStates'
 import pieces from '../both/pieces'
 import {putPieceOnBoard} from '../both/utilities'
 
+// checking if Github has started registering my contributions
 function gameInvalidOrDead(state, roomName) {
   return !state.getIn(['games', roomName]) ||
       !state.getIn(['games', roomName, 'game', 'alreadyStarted']) ||
