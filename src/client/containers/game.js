@@ -116,7 +116,7 @@ export const Game = React.createClass({
           <div key={index}>
             <h3>{key}</h3>
             <div style={{border: '1px solid red'}}>
-              <Board key={index} board={clientBoard} squareSize={15}/>
+              <Board key={index} board={clientBoard} squareSize={15} colourRed={true}/>
             </div>
           </div>
         )

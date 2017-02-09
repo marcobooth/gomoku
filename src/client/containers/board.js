@@ -2,7 +2,7 @@ import React from 'react'
 
 export default React.createClass({
   render() {
-    let { board, squareSize } = this.props
+    let { board, squareSize, colourRed } = this.props
 
     let boxStyle = {
       height: `${squareSize}px`,
@@ -15,7 +15,7 @@ export default React.createClass({
           return <div key={index} style={{display: 'flex'}}>
             {value.entrySeq().map(([key, squareColor], index) => {
               let style = {
-                "backgroundColor": squareColor ? `#${squareColor}` : null,
+                "backgroundColor": this.props.colourRed ? (squareColor ? `#FF0000` : null) : (squareColor ? `#${squareColor}` : null),
                 ...boxStyle
               }
 
