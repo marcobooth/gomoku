@@ -11,7 +11,7 @@
     "srv-dist": "DEBUG=tetris:* ./node_modules/.bin/babel-node src --out-dir dist",
     "test": "mocha --require babel-core/register --reporter spec --require ./test/test_helper.js",
     "coverage": "NODE_ENV=test nyc --include src --all -r text -r lcov -r text --require babel-core/register mocha ",
-    "start": "npm run srv-dist && npm run client-dist && node dist/server/index.js"
+    "start": "node dist/server/index.js"
   },
   "dependencies": {
     "chai-immutable": "^1.6.0",
