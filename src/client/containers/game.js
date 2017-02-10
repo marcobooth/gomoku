@@ -136,10 +136,10 @@ export const Game = React.createClass({
         )
       }
     })
-
     return (
       <div>
         <h1> { this.props.winnerState } </h1>
+        <h3> { this.props.score } </h3>
         <Board board={board} squareSize={30}/>
         <div style={{display: 'inline-block', opacity: 0.5}}>
           { ghostList }
@@ -161,6 +161,7 @@ function mapStateToProps(state, props) {
     currentPiece: state.getIn(clientPath.concat(['currentPiece'])),
     winnerState: state.getIn(clientPath.concat(['winnerState'])),
     board: state.getIn(clientPath.concat(['board'])),
+    score: state.getIn(clientPath.concat(['score'])),
     joined: state.getIn(clientPath.concat(['joined'])),
     connected: state.get("connected"),
     otherBoards: state.getIn(['games', roomName, 'clients']),

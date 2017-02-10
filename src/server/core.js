@@ -131,6 +131,7 @@ export function checkForFullLine(state, roomName, username) {
       state = state.setIn(['games', roomName, 'clients', username, 'board'], boardToChange)
     }
   })
+  state = state.updateIn(['games', roomName, 'clients', username, 'score'], currentScore => { return (currentScore + (numberOfLinesDestroyed * 100)) })
   let numberOfClients = state.getIn(['games', roomName, 'clients']).size
   if (numberOfClients > 1 && numberOfLinesDestroyed > 1) {
     state = addLinesToOpponents(state, roomName, username, numberOfLinesDestroyed - 1)

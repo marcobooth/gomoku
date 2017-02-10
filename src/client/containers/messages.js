@@ -9,7 +9,7 @@ const Messages = React.createClass({
     let {roomName, username } = this.props.params
 
     let input
-    console.log("this.props:", this.props);
+
     return (
       <div>
         <div>
