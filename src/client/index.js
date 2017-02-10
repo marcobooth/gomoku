@@ -12,7 +12,7 @@ import App from './containers/app'
 import { GameContainer } from './containers/game'
 import { CreateGameContainer } from './containers/createGame'
 
-const socket = io(`${location.protocol}//${location.hostname}:${PORT}`);
+const socket = io.connect();
 socket.on('state', state => {
   store.dispatch(setState(state))
 });
