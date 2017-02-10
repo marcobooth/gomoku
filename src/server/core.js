@@ -102,16 +102,39 @@ export function nextPiece(state, roomName, username) {
   return state.setIn(['games', roomName, 'clients', username, 'currentPiece'], currentPiece)
 }
 
+export function addLinesToOpponents(state, roomName, username, numberOfLinesToDestroy) {
+  state.getIn(['games', roomName, 'clients']).entrySeq().forEach(([key, value]) => {
+    if (!(username === key)) {
+      for (var i = 19; i > 0; i--) {
+        if (value.get('board').get(i).indexOf('FF0000') === -1) {
+          state = state.updateIn(['games', roomName, 'clients', key, 'board', i], currentRow => { return List(['FF0000', 'FF0000', 'FF0000', 'FF0000', 'FF0000', 'FF0000', 'FF0000', 'FF0000', 'FF0000', 'FF0000']) })
+          numberOfLinesToDestroy--
+        }
+        if (numberOfLinesToDestroy === 0) {
+          break;
+        }
+      }
+    }
+  })
+  return state
+}
+
 export function checkForFullLine(state, roomName, username) {
   let board = state.getIn(['games', roomName, 'clients', username, 'board']).toJS()
+  let numberOfLinesDestroyed = 0
   board.forEach(function (row, index) {
-    if (row.indexOf(null) === -1) {
+    if (row.indexOf(null) === -1 && row.indexOf('FF0000') === -1) {
+      numberOfLinesDestroyed++
       state = state.deleteIn(['games', roomName, 'clients', username, 'board', index])
       let boardToChange = state.getIn(['games', roomName, 'clients', username, 'board'])
           .unshift(List([null, null, null, null, null, null, null, null, null, null]))
       state = state.setIn(['games', roomName, 'clients', username, 'board'], boardToChange)
     }
   })
+  let numberOfClients = state.getIn(['games', roomName, 'clients']).size
+  if (numberOfClients > 1 && numberOfLinesDestroyed > 1) {
+    state = addLinesToOpponents(state, roomName, username, numberOfLinesDestroyed - 1)
+  }
   return state
 }
 

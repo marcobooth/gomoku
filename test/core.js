@@ -2,7 +2,7 @@ import {expect} from 'chai';
 import Immutable from 'immutable'
 import { Map, List } from 'immutable'
 import _ from 'underscore'
-import { checkForFullLine, joinGame, leaveGame, startGame, connected, addMessage, nextPiece, placePiece, rotatePiece, movePiece } from '../src/server/core'
+import { checkForFullLine, joinGame, leaveGame, startGame, connected, addMessage, addLinesToOpponents, nextPiece, placePiece, rotatePiece, movePiece } from '../src/server/core'
 import { putPieceOnBoard } from '../src/both/utilities'
 
 
@@ -336,5 +336,17 @@ describe('move piece', () => {
     let nextState = movePiece(state, '42', 'tfleming', 'wrong')
 
     expect(state).to.equal(nextState)
+  })
+})
+
+describe('adds lines to opponents', () => {
+  it('number: 1', () => {
+    let state = Map({})
+    state = joinGame(state, '1234', '42', 'tfleming')
+    state = joinGame(state, '2149', '42', 'mbooth')
+    state = startGame(state, '42')
+    state = addLinesToOpponents(state, '42', 'tfleming', 1)
+
+    expect(state.getIn(['games', '42', 'clients', 'tfleming', 'currentPieceIndex'])).to.equal(1)
   })
 })
