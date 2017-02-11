@@ -62,17 +62,18 @@ export const Game = React.createClass({
 
     // first update the list of current users
     if (otherBoards) {
-      let allUsernames = otherBoards.keySeq().toArray()
+      this.currentUsernames = otherBoards.keySeq().toArray()
 
-      // start the timer if necessary TODO take out this.props.joined (used to be this.intervalStarted) and doesn't change anything
+      // start the timer if necessary
       if (masterUsername === username &&
-          alreadyStarted && !this.props.joined) {
+          alreadyStarted && !this.intervalStarted) {
         setInterval(() => {
-          _.each(allUsernames, (username) => {
+          _.each(this.currentUsernames, (username) => {
             dispatch(movePiece(roomName, username, "down"))
           })
         }, 500)
 
+        this.intervalStarted = true
       }
     }
   },
