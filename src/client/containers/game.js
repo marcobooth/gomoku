@@ -3,7 +3,7 @@ import { connect } from 'react-redux'
 import PureRenderMixin from 'react-addons-pure-render-mixin'
 import {putPieceOnBoard} from '../../both/utilities'
 import Board from './board'
-import Messages from './messages'
+import {MessagesContainer} from './messages'
 import {
   rotatePiece,
   movePiece,
@@ -18,7 +18,6 @@ export const Game = React.createClass({
   mixins: [PureRenderMixin],
 
   handleKeys(event) {
-    console.log("event:", event);
     let {
       params: {roomName, username},
       masterUsername,
@@ -87,19 +86,16 @@ export const Game = React.createClass({
   },
 
   render: function() {
-    console.log("this.props:", this.props);
 
     // join the game
     if (this.props.connected && !this.props.joined && !this.props.alreadyStarted) {
       let { roomName, username } = this.props.params
       this.props.dispatch(joinGame(roomName, username))
     }
-    console.log("this.props.connected:", this.props.connected);
     // wait for the board to load
     if (!this.props.board) {
       return <div className="starting_text">Loading...</div>
     }
-    console.log("hello");
     // make sure it's started
     if (!this.props.alreadyStarted) {
       let { masterUsername } = this.props
@@ -118,7 +114,6 @@ export const Game = React.createClass({
       height: `${squareSize}px`,
       width: `${squareSize}px`,
     }
-    console.log("this");
     var ghostList = this.props.otherBoards.entrySeq().map(([key, value], index) => {
       if (!(this.props.params.username === key)) {
         let clientBoard = value.get('board')
@@ -155,7 +150,7 @@ export const Game = React.createClass({
             { ghostList }
           </div>
         </div>
-        <Messages {...this.props}/>
+        <MessagesContainer {...this.props}/>
       </div>
     )
   }

@@ -3,9 +3,9 @@ import { connect } from 'react-redux'
 import { addMessage } from "../actions/allActions"
 import _ from "underscore"
 
-const Messages = React.createClass({
+export const Messages = React.createClass({
   // mixins: [PureRenderMixin],
-  render() {
+  render: function() {
     let {roomName, username } = this.props.params
 
     let input
@@ -44,11 +44,12 @@ const Messages = React.createClass({
   }
 })
 
-const mapStateToProps = (state, props) => {
+function mapStateToProps(state, props) {
   let { roomName } = props.params
 
   return {
     messages: state.getIn(['games', roomName, 'messages'])
   }
 }
-export default connect(mapStateToProps)(Messages)
+
+export const MessagesContainer = connect(mapStateToProps)(Messages)

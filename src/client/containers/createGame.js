@@ -8,11 +8,9 @@ export const CreateGame = React.createClass({
 
   render() {
     <h1>Active games</h1>
-
     if (!this.props.games) {
       return ( <div>Loading...</div> )
     }
-
     // show a message if there's nothing there
     if (!this.props.games.keySeq().size) {
       return (
