@@ -4,7 +4,6 @@ import {NEW_GAME, NEW_CLIENT} from './defaultStates'
 import pieces from '../both/pieces'
 import {putPieceOnBoard} from '../both/utilities'
 
-// checking if Github has started registering my contributions
 function gameInvalidOrDead(state, roomName) {
   return !state.getIn(['games', roomName]) ||
       !state.getIn(['games', roomName, 'game', 'alreadyStarted']) ||
@@ -139,7 +138,7 @@ export function checkForFullLine(state, roomName, username) {
   return state
 }
 
-function checkWinnerState(state, roomName, username) {
+export function checkWinnerState(state, roomName, username) {
   // if this is called for a username it's because they've lost - it's
   // impossible for this to be called and for the user to have won
   state = state.setIn(['games', roomName, 'clients', username, 'winnerState'], 'loser')
@@ -252,8 +251,10 @@ export function placePiece(state, roomName, username) {
   return state
 }
 
+// TODO should socketId be destroyed as well? Did it - check with Flenge
 export function restartGame(state, socketId, roomName, username) {
   state = state.deleteIn(['games', roomName])
+          .deleteIn(['sockets', socketId])
   return joinGame(state, socketId, roomName, username)
 }
 

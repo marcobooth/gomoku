@@ -7,12 +7,6 @@ export function mergeState(state, newState) {
 
 export default (state = Map() , action) => {
   switch(action.type){
-    case ADD_MESSAGE:
-      console.log("ADD_MESSAGE on client");
-      return state
-      // return Map({
-      //   messages: [...state.messages, action.message],
-      // }
     case SET_STATE:
       return mergeState(state, action.state)
     case CONNECTED:

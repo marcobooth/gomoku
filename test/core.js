@@ -2,7 +2,7 @@ import {expect} from 'chai';
 import Immutable from 'immutable'
 import { Map, List } from 'immutable'
 import _ from 'underscore'
-import { checkForFullLine, joinGame, leaveGame, startGame, connected, addMessage, addLinesToOpponents, nextPiece, placePiece, rotatePiece, movePiece } from '../src/server/core'
+import { checkForFullLine, joinGame, leaveGame, startGame, connected, addMessage, addLinesToOpponents, nextPiece, placePiece, rotatePiece, movePiece, restartGame, checkWinnerState } from '../src/server/core'
 import { putPieceOnBoard } from '../src/both/utilities'
 
 
@@ -348,5 +348,27 @@ describe('adds lines to opponents', () => {
     state = addLinesToOpponents(state, '42', 'tfleming', 1)
 
     // expect(state.getIn(['games', '42', 'clients', 'tfleming', 'currentPieceIndex'])).to.equal(1)
+  })
+})
+
+describe('restarting the game', () => {
+  it('successfully', () => {
+    let state = Map({})
+    state = joinGame(state, '1234', '42', 'tfleming')
+    state = startGame(state, '42')
+
+    state = restartGame(state, '908', '42', 'tfleming')
+    expect(state.getIn(['sockets', '908'])).to.exist
+  })
+})
+
+describe('check winner state', () => {
+  it('successfully', () => {
+    let state = Map({})
+    state = joinGame(state, '1234', '42', 'tfleming')
+    state = startGame(state, '42')
+
+    state = checkWinnerState(state, '42', 'tfleming')
+    expect(state.getIn(['games', '42', 'game', 'gameOver'])).to.equal(true)
   })
 })
