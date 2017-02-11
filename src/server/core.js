@@ -75,7 +75,7 @@ export function addMessage(state, roomName, username, message) {
     return messages.push({
       username,
       message,
-      "dateCreated": new Date(),
+      "dateCreated": new Date().toLocaleDateString(),
     })
   });
 }

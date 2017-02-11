@@ -41,6 +41,13 @@ export const Game = React.createClass({
     } else if (event.key === 'r' &&
         username === masterUsername && alreadyStarted) {
       dispatch(restartGame(roomName, username))
+    } else if (event.key === 'p' &&
+        username === masterUsername && alreadyStarted) {
+      setInterval(() => {
+        _.each(this.currentUsernames, (username) => {
+          dispatch(movePiece(roomName, username, "down"))
+        })
+      }, 500)
     }
   },
 
@@ -87,7 +94,7 @@ export const Game = React.createClass({
 
     // wait for the board to load
     if (!this.props.board) {
-      return <div>Loading...</div>
+      return <div className="starting_text">Loading...</div>
     }
 
     // make sure it's started
@@ -95,9 +102,9 @@ export const Game = React.createClass({
       let { masterUsername } = this.props
 
       if (this.props.params.username === masterUsername) {
-        return ( <div>Press ENTER to start</div> )
+        return ( <div className="starting_text">Press ENTER to start</div> )
       } else {
-        return ( <div>Waiting for {masterUsername} to start the game...</div> )
+        return ( <div className="starting_text">Waiting for {masterUsername} to start the game...</div> )
       }
     }
 
@@ -128,7 +135,7 @@ export const Game = React.createClass({
         }
         return (
           <div key={index}>
-            <h3>{key}</h3>
+            <h3 className="ghost_name">{key}</h3>
             <div style={{border: '1px solid red'}}>
               <Board key={index} board={clientBoard} squareSize={15} />
             </div>
@@ -138,11 +145,13 @@ export const Game = React.createClass({
     })
     return (
       <div>
-        <h1> { this.props.winnerState } </h1>
-        <h3> { this.props.score } </h3>
-        <Board board={board} squareSize={30}/>
-        <div style={{display: 'inline-block', opacity: 0.5}}>
-          { ghostList }
+        <h1 className="title"> { this.props.winnerState } </h1>
+        <h3 className="title"> { this.props.score } </h3>
+        <div style={{display: 'flex', justifyContent: 'center'}}>
+          <Board board={board} squareSize={30}/>
+          <div className="ghost_board">
+            { ghostList }
+          </div>
         </div>
         <Messages {...this.props}/>
       </div>

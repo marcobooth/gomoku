@@ -12,26 +12,31 @@ const Messages = React.createClass({
 
     return (
       <div>
-        <div>
-          <form onSubmit={e => {
-            e.preventDefault()
-            if (!input.value.trim()) {
-              return
-            }
-            this.props.dispatch(addMessage(roomName, username, input.value))
-            input.value = ''
-          }}>
-            Message:<br/>
+        <form onSubmit={e => {
+          e.preventDefault()
+          if (!input.value.trim()) {
+            return
+          }
+          this.props.dispatch(addMessage(roomName, username, input.value))
+          input.value = ''
+        }}>
+          <h3 className="title">
+            Messages:<br/>
+        </h3>
+        <div className="message">
           <input type="text" ref={node =>
               input = node
             }/>
-            <input type="submit" value="Submit"/>
-          </form>
         </div>
+        </form>
 
         {this.props.messages ?
           this.props.messages.map((message, index) => {
-            return <h1 key={index}>{message}</h1>;
+            return (<div className="message" key={index}>
+                    <span className="date_username">{message.get('dateCreated')}</span>
+                    <span className="date_username">{message.get('username')}</span>
+                    <span className="message_content">{message.get('message')}</span>
+                    </div>)
           }) :
           <span>loading...</span>}
       </div>
