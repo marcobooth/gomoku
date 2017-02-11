@@ -18,6 +18,7 @@ export const Game = React.createClass({
   mixins: [PureRenderMixin],
 
   handleKeys(event) {
+    console.log("event:", event);
     let {
       params: {roomName, username},
       masterUsername,
@@ -86,17 +87,19 @@ export const Game = React.createClass({
   },
 
   render: function() {
+    console.log("this.props:", this.props);
+
     // join the game
     if (this.props.connected && !this.props.joined && !this.props.alreadyStarted) {
       let { roomName, username } = this.props.params
       this.props.dispatch(joinGame(roomName, username))
     }
-
+    console.log("this.props.connected:", this.props.connected);
     // wait for the board to load
     if (!this.props.board) {
       return <div className="starting_text">Loading...</div>
     }
-
+    console.log("hello");
     // make sure it's started
     if (!this.props.alreadyStarted) {
       let { masterUsername } = this.props
@@ -107,7 +110,6 @@ export const Game = React.createClass({
         return ( <div className="starting_text">Waiting for {masterUsername} to start the game...</div> )
       }
     }
-
     // draw the board
     let board = putPieceOnBoard(this.props.board, this.props.currentPiece)
 
@@ -116,7 +118,7 @@ export const Game = React.createClass({
       height: `${squareSize}px`,
       width: `${squareSize}px`,
     }
-
+    console.log("this");
     var ghostList = this.props.otherBoards.entrySeq().map(([key, value], index) => {
       if (!(this.props.params.username === key)) {
         let clientBoard = value.get('board')
@@ -146,7 +148,7 @@ export const Game = React.createClass({
     return (
       <div>
         <h1 className="title"> { this.props.winnerState } </h1>
-        <h3 className="title"> { this.props.score } </h3>
+        <h3 onClick={() => this.handleKeys("hello")} className="title"> { this.props.score } </h3>
         <div style={{display: 'flex', justifyContent: 'center'}}>
           <Board board={board} squareSize={30}/>
           <div className="ghost_board">
