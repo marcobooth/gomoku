@@ -7,11 +7,3 @@ export default socket => store => next => action => {
   }
   return next(action)
 }
-
-// export const storeStateMiddleWare = ({ getState }) => {
-//   return (next) => (action) => {
-//     let returnValue = next(action)
-//     window.top.state = getState()
-//     return returnValue
-//   }
-// }

@@ -8,28 +8,12 @@ export const CreateGame = React.createClass({
 
   render() {
     <h1>Active games</h1>
-    if (!this.props.games) {
-      return ( <div>Loading...</div> )
-    }
-    // show a message if there's nothing there
-    if (!this.props.games.keySeq().size) {
-      return (
-        <div>No games active at this time</div>
-      )
-    }
+    // if (!this.props.games) {
+    //   return ( <div>Loading...</div> )
+    // }
 
     return (
-      <ul>
-        {this.props.games.entrySeq().map(([key, value], index) => {
-          let clientCount = value.get('clients').size
-          let masterUsername = value.getIn(['game', 'masterUsername'])
-
-          return <li key={index}>
-            {key}: {clientCount} player{clientCount > 1 ? "s" : ""}:
-            {value.getIn(['game', 'alreadyStarted']) ? "started!" : `Waiting for ${masterUsername} to start...`}
-          </li>
-        })}
-      </ul>
+      <div>Hello</div>
     )
   }
 });
@@ -37,7 +21,7 @@ export const CreateGame = React.createClass({
 function mapStateToProps(state) {
 
   return {
-    games: state.get('games')
+    // games: state.get('games')
   }
 }
 

@@ -44,24 +44,7 @@ const initEngine = io => {
     // set up the state and action bits to connect to the client
     socket.emit('connected', store.getState().toJS());
     socket.on('action', store.dispatch.bind(store));
-
-    // set up what happens on disconnect
-    socket.on('disconnect', () => {
-      store.dispatch({
-        type: 'LEAVE_GAME',
-        socketId: socket.id,
-      })
-    });
   });
-
-  // io.on('connection', function(socket){
-  //   loginfo("Socket connected: " + socket.id)
-  //   socket.on('action', (action) => {
-  //     if(action.type === 'server/ping'){
-  //       socket.emit('action', {type: 'pong'})
-  //     }
-  //   })
-  // })
 }
 
 export function create(params){

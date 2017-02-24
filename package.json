@@ -1,8 +1,8 @@
 {
-  "name": "red_tetrisboilerplate",
+  "name": "gomoku",
   "version": "0.0.1",
-  "author": "redpelicans",
-  "license": "MIT",
+  "author": "",
+  "license": "",
   "scripts": {
     "eslint": "eslint src",
     "client-dist": "NODE_ENV=production webpack --progress --colors",

@@ -1,15 +1,3 @@
-export const ADD_MESSAGE = 'ADD_MESSAGE'
-
-export const addMessage = (roomName, username, message) => {
-  return {
-    meta: { remote: true },
-    type: ADD_MESSAGE,
-    roomName,
-    username,
-    message
-  }
-}
-
 export const SET_STATE = 'SET_STATE'
 
 export const setState = (state) => {
@@ -19,77 +7,11 @@ export const setState = (state) => {
   }
 }
 
-export const CONNECTED = 'CONNECTED'
-
-export const connected = (connected) => {
-  return {
-    type: CONNECTED,
-  }
-}
-
-export const JOIN_GAME = 'JOIN_GAME'
-
-export const joinGame = (roomName, username) => {
-  return {
-    meta: { remote: true },
-    type: JOIN_GAME,
-    roomName,
-    username,
-  }
-}
-
 export const START_GAME = 'START_GAME'
 
-export const startGame = (roomName, username) => {
+export const startGame = () => {
   return {
     meta: { remote: true },
-    type: START_GAME,
-    roomName,
-    username,
-  }
-}
-
-export const MOVE_PIECE = 'MOVE_PIECE'
-
-export const movePiece = (roomName, username, direction) => {
-  return {
-    meta: { remote: true },
-    type: MOVE_PIECE,
-    roomName,
-    username,
-    direction
-  }
-}
-
-export const ROTATE_PIECE = 'ROTATE_PIECE'
-
-export const rotatePiece = (roomName, username) => {
-  return {
-    meta: { remote: true },
-    type: ROTATE_PIECE,
-    roomName,
-    username,
-  }
-}
-
-export const PLACE_PIECE = 'PLACE_PIECE'
-
-export const placePiece = (roomName, username) => {
-  return {
-    meta: { remote: true },
-    type: PLACE_PIECE,
-    roomName,
-    username,
-  }
-}
-
-export const RESTART_GAME = 'RESTART_GAME'
-
-export const restartGame = (roomName, username) => {
-  return {
-    meta: { remote: true },
-    type: RESTART_GAME,
-    roomName,
-    username
+    type: START_GAME
   }
 }
