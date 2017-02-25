@@ -1,12 +1,13 @@
 import {
-  startGame,
+  placePiece,
   INITIAL_STATE,
 } from './core';
 
 export default function reducer(state = INITIAL_STATE, action) {
+  console.log("hillo");
   switch (action.type) {
-    case 'START_GAME':
-      return startGame(state, action)
+    case 'PLACE_PIECE':
+      return placePiece(state, action.mainKey, action.secondKey)
   }
   return state;
 }

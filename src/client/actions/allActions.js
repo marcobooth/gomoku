@@ -7,11 +7,13 @@ export const setState = (state) => {
   }
 }
 
-export const START_GAME = 'START_GAME'
+export const PLACE_PIECE = 'PLACE_PIECE'
 
-export const startGame = () => {
+export const placePiece = (mainKey, secondKey) => {
   return {
     meta: { remote: true },
-    type: START_GAME
+    type: PLACE_PIECE,
+    mainKey,
+    secondKey
   }
 }
