@@ -4,22 +4,52 @@ BOARD_SIZE = 19
 
 class Board(object):
 	# TODO: do we need to take depth into account for the heuristic?
-	def __init__(self, board, inPlayCells=0, maxPlayerThreats=0, minPlayerThreats=0, maximizingPlayer=True):
-		# set default inPlayCells if necessary
+	def __init__(self, board, maxPlayerColor, maximizingPlayer=True, inPlayCells=0, threats):
+		# if stuff is default, calculate some starting values
 		if inPlayCells == 0:
+			# set up inPlayCells
 			inPlayCells = {}
 
 			for i in range(BOARD_SIZE):
 				inPlayCells[i] = {}
 
-		# calculate min/max threats if necessary
-		if maxPlayerThreats == 0:
-			# I AM HERE
+			# set up threats
+			for row in range(BOARD_SIZE - 5):
+				for col in range(BOARD_SIZE):
+					player = board[row][col]
+
+					# There's likely a more beautiful way of running through this logic
+					if col < BOARD_SIZE - 5:
+						# look right
+						if board[row][col] and (row == 0 or board[row - 1][col]) != player and \
+								all(board[lrow][col] == player for lrow in range(row + 1, row + 5)):
+							# found one going right
+							print 'found one going right'
+
+						# look down
+						if board[row][col] and (col == 0 or board[row][col - 1]) != player and \
+								all(board[row][lcol] == player for lcol in range(col + 1, col + 5)):
+							# found one going down
+							print 'found one going down'
+
+						# look down right
+						if board[row][col] and \
+								(row == 0 or col == 0 or board[row - 1][col - 1] != player) and \
+								all(board[row + delta][col + delta] == player for delta in range(1, 5)):
+							print 'found one going down right'
+
+					if col >= 4:
+						# look up right
+						if board[row][col] and \
+								(row == 0 or col == BOARD_SIZE - 1 or board[row - 1][col + 1] != player) and \
+								all(board[row + delta][col - delta] == player for delta in range(1, 5)):
+							print 'found one going up right'
 
 		this.board = board
+		this.maxPlayerColor = maxPlayerColor
+		this.maximizingPlayer = maximizingPlayer
 		this.inPlayCells = inPlayCells
-		this.maxPlayerThreats = maxPlayerThreats
-		this.minPlayerThreats = minPlayerThreats
+		this.threats = threats
 
 	def move(self, row, col, blackOrWhite):
 		# copy over the board, reusing as much memory as possible
@@ -44,11 +74,10 @@ class Board(object):
 				if not board[currentRow][currentCol]:
 					inPlayCells[currentRow][currentCol] = True
 
-		minPlayerThreats = this.minPlayerThreats
-		maxPlayerThreats = this.maxPlayerThreats
+		threats = this.threats
 		# TODO: check to see if we need to add any threats
 
-		return Board(newBoard, maxPlayerThreats, minPlayerThreats)
+		return Board(newBoard, this.maxPlayerColor, !this.maximizingPlayer, inPlayCells, threats)
 
 	def heuristic(self):
 		# TODO: return something about the threats
@@ -58,8 +87,8 @@ class Board(object):
 		return [move(self, row, col,
 
 		for yop in a:
-...     for hi in a[yop]:
-...             print str(yop) + " " + str(hi)
+     		for hi in a[yop]:
+             		print str(yop) + " " + str(hi)
 		return []
 		# return a bunch of new boards that are children of this board
 
@@ -84,4 +113,4 @@ class Board(object):
 					break
 			return value
 
-board = Board([['' for i in range(BOARD_SIZE)] for i in range(BOARD_SIZE)])
+board = Board([['' for i in range(BOARD_SIZE)] for i in range(BOARD_SIZE)], 'w', True)
