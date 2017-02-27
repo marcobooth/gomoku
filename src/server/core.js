@@ -1,6 +1,9 @@
 import Immutable from 'immutable';
 import { List, Map } from 'immutable';
-import { verticalWinningState, horizontalWinningState, rightDiagonalWinningState, leftDiagonalWinningState }
+import { verticalWinningState, horizontalWinningState, rightDiagonalWinningState, leftDiagonalWinningState } from './library'
+var spawn = require("child_process").spawn
+var fs = require('fs')
+var path = require('path')
 
 function checkForWinner(state) {
   var currentPlayer = state.get("player")
@@ -23,10 +26,32 @@ function changePlayer(state) {
 }
 
 export function placePiece(state, mainKey, secondKey) {
-  let currentColour = state.get("player") == 1 ? "black" : "red"
-  let newState = state.updateIn(['board', mainKey, secondKey], colour => { return currentColour })
-  checkForWinner(newState)
-  return changePlayer(newState)
+  // let currentColour = state.get("player") == 1 ? "black" : "red"
+  // let newState = state.updateIn(['board', mainKey, secondKey], colour => { return currentColour })
+  // checkForWinner(newState)
+  // return changePlayer(newState)
+  return state
+}
+
+export function callChildProcess() {
+  var stdout = fs.openSync("output.log", "a");
+  var stderr = fs.openSync("another.log", "a");
+
+  let command = "ls"
+  let args = ["-lA"]
+  let cwd = "/tmp/testing/"
+
+  var proc = spawn(command, args, {
+      cwd: cwd,
+      stdio: ["inherit", stdout, stderr]
+  });
+  proc.on("error", function (error) {
+      console.log("some sort of error");
+  });
+  proc.on("exit", function(code) {
+      console.log('some sort of success');
+  });
+  return 0
 }
 
 export const INITIAL_STATE = Immutable.fromJS({
