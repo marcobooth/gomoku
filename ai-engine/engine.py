@@ -1,116 +1,154 @@
 from copy import copy
+import numpy
 
 BOARD_SIZE = 19
 
 class Board(object):
-	# TODO: do we need to take depth into account for the heuristic?
-	def __init__(self, board, maxPlayerColor, maximizingPlayer=True, inPlayCells=0, threats):
-		# if stuff is default, calculate some starting values
-		if inPlayCells == 0:
-			# set up inPlayCells
-			inPlayCells = {}
+    threatFindingMutators = [
+        lambda row, col: (row + 1, col),
+        lambda row, col: (row + 1, col + 1),
+        lambda row, col: (row + 1, col - 1),
+        lambda row, col: (row, col - 1),
+    ]
 
-			for i in range(BOARD_SIZE):
-				inPlayCells[i] = {}
+    # TODO: do we need to take depth into account for the heuristic?
+    def __init__(self, board, maximizingPlayer=True, inPlayCells=0, threats=[]):
+        # NOTE: board.board is a 2D array of None, False, and True where True/False
+        # are places where moves have been made and correspond to whether the move
+        # was made by the maximizing player.
 
-			# set up threats
-			for row in range(BOARD_SIZE - 5):
-				for col in range(BOARD_SIZE):
-					player = board[row][col]
+        # NOTE: inPlayCells is a 2D hash table with rows as the top-level
+        # attribute value and columns as the second-level attribute. All values
+        # of the hash table are True.
 
-					# There's likely a more beautiful way of running through this logic
-					if col < BOARD_SIZE - 5:
-						# look right
-						if board[row][col] and (row == 0 or board[row - 1][col]) != player and \
-								all(board[lrow][col] == player for lrow in range(row + 1, row + 5)):
-							# found one going right
-							print 'found one going right'
+        # if stuff is default, calculate some starting values
+        if inPlayCells == 0:
+            # set up inPlayCells
+            inPlayCells = {}
 
-						# look down
-						if board[row][col] and (col == 0 or board[row][col - 1]) != player and \
-								all(board[row][lcol] == player for lcol in range(col + 1, col + 5)):
-							# found one going down
-							print 'found one going down'
+            for i in range(BOARD_SIZE):
+                inPlayCells[i] = {}
 
-						# look down right
-						if board[row][col] and \
-								(row == 0 or col == 0 or board[row - 1][col - 1] != player) and \
-								all(board[row + delta][col + delta] == player for delta in range(1, 5)):
-							print 'found one going down right'
+            # find all the threats from scratch
+            for row in range(BOARD_SIZE):
+                for col in range(BOARD_SIZE):
+                    player = board[row][col]
 
-					if col >= 4:
-						# look up right
-						if board[row][col] and \
-								(row == 0 or col == BOARD_SIZE - 1 or board[row - 1][col + 1] != player) and \
-								all(board[row + delta][col - delta] == player for delta in range(1, 5)):
-							print 'found one going up right'
 
-		this.board = board
-		this.maxPlayerColor = maxPlayerColor
-		this.maximizingPlayer = maximizingPlayer
-		this.inPlayCells = inPlayCells
-		this.threats = threats
 
-	def move(self, row, col, blackOrWhite):
-		# copy over the board, reusing as much memory as possible
-		newBoard = copy(oldBoard.board)
-		newBoard[row] = copy(oldBoard.board[row])
-		newBoard[row][col] = blackOrWhite
 
-		# add to the in play cells
-		inPlayCells = copy(this.inPlayCells)
 
-		# remove the place we just played
-		del inPlayCells[row][col]
+            for row in range(BOARD_SIZE - 5):
+                for col in range(BOARD_SIZE):
+                    player = board[row][col]
 
-		# add the cells around where the move was
-		for currentRow in range(row - 2, row + 3):
-			if row < 0 or row > BOARD_SIZE: continue
+                    # There's likely a more beautiful way of running through this logic
+                    if col < BOARD_SIZE - 5:
+                        # look right
+                        if board[row][col] and (row == 0 or board[row - 1][col]) != player and \
+                                all(board[lrow][col] == player for lrow in range(row + 1, row + 5)):
+                            # found one going right
+                            print 'found one going right'
 
-			for currentCol in range(col - 2, col + 3):
-				if col < 0 or col > BOARD_SIZE: continue
+                        # look down
+                        if board[row][col] and (col == 0 or board[row][col - 1]) != player and \
+                                all(board[row][lcol] == player for lcol in range(col + 1, col + 5)):
+                            # found one going down
+                            print 'found one going down'
 
-				# add the current row/col to the in play cells
-				if not board[currentRow][currentCol]:
-					inPlayCells[currentRow][currentCol] = True
+                        # look down right
+                        if board[row][col] and \
+                                (row == 0 or col == 0 or board[row - 1][col - 1] != player) and \
+                                all(board[row + delta][col + delta] == player for delta in range(1, 5)):
+                            print 'found one going down right'
 
-		threats = this.threats
-		# TODO: check to see if we need to add any threats
+                    if col >= 4:
+                        # look up right
+                        if board[row][col] and \
+                                (row == 0 or col == BOARD_SIZE - 1 or board[row - 1][col + 1] != player) and \
+                                all(board[row + delta][col - delta] == player for delta in range(1, 5)):
+                            print 'found one going up right'
 
-		return Board(newBoard, this.maxPlayerColor, !this.maximizingPlayer, inPlayCells, threats)
+        self.board = board
+        self.maximizingPlayer = maximizingPlayer
+        self.inPlayCells = inPlayCells
+        self.threats = threats
 
-	def heuristic(self):
-		# TODO: return something about the threats
-		# return the heuristic for this board
+    def move(self, row, col):
+        # copy over the board, reusing as much memory as possible
+        newBoard = copy(oldBoard.board)
+        newBoard[row] = copy(oldBoard.board[row])
+        newBoard[row][col] = !this.maximizingPlayer
 
-	def getChildren(self):
-		return [move(self, row, col,
+        # add to the in play cells
+        inPlayCells = copy(self.inPlayCells)
 
-		for yop in a:
-     		for hi in a[yop]:
-             		print str(yop) + " " + str(hi)
-		return []
-		# return a bunch of new boards that are children of this board
+        # remove the place we just played from being "in play"
+        del inPlayCells[row][col]
 
-	def alphabeta(self, depth, alpha, beta, maximizingPlayer):
-		if depth == 0 or hasWinner(node):
-			return calculateHeuristic(node)
+        # add the cells around where the move was
+        for currentRow in range(row - 2, row + 3):
+            if row < 0 or row > BOARD_SIZE: continue
 
-		if maximizingPlayer:
-			value = float('-inf')
-			for child of getChildren(node):
-				value = max(value, alphabeta(child, depth - 1, alpha, beta, False))
-				alpha = max(alpha, value)
-				if beta <= alpha:
-					break
-			return value
-		else:
-			value = float('inf')
-			for child of getChildren(node):
-				value = min(value, alphabeta(child, depth - 1, alpha, beta, True))
-				beta = min(beta, value)
-				if (beta <= alpha):
-					break
-			return value
+            for currentCol in range(col - 2, col + 3):
+                if col < 0 or col > BOARD_SIZE: continue
 
-board = Board([['' for i in range(BOARD_SIZE)] for i in range(BOARD_SIZE)], 'w', True)
+                # only add it if a move hasn't been done there
+                if board[currentRow][currentCol] != None:
+                    # don't change the parent's information...
+                    if inPlayCells[currentRow] is self.inPlayCells[currentRow]:
+                        inPlayCells[currentRow] = copy(self.inPlayCells[currentRow])
+
+                    # add the current row/col to the "in play" cells
+                    inPlayCells[currentRow][currentCol] = True
+
+        threats = self.threats
+        # TODO: check to see if we need to add any threats
+
+        return Board(newBoard, self.maxPlayerColor, !self.maximizingPlayer, inPlayCells, threats)
+
+    def heuristic(self):
+        # TODO: return something about the threats
+        # return the heuristic for this board
+
+# TODO: this has to return the last move to the main so we know what the best
+# move is
+def alphabeta(board, diveDepth, alpha, beta, maximizingPlayer):
+    if diveDepth == 0 or board.hasWinner():
+        return board.calculateHeuristic()
+
+    value = maximizingPlayer ? float('-inf') : float('inf')
+
+    for move of board.getMoves():
+        # create the new board with the move
+        newBoard = board.move(move.row, move.col)
+
+        if maximizingPlayer:
+            value = max(value, alphabeta(move, diveDepth - 1, alpha, beta, False))
+            alpha = max(alpha, value)
+        else:
+            value = min(value, alphabeta(move, diveDepth - 1, alpha, beta, True))
+            beta = min(beta, value)
+
+        # stop if it's not worth looking at this position anymore
+        if beta <= alpha:
+            break
+
+    return value
+
+def main():
+    # TODO: read in arguments, create the first board, pass that into alphabeta()
+
+    # create the first board from scratch (normally created with board.move())
+    # might not work yet
+    board = Board([[None for i in range(BOARD_SIZE)] for i in range(BOARD_SIZE)])
+
+    # check to see if there's already a winner and act accordingly
+    if board.hasWinner():
+        # do something with the winner
+
+    # look for the best move with Alpha-Beta pruning
+    alphabeta(board, 3, float('-inf'), float('inf'), True)
+
+if __name__ == '__main__':
+    main()
