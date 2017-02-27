@@ -4,7 +4,7 @@ import numpy
 BOARD_SIZE = 19
 
 class Board(object):
-    threatFindingMutators = [
+    threatFinders = [
         lambda row, col: (row + 1, col),
         lambda row, col: (row + 1, col + 1),
         lambda row, col: (row + 1, col - 1),
@@ -78,7 +78,7 @@ class Board(object):
         # copy over the board, reusing as much memory as possible
         newBoard = copy(oldBoard.board)
         newBoard[row] = copy(oldBoard.board[row])
-        newBoard[row][col] = !this.maximizingPlayer
+        newBoard[row][col] = not this.maximizingPlayer
 
         # add to the in play cells
         inPlayCells = copy(self.inPlayCells)
@@ -105,11 +105,20 @@ class Board(object):
         threats = self.threats
         # TODO: check to see if we need to add any threats
 
-        return Board(newBoard, self.maxPlayerColor, !self.maximizingPlayer, inPlayCells, threats)
+        return Board(newBoard, self.maxPlayerColor, not self.maximizingPlayer, inPlayCells, threats)
 
     def heuristic(self):
         # TODO: return something about the threats
         # return the heuristic for this board
+        return 0
+
+    def hasWinner(self):
+        # TODO
+        return False
+
+    def getMoves(self):
+        # TODO
+        return []
 
 # TODO: this has to return the last move to the main so we know what the best
 # move is
@@ -117,9 +126,9 @@ def alphabeta(board, diveDepth, alpha, beta, maximizingPlayer):
     if diveDepth == 0 or board.hasWinner():
         return board.calculateHeuristic()
 
-    value = maximizingPlayer ? float('-inf') : float('inf')
+    value = float('-inf') if maximizingPlayer else float('inf')
 
-    for move of board.getMoves():
+    for move in board.getMoves():
         # create the new board with the move
         newBoard = board.move(move.row, move.col)
 
@@ -145,6 +154,7 @@ def main():
 
     # check to see if there's already a winner and act accordingly
     if board.hasWinner():
+        print "yop"
         # do something with the winner
 
     # look for the best move with Alpha-Beta pruning
