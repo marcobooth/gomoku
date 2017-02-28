@@ -25,15 +25,19 @@ function changePlayer(state) {
   return state.updateIn(["player"], currentPlayer => { return nextPlayerWithMove })
 }
 
-export function placePiece(state, mainKey, secondKey) {
-  // let currentColour = state.get("player") == 1 ? "black" : "red"
-  // let newState = state.updateIn(['board', mainKey, secondKey], colour => { return currentColour })
-  // checkForWinner(newState)
-  // return changePlayer(newState)
-  return state
+export function declareWinner(state) {
+  let currentPlayer = state.get("player") == 1 ? "black" : "red"
+  let newState = state.updateIn(['winner'], value => { return currentColour })
+  return changePlayer(newState)
 }
 
-export function callChildProcess(state) {
+export function placePiece(state, mainKey, secondKey) {
+  let currentColour = state.get("player") == 1 ? "black" : "red"
+  let newState = state.updateIn(['board', mainKey, secondKey], colour => { return currentColour })
+  return changePlayer(newState)
+}
+
+export function getBestMove(state) {
   // no getting stderror output, unclear if I should
   let board = state.get("board").toJS()
   let output = fs.openSync("output.log", "w");

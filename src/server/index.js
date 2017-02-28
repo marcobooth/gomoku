@@ -1,5 +1,5 @@
 import Server from 'socket.io';
-import {createStore} from 'redux';
+import { createStore, applyMiddleware } from 'redux'
 import reducer from './reducer';
 
 import fs  from 'fs'
@@ -34,6 +34,8 @@ const initApp = (app, params, cb) => {
 const initEngine = io => {
   let store = createStore(reducer);
 
+  const boundDispatch = store.dispatch.bind(store)
+
   store.subscribe(() => {
     io.emit('state', store.getState().toJS())
   });
@@ -43,7 +45,32 @@ const initEngine = io => {
 
     // set up the state and action bits to connect to the client
     socket.emit('connected', store.getState().toJS());
-    socket.on('action', store.dispatch.bind(store));
+
+    // "Incoming" middleware adapted from: http://stackoverflow.com/a/41260990
+    socket.on('action', (action) => {
+      console.log("socket got an action:", action)
+      let syncActivityFinished = false;
+      let actionQueue = [];
+
+      function flushQueue() {
+        actionQueue.forEach(a => boundDispatch(a));
+        actionQueue = [];
+      }
+
+      function asyncDispatch(asyncAction) {
+        actionQueue = actionQueue.concat([asyncAction]);
+
+        if (syncActivityFinished) {
+          flushQueue();
+        }
+      }
+
+      const actionWithAsyncDispatch = Object.assign({}, action, { asyncDispatch });
+
+      boundDispatch(actionWithAsyncDispatch)
+      syncActivityFinished = true;
+      flushQueue();
+    })
   });
 }
 

@@ -4,7 +4,6 @@ import { Router, Route, hashHistory, Redirect } from 'react-router';
 import { createStore, applyMiddleware } from 'redux'
 import { Provider } from 'react-redux'
 import io from 'socket.io-client';
-import remoteActionMiddleware from './middleware/storeStateMiddleWare'
 import reducer from './reducers/allReducers'
 import { setState } from './actions/allActions'
 
@@ -21,6 +20,16 @@ socket.on('state', state => {
 socket.on('connected', (state) => {
   store.dispatch(setState(state))
 })
+
+var remoteActionMiddleware = socket => store => next => action => {
+  if (action.meta && action.meta.remote) {
+    action.socketId = socket.id
+
+    console.log("emitting action:", action);
+    socket.emit('action', action);
+  }
+  return next(action)
+}
 
 const createStoreWithMiddleware = applyMiddleware(
   remoteActionMiddleware(socket)

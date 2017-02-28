@@ -12,7 +12,7 @@ export const PLACE_PIECE = 'PLACE_PIECE'
 export const placePiece = (mainKey, secondKey) => {
   return {
     meta: { remote: true },
-    type: PLACE_PIECE,
+    type: 'START_ENGINE',
     mainKey,
     secondKey
   }

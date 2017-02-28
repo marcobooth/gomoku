@@ -1,21 +1,80 @@
 import {
-  callChildProcess,
+  getBestMove,
+  declareWinner,
   INITIAL_STATE,
+  placePiece,
 } from './core';
+import fs from 'fs'
+
+const returnState = () => {
+  return {
+    meta: { remote: true },
+    type: "RETURN_STATE",
+  }
+}
 
 export default function reducer(state = INITIAL_STATE, action) {
-  console.log("hillo");
-  // TODO change state to pending while in child process
-  callChildProcess(state)
-    .then((value) => {
-      console.log("action:", action)
-    })
-    .catch((reason) => {
-      console.log('Handle rejected promise ('+reason+') here.');
-    });
-    // switch (action.type) {
-    //   case 'PLACE_PIECE':
-    //     return callChildProcess(state)
-    // }
-  return state;
+  console.log("this:", this)
+  console.log("action in reducer:", action)
+
+  if (action.type === 'START_ENGINE') {
+    console.log("change state to running")
+    getBestMove(state)
+      .then((value) => {
+        console.log("did something, about to call asyncDispatch")
+        action.asyncDispatch({
+          type: 'ENGINE_SUCCESS',
+          message: 'got the best move',
+        })
+      })
+      .catch((reason) => {
+        action.asyncDispatch({ type: 'ENGINE_FAILURE' })
+      })
+
+    console.log("returning from reducer: loading set to true")
+    return state.set("loading", true)
+  } else if (action.type === 'ENGINE_SUCCESS') {
+    console.log("action.message:", action.message)
+    return state.set("loading", false)
+  } else if (action.type === 'ENGINE_FAILURE') {
+    console.log('gosh darnet')
+    return state.set("loading", false)
+  }
+
+  return state
+
+
+
+  // // TODO change state to pending while in child process
+  // if (action.type === "RETURN_STATE") {
+  //   console.log("in here now");
+  //   return state
+  // }
+  //
+  // getBestMove(state)
+  //   .then((value) => {
+  //     fs.readFile('./output.log', 'utf8', function (err,data) {
+  //       if (err) {
+  //         return console.log(err)
+  //       }
+  //       console.log("data:", data)
+  //       if (data === "winner\n") {
+  //         state = declareWinner(state)
+  //       } else if (data === "validMove\n") {
+  //         console.log("valid move");
+  //         state = placePiece(state, action.mainKey, action.secondKey)
+  //         reducer(state, returnState)
+  //       } else if (data === "invalidMove\n") {
+  //         state = error(state)
+  //       } else {
+  //         console.log("nothing");
+  //       }
+  //       return state
+  //     })
+  //     fs.writeFile('./output.log', '')
+  //   })
+  //   .catch((reason) => {
+  //     console.log('Handle rejected promise ('+reason+') here.');
+  //   })
+  // return state
 }

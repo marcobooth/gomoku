@@ -164,7 +164,7 @@ def main(maximizingPlayer, point, stringsForBoard):
     if not basicBoard:
         basicBoard = Board([[None for i in range(BOARD_SIZE)] for i in range(BOARD_SIZE)])
 
-    print 2
+    print "validMove"
     return
     # check to see if there's already a winner and act accordingly
     # if board.hasWinner():
