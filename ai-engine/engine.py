@@ -5,12 +5,46 @@ import sys
 BOARD_SIZE = 19
 
 class Board(object):
-    threatFinders = [
-        lambda row, col: (row + 1, col),
-        lambda row, col: (row + 1, col + 1),
-        lambda row, col: (row + 1, col - 1),
-        lambda row, col: (row, col - 1),
+    # this is a nice listing of the four ways to find threats
+    threat_finders = [
+        {
+            forwards: lambda row, col: (row + 1, col),
+            backwards: lambda row, col: (row - 1, col),
+            row_lower: 0,
+            row_upper: BOARD_SIZE - 4,
+            col_lower: 0,
+            col_upper: BOARD_SIZE,
+        },
+        {
+            forwards: lambda row, col: (row + 1, col + 1),
+            backwards: lambda row, col: (row - 1, col - 1),
+            row_lower: 0,
+            row_upper: BOARD_SIZE - 4,
+            col_lower: 0,
+            col_upper: BOARD_SIZE - 4,
+        },
+        {
+            forwards: lambda row, col: (row + 1, col - 1),
+            backwards: lambda row, col: (row - 1, col + 1),
+            row_lower: 4,
+            row_upper: BOARD_SIZE,
+            col_lower: 0,
+            col_upper: BOARD_SIZE - 4,
+        },
+        {
+            forwards: lambda row, col: (row, col + 1),
+            backwards: lambda row, col: (row, col - 1),
+            row_lower: 0,
+            row_upper: BOARD_SIZE,
+            col_lower: 0,
+            col_upper: BOARD_SIZE - 4,
+        },
     ]
+
+    @staticmethod
+    def within_bounds(bounds, row, col):
+        return row >= bounds.row_lower and row < bounds.row_upper and \
+                col >= bounds.col_lower and col < bounds.col_upper
 
     # TODO: do we need to take depth into account for the heuristic?
     def __init__(self, board, maximizingPlayer=True, inPlayCells=0, threats=[]):
@@ -33,7 +67,40 @@ class Board(object):
             # find all the threats from scratch
             for row in range(BOARD_SIZE):
                 for col in range(BOARD_SIZE):
-                    player = board[row][col]
+                    for finder in threat_finders:
+                        if not within_bounds(finder, row, col): continue
+
+                        # check if this is already a part of a threat
+                        # in this direction
+                        prev_row, prev_col = finder.backwards(row, col)
+                        if within_bounds(finder, prev_row, prev_col) and \
+                                board[prev_row][prev_col] == maximizingPlayer:
+                            continue
+
+                        threat_length = 0
+                        seek_row, seek_col = row, col
+                        while threat_length < 5:
+                            # iterate the seek row/col
+                            seek_row, seek_col = finder.forwards(seek_row, seek_col)
+                            if board[seek_row][seek_col] != maximizingPlayer:
+                                break
+                            threat_length++
+
+                        # TODO: check for disconnected 3/4-threats
+
+                        found_threat = {
+                            length: threat_length,
+                            player: maximizingPlayer,
+                        }
+
+                        if threat_length == 5:
+                            self.winning_threat = found_threat
+
+                        threats.push(found_threat)
+
+                        # TODO: I AM HERE
+
+
 
 
 
@@ -79,7 +146,7 @@ class Board(object):
         # copy over the board, reusing as much memory as possible
         newBoard = copy(oldBoard.board)
         newBoard[row] = copy(oldBoard.board[row])
-        newBoard[row][col] = not this.maximizingPlayer
+        newBoard[row][col] = not self.maximizingPlayer
 
         # add to the in play cells
         inPlayCells = copy(self.inPlayCells)
@@ -114,8 +181,7 @@ class Board(object):
         return 0
 
     def hasWinner(self):
-        # TODO
-        return False
+        return self.winning_threat
 
     def getMoves(self):
         # TODO
@@ -169,6 +235,7 @@ def main(maximizingPlayer, point, stringsForBoard):
     # check to see if there's already a winner and act accordingly
     # if board.hasWinner():
     #     print "yop"
+
         # do something with the winner
     # look for the best move with Alpha-Beta pruning
     # alphabeta(board, 3, float('-inf'), float('inf'), True)
