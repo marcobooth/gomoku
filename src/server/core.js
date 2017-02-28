@@ -33,25 +33,26 @@ export function placePiece(state, mainKey, secondKey) {
   return state
 }
 
-export function callChildProcess() {
-  var stdout = fs.openSync("output.log", "a");
-  var stderr = fs.openSync("another.log", "a");
+export function callChildProcess(state) {
+  // no getting stderror output, unclear if I should
+  let board = state.get("board").toJS()
+  let output = fs.openSync("output.log", "w");
+  let args = ["engine.py"]
 
-  let command = "ls"
-  let args = ["-lA"]
-  let cwd = "/tmp/testing/"
+  for (var i = 0; i < board.length; i++) {
+    args.push(board[i])
+  }
 
-  var proc = spawn(command, args, {
-      cwd: cwd,
-      stdio: ["inherit", stdout, stderr]
-  });
-  proc.on("error", function (error) {
-      console.log("some sort of error");
-  });
-  proc.on("exit", function(code) {
-      console.log('some sort of success');
-  });
-  return 0
+  return new Promise((resolve, reject) => {
+    var proc = spawn("python", args, {
+        cwd: "./ai-engine/",
+        stdio: ["inherit", output]
+    });
+    proc.on("error", reject);
+    proc.on("exit", function(code) {
+      resolve(code);
+    });
+  })
 }
 
 export const INITIAL_STATE = Immutable.fromJS({

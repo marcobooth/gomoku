@@ -1,5 +1,6 @@
 from copy import copy
 import numpy
+import sys
 
 BOARD_SIZE = 19
 
@@ -145,20 +146,32 @@ def alphabeta(board, diveDepth, alpha, beta, maximizingPlayer):
 
     return value
 
-def main():
-    # TODO: read in arguments, create the first board, pass that into alphabeta()
+def flengeConverter(value):
+    if value == "grey":
+        return None
+    elif value == "red":
+        return True
+    else:
+        return False
 
-    # create the first board from scratch (normally created with board.move())
-    # might not work yet
-    board = Board([[None for i in range(BOARD_SIZE)] for i in range(BOARD_SIZE)])
+def main(maximizingPlayer, point, stringsForBoard):
+    basicBoard = []
+    for string in stringsForBoard:
+        basicBoard.append(string.split(','))
 
+    basicBoard = [[flengeConverter(value) for value in rowValues] for rowValues in basicBoard]
+
+    if not basicBoard:
+        basicBoard = Board([[None for i in range(BOARD_SIZE)] for i in range(BOARD_SIZE)])
+
+    print 2
+    return
     # check to see if there's already a winner and act accordingly
-    if board.hasWinner():
-        print "yop"
+    # if board.hasWinner():
+    #     print "yop"
         # do something with the winner
-
     # look for the best move with Alpha-Beta pruning
-    alphabeta(board, 3, float('-inf'), float('inf'), True)
+    # alphabeta(board, 3, float('-inf'), float('inf'), True)
 
 if __name__ == '__main__':
-    main()
+    main(sys.argv[1], sys.argv[2], sys.argv[3:])
