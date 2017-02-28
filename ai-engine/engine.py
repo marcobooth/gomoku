@@ -87,6 +87,8 @@ class Board(object):
                             threat_length++
 
                         # TODO: check for disconnected 3/4-threats
+                        # if threat_length < 4:
+                        #     prev_row, prev_col = finder.backwards(row, col)
 
                         found_threat = {
                             length: threat_length,
@@ -97,45 +99,6 @@ class Board(object):
                             self.winning_threat = found_threat
 
                         threats.push(found_threat)
-
-                        # TODO: I AM HERE
-
-
-
-
-
-
-
-            for row in range(BOARD_SIZE - 5):
-                for col in range(BOARD_SIZE):
-                    player = board[row][col]
-
-                    # There's likely a more beautiful way of running through this logic
-                    if col < BOARD_SIZE - 5:
-                        # look right
-                        if board[row][col] and (row == 0 or board[row - 1][col]) != player and \
-                                all(board[lrow][col] == player for lrow in range(row + 1, row + 5)):
-                            # found one going right
-                            print 'found one going right'
-
-                        # look down
-                        if board[row][col] and (col == 0 or board[row][col - 1]) != player and \
-                                all(board[row][lcol] == player for lcol in range(col + 1, col + 5)):
-                            # found one going down
-                            print 'found one going down'
-
-                        # look down right
-                        if board[row][col] and \
-                                (row == 0 or col == 0 or board[row - 1][col - 1] != player) and \
-                                all(board[row + delta][col + delta] == player for delta in range(1, 5)):
-                            print 'found one going down right'
-
-                    if col >= 4:
-                        # look up right
-                        if board[row][col] and \
-                                (row == 0 or col == BOARD_SIZE - 1 or board[row - 1][col + 1] != player) and \
-                                all(board[row + delta][col - delta] == player for delta in range(1, 5)):
-                            print 'found one going up right'
 
         self.board = board
         self.maximizingPlayer = maximizingPlayer
@@ -170,8 +133,8 @@ class Board(object):
                     # add the current row/col to the "in play" cells
                     inPlayCells[currentRow][currentCol] = True
 
-        threats = self.threats
-        # TODO: check to see if we need to add any threats
+        # check to see if we need to add any new threats
+        threats = copy(self.threats)
 
         return Board(newBoard, self.maxPlayerColor, not self.maximizingPlayer, inPlayCells, threats)
 
