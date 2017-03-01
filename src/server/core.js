@@ -1,24 +1,8 @@
 import Immutable from 'immutable';
 import { List, Map } from 'immutable';
-import { verticalWinningState, horizontalWinningState, rightDiagonalWinningState, leftDiagonalWinningState } from './library'
 var spawn = require("child_process").spawn
 var fs = require('fs')
 var path = require('path')
-
-function checkForWinner(state) {
-  var currentPlayer = state.get("player")
-  var board = state.get("board").toJS()
-  for (var i = 0; i < board.length; i++) {
-    for(var j = 0; j < board[i].length; j++) {
-      if (verticalWinningState(board, currentPlayer, [i, j])      ||
-          horizontalWinningState(board, currentPlayer, [i, j])    ||
-          rightDiagonalWinningState(board, currentPlayer, [i, j]) ||
-          leftDiagonalWinningState(board, currentPlayer, [i, j])) {
-            console.log("winner");
-          }
-    }
-  }
-}
 
 function changePlayer(state) {
   let nextPlayerWithMove = state.get("player") == 1 ? 2 : 1
@@ -27,8 +11,7 @@ function changePlayer(state) {
 
 export function declareWinner(state) {
   let currentPlayer = state.get("player") == 1 ? "black" : "red"
-  let newState = state.updateIn(['winner'], value => { return currentColour })
-  return changePlayer(newState)
+  return state.set('winner', currentPlayer)
 }
 
 export function placePiece(state, mainKey, secondKey) {

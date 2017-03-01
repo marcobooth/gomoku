@@ -14,31 +14,47 @@ const returnState = () => {
 }
 
 export default function reducer(state = INITIAL_STATE, action) {
-  console.log("this:", this)
   console.log("action in reducer:", action)
 
   if (action.type === 'START_ENGINE') {
     console.log("change state to running")
     getBestMove(state)
       .then((value) => {
-        console.log("did something, about to call asyncDispatch")
-        action.asyncDispatch({
-          type: 'ENGINE_SUCCESS',
-          message: 'got the best move',
+        fs.readFile('./output.log', 'utf8', function (err,data) {
+          if (err) {
+            return console.log(err)
+          }
+          console.log("data:", data)
+          if (data === "winner\n") {
+            action.asyncDispatch({
+              type: 'DECLARE_WINNER',
+            })
+          } else if (data === "validMove\n") {
+            action.asyncDispatch({
+              type: 'PLACE_PIECE',
+              mainKey: action.mainKey,
+              secondKey: action.secondKey,
+            })
+          } else if (data === "invalidMove\n") {
+            action.asyncDispatch({
+              type: 'INVALID_MOVE',
+            })
+          } else {
+            console.log("nothing");
+          }
+          fs.writeFile('./output.log', '')
         })
+        console.log("did something, about to call asyncDispatch")
       })
       .catch((reason) => {
         action.asyncDispatch({ type: 'ENGINE_FAILURE' })
       })
-
     console.log("returning from reducer: loading set to true")
     return state.set("loading", true)
-  } else if (action.type === 'ENGINE_SUCCESS') {
-    console.log("action.message:", action.message)
-    return state.set("loading", false)
-  } else if (action.type === 'ENGINE_FAILURE') {
-    console.log('gosh darnet')
-    return state.set("loading", false)
+  } else if (action.type === 'DECLARE_WINNER') {
+    return declareWinner(state)
+  } else if (action.type === 'PLACE_PIECE') {
+    return placePiece(state, action.mainKey, action.secondKey)
   }
 
   return state
