@@ -16,10 +16,10 @@ Meteor.methods({
     // check(boardId, String);
     // check(setChecked, Boolean);
     const board = Boards.findOne(boardId);
-    Boards.update(boardId, {
-      $set: {
-        [`board.${location[0]}.${location[1]}`]: colour
-      }
-    });
+    // Boards.update(boardId, {
+    //   $set: {
+    //     [`board.${location[0]}.${location[1]}`]: colour
+    //   }
+    // });
   },
 })
