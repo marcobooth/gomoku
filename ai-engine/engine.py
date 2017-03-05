@@ -95,7 +95,7 @@ class Board:
     # TODO: do we need to take depth into account for the heuristic?
     # NOTE: I tried doing threats=[] but Python insisted on giving it values
     # for previous calls of __init__.
-    def __init__(self, board, current_player=True, in_play_cells=0, threats=0):
+    def __init__(self, board, current_player=True, in_play_cells=0, threats=[]):
         # NOTE: board.board is a 2D array of None, False, and True where True/False
         # are places where moves have been made and correspond to whether the move
         # was made by the maximizing player.
@@ -111,75 +111,8 @@ class Board:
             # set up in_play_cells
             in_play_cells = {}
 
-            # initialize the whole in_play_cells hash before calling
-            # add_in_play() so we don't run into problems calling it for rows
-            # that are below this one
             for row in range(BOARD_SIZE):
                 in_play_cells[row] = {}
-
-            for row in range(BOARD_SIZE):
-                for col in range(BOARD_SIZE):
-                    if board[row][col] != None:
-                        in_play_cells = self.add_in_play(in_play_cells, board, row, col)
-
-            # find all the threats from scratch
-            threats = []
-            for row in range(BOARD_SIZE):
-                for col in range(BOARD_SIZE):
-                    threat_player = board[row][col]
-
-                    # don't bother with cells that aren't filled in
-                    if threat_player == None: continue
-
-                    for finder in self.threat_finders:
-                        if not self.within_bounds(row, col): continue
-
-                        moves = []
-                        prev_row, prev_col = finder.backwards(row, col)
-                        if self.within_bounds(prev_row, prev_col):
-                            prev_value = board[prev_row][prev_col]
-
-                            # check if this is already a part of a threat
-                            # in this direction
-                            # TODO: treat new lines after skipped cells as new threats?
-                            if prev_value == threat_player:
-                                continue
-                            elif prev_value == None:
-                                # ... or if it's somewhere we can move
-                                moves.append((prev_row, prev_col))
-
-                        seek_row, seek_col = row, col
-                        locations = [(seek_row, seek_col)]
-
-                        while len(locations) <= 5:
-                            # iterate the seek row/col
-                            seek_row, seek_col = finder.forwards(seek_row, seek_col)
-
-                            if self.within_bounds(seek_row, seek_col):
-                                board_value = board[seek_row][seek_col]
-                                if board_value == threat_player:
-                                    locations.append((seek_row, seek_col))
-                                elif board_value == None:
-                                    # TODO: check for disconnected threats
-                                    moves.append((seek_row, seek_col))
-
-                                    break
-                                # else board_value == !threat_player so just continue
-                                # on with our life
-                            else:
-                                break
-
-                        if len(locations) <= 1: continue
-
-                        found_threat = Threat(finder, threat_player, locations, moves)
-
-                        # if there's a winner deal with that
-                        if len(locations) == 5:
-                            winning_threat = found_threat
-
-                        # TODO: don't add it if there's no room for expansion
-                        # (can't fit 5 there)
-                        threats.append(found_threat)
 
         self._board = board
         self._current_player = current_player
@@ -187,17 +120,24 @@ class Board:
         self._threats = threats
         self._winning_threat = winning_threat
 
-    def move(self, row, col):
-        # XXX testing only
-        return self
+    def move(self, row, col, move_player=None):
+        print 'row:', row
+        print 'col:', col
 
         # copy over the board, reusing as much memory as possible
-        newBoard = copy(oldBoard.board)
-        newBoard[row] = copy(oldBoard.board[row])
-        newBoard[row][col] = not self._current_player
+        newBoard = copy(self._board)
+        newBoard[row] = copy(self._board[row])
 
-        # remove the place we just played from being "in play"
-        del in_play[row][col]
+        if move_player == None:
+            move_player = not self._current_player
+        newBoard[row][col] = move_player
+
+        in_play = deepcopy(self._in_play_cells)
+
+        # if we're not initializing the board, remove the place we just
+        # played from being "in play"
+        if move_player == None:
+            del in_play[row][col]
 
         # add the cells around where the move is
         in_play = self.add_in_play(self._in_play_cells, newBoard, row, col)
@@ -205,7 +145,64 @@ class Board:
         # check to see if we need to add any new threats
         threats = copy(self._threats)
 
-        # TODO: add new threats
+        # find all the threats from scratch
+        # threats = []
+        # for row in range(BOARD_SIZE):
+        #     for col in range(BOARD_SIZE):
+        #         threat_player = board[row][col]
+        #
+        #         # don't bother with cells that aren't filled in
+        #         if threat_player == None: continue
+        #
+        #         for finder in self.threat_finders:
+        #             if not self.within_bounds(row, col): continue
+        #
+        #             moves = []
+        #             prev_row, prev_col = finder.backwards(row, col)
+        #             if self.within_bounds(prev_row, prev_col):
+        #                 prev_value = board[prev_row][prev_col]
+        #
+        #                 # check if this is already a part of a threat
+        #                 # in this direction
+        #                 # TODO: treat new lines after skipped cells as new threats?
+        #                 if prev_value == threat_player:
+        #                     continue
+        #                 elif prev_value == None:
+        #                     # ... or if it's somewhere we can move
+        #                     moves.append((prev_row, prev_col))
+        #
+        #             seek_row, seek_col = row, col
+        #             locations = [(seek_row, seek_col)]
+        #
+        #             while len(locations) <= 5:
+        #                 # iterate the seek row/col
+        #                 seek_row, seek_col = finder.forwards(seek_row, seek_col)
+        #
+        #                 if self.within_bounds(seek_row, seek_col):
+        #                     board_value = board[seek_row][seek_col]
+        #                     if board_value == threat_player:
+        #                         locations.append((seek_row, seek_col))
+        #                     elif board_value == None:
+        #                         # TODO: check for disconnected threats
+        #                         moves.append((seek_row, seek_col))
+        #
+        #                         break
+        #                     # else board_value == !threat_player so just continue
+        #                     # on with our life
+        #                 else:
+        #                     break
+        #
+        #             if len(locations) <= 1: continue
+        #
+        #             found_threat = Threat(finder, threat_player, locations, moves)
+        #
+        #             # if there's a winner deal with that
+        #             if len(locations) == 5:
+        #                 winning_threat = found_threat
+        #
+        #             # TODO: don't add it if there's no room for expansion
+        #             # (can't fit 5 there)
+        #             threats.append(found_threat)
 
         return Board(newBoard, not self._current_player, in_play, threats)
 
@@ -232,9 +229,6 @@ class Board:
 # TODO: this has to return the last move to the main so we know what the best
 # move is
 def alphabeta(board, dive_depth, alpha, beta, current_player):
-    # XXX testing only
-    return (2, 2)
-
     if dive_depth == 0 or board.get_winner():
         return board.calculateHeuristic()
 
@@ -257,19 +251,20 @@ def alphabeta(board, dive_depth, alpha, beta, current_player):
 
     return value
 
-def convert_cell(maxPlayerChar, char):
-    if char == maxPlayerChar:
-        return True
-    elif char != ".":
-        return False
-    else:
-        return None
+def gomoku(maxPlayerChar, move_row, move_col, boardStrings):
+    board = Board([[None for cell in range(BOARD_SIZE)] for row in range(BOARD_SIZE)])
 
-def main(maxPlayerChar, row, col, boardStrings):
-    # NOTE: it is an error to call the program with a board that's already
-    #       been solved
-    board = Board([[convert_cell(maxPlayerChar, cell) for cell in row] for row in boardStrings])
-    board = board.move(row, col)
+    # make a move for each of the filled-in cells on the board
+    for rowIndex, row in enumerate(boardStrings):
+        for colIndex, cell in enumerate(row):
+            if cell == '.':
+                continue
+
+            player = cell == maxPlayerChar
+            board = board.move(rowIndex, colIndex, player)
+
+    # make the move...
+    board = board.move(move_row, move_col)
 
     winner = board.get_winner()
     if winner:
@@ -287,4 +282,5 @@ def main(maxPlayerChar, row, col, boardStrings):
 # Example to run:
 # python engine.py w 5 6 "..................." "....wwb............" [...]
 if __name__ == '__main__':
-    main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4:])
+    print sys.argv
+    gomoku(sys.argv[1], int(sys.argv[2]), int(sys.argv[3]), sys.argv[4:])
