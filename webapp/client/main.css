@@ -1,1 +1,8 @@
 /* CSS declarations go here */
+.dot {
+ background: black;
+ width: 15px;
+ height: 15px;
+ border-radius: 50%;
+ margin: 35px;
+}

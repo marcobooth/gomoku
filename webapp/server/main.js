@@ -1,1 +1,1 @@
-import '../imports/api/boards.js';
+import '../imports/api/games.js';
