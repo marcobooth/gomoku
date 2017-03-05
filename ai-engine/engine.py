@@ -30,7 +30,7 @@ class Threat:
         self._value = 0
         length = len(self._locations)
         if length == 4:
-            self._value = 20
+            self._value = 20000
         elif length == 3:
             self._value = 5
         elif length == 2:
@@ -46,7 +46,7 @@ class Threat:
     def value(self): return self._value
 
     def __str__(self):
-        return 'player={}, finder={}, {}, {}'.format(self._player, self._finder, self._locations, self._moves)
+        return 'player={}, heuristic={} finder={}, {}, {}'.format(self._player, self.value(), self._finder, self._locations, self._moves)
         # return self._direction + '(' + str(self._row) + ', ' + str(self._col) + ') for ' + str(self._length) + ', player = ' + str(self._player)
 
 class Board:
@@ -128,7 +128,6 @@ class Board:
                 for col in range(BOARD_SIZE):
                     threat_player = board[row][col]
 
-
                     # don't bother with cells that aren't filled in
                     if threat_player == None: continue
 
@@ -178,7 +177,8 @@ class Board:
                         if len(locations) == 5:
                             winning_threat = found_threat
 
-
+                        # TODO: don't add it if there's no room for expansion
+                        # (can't fit 5 there)
                         threats.append(found_threat)
 
         self._board = board
@@ -188,6 +188,9 @@ class Board:
         self._winning_threat = winning_threat
 
     def move(self, row, col):
+        # XXX testing only
+        return self
+
         # copy over the board, reusing as much memory as possible
         newBoard = copy(oldBoard.board)
         newBoard[row] = copy(oldBoard.board[row])
@@ -229,6 +232,9 @@ class Board:
 # TODO: this has to return the last move to the main so we know what the best
 # move is
 def alphabeta(board, dive_depth, alpha, beta, current_player):
+    # XXX testing only
+    return (2, 2)
+
     if dive_depth == 0 or board.get_winner():
         return board.calculateHeuristic()
 
@@ -251,7 +257,7 @@ def alphabeta(board, dive_depth, alpha, beta, current_player):
 
     return value
 
-def convertCell(maxPlayerChar, char):
+def convert_cell(maxPlayerChar, char):
     if char == maxPlayerChar:
         return True
     elif char != ".":
@@ -262,7 +268,7 @@ def convertCell(maxPlayerChar, char):
 def main(maxPlayerChar, row, col, boardStrings):
     # NOTE: it is an error to call the program with a board that's already
     #       been solved
-    board = Board([[convertCell(cell) for cell in row] for row in boardStrings])
+    board = Board([[convert_cell(maxPlayerChar, cell) for cell in row] for row in boardStrings])
     board = board.move(row, col)
 
     winner = board.get_winner()
@@ -275,7 +281,8 @@ def main(maxPlayerChar, row, col, boardStrings):
         print "Searching for best move..."
 
         # look for the best move with Alpha-Beta pruning
-        alphabeta(board, 3, float('-inf'), float('inf'), True)
+        bestMove = alphabeta(board, 3, float('-inf'), float('inf'), True)
+        print "Best move [0-indexed (row, col)]: ({:>2}, {:>2})".format(bestMove[0], bestMove[1])
 
 # Example to run:
 # python engine.py w 5 6 "..................." "....wwb............" [...]
