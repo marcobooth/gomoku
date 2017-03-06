@@ -25,8 +25,8 @@ class Game extends Component {
     if (this.props.game.status === "creating") {
       return <JoinGame game={this.props.game} currentUser={this.props.currentUser} />
     }
-    else if (this.props.game.status === "winner") {
-      return <div>Somebody won the game!!</div>
+    if (this.props.game.status === "winner") {
+      var winner = <div>Somebody won the game!!</div>
     }
 
     return (
@@ -34,6 +34,7 @@ class Game extends Component {
         <h2>
           Gomoku - Da Game
         </h2>
+        { winner }
         <div>
           <Board game={this.props.game} currentUser={this.props.currentUser} />
         </div>
