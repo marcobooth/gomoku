@@ -1,1 +1,1 @@
-print "invalidmove"
+print "validmove"

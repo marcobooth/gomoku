@@ -26,6 +26,8 @@ Meteor.methods({
           Games.update(gameId, { $set: { status: "winner" }})
           console.log("In the stdout");
         } else if (stdout === "validmove\n") {
+          console.log("I'm in the valid move");
+          console.log("game:", game)
           let newGameArray = game.board
           newGameArray[rowIndex][pointIndex] = game.currentPlayer
           let currentPlayer = game.currentPlayer === game.p1 ? game.p2 : game.p1

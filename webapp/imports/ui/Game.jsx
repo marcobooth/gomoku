@@ -11,6 +11,14 @@ class Game extends Component {
     Meteor.call('games.handleMove', this.props.game._id, rowIndex, pointIndex);
   }
 
+  handleJoinGame() {
+    Meteor.call('games.join', this.props.game._id);
+  }
+
+  joinGameButton() {
+    return <div onClick={this.handleJoinGame.bind(this)}>Click me!</div>
+  }
+
   renderBoard() {
     var renderedBoard = this.props.game.board.map((row, rowIndex) => {
       return <div className="row" key={rowIndex} style={{display: 'flex'}}>
@@ -36,11 +44,21 @@ class Game extends Component {
   }
 
   render() {
+    // let game, status, currentUser = { this.props... }
     if (!this.props.game) {
       return <div></div>
     }
     // console.log("this.props.game:", this.props.game)
-    if (this.props.game.status === "winner") {
+    if (this.props.game.status === "creating") {
+      console.log("this.props:", this.props)
+      if (this.props.currentUser && this.props.currentUser._id === this.props.game.p1) {
+        return <div>Waiting for another player</div>
+      } else if (this.props.currentUser && this.props.currentUser._id) {
+        return <div>{this.joinGameButton()}</div>
+      } else {
+        return <div>Please login to join a game</div>
+      }
+    } else if (this.props.game.status === "winner") {
       return <div>Somebody won the game!!</div>
     }
 
@@ -64,5 +82,6 @@ export default createContainer(( params ) => {
   gameId = FlowRouter.getParam("_id")
   return {
     game: Games.findOne(gameId),
+    currentUser: Meteor.user(),
   };
 }, Game);

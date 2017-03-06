@@ -26,14 +26,20 @@ Meteor.methods({
         winner: undefined
       })
     } else {
-      Games.insert({
+      return Games.insert({
         board: board,
         currentPlayer: this.userId,
         p1: this.userId,
         p2: undefined,
+        p1Colour: 'red',
+        p2Colour: 'black',
         status: 'creating',
         winner: undefined
       })
     }
   },
+  'games.join'(gameId) {
+    const game = Games.findOne(gameId);
+    Games.update(gameId, { $set: { p2: this.userId, status: 'started' }});
+  }
 })
