@@ -1,1 +1,2 @@
-import '../imports/api/games.js';
+import '../imports/api/methods.js';
+import '../imports/api/server/methods.js';

@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import { Meteor } from 'meteor/meteor';
 import { createContainer } from 'meteor/react-meteor-data';
 import { pathFor } from '../../utilities/flow_helper.js';
-import { Games } from '../api/games.js';
+import { Games } from '../api/collections.js';
 
 class Home extends Component {
 
