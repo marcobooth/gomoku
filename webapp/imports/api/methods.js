@@ -1,6 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
-import { Games } from './collections.js'
+import { Games, Messages } from './collections.js'
 
 Meteor.methods({
   'games.insert'(typeGame) {
@@ -41,5 +41,22 @@ Meteor.methods({
   'games.join'(gameId) {
     const game = Games.findOne(gameId);
     Games.update(gameId, { $set: { p2: this.userId, status: 'started' }});
-  }
+  },
+  'messages.insert'(gameId, text) {
+    check(text, String);
+    check(gameId, String);
+
+    console.log("About to add a message");
+
+    if (! this.userId) {
+      throw new Meteor.Error('not-authorized');
+    }
+
+    return Messages.insert({
+      text,
+      gameId,
+      userId: this.userId,
+      dateCreated: new Date
+    })
+  },
 })

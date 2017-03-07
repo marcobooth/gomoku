@@ -33,3 +33,22 @@ Games.attachSchema(new SimpleSchema({
     optional: true
   },
 }));
+
+export const Messages = new Mongo.Collection('messages');
+
+Messages.attachSchema(new SimpleSchema({
+  text: {
+    type: String
+  },
+  gameId: {
+    type: String
+  },
+  userId: {
+    type: String,
+    optional: true
+  },
+  dateCreated: {
+    type: Date,
+    optional: true
+  },
+}));
