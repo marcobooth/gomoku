@@ -42,6 +42,18 @@ Meteor.methods({
     const game = Games.findOne(gameId);
     Games.update(gameId, { $set: { p2: this.userId, status: 'started' }});
   },
+  'games.changePieceColour'(gameId, userId, colour) {
+    const game = Games.findOne(gameId);
+
+    let playerToChange
+    if (userId === game.p1) {
+      playerToChange = "p1Colour"
+    } else {
+      playerToChange = "p2Colour"
+    }
+
+    Games.update(gameId, { $set: { [playerToChange] : colour }});
+  },
   'messages.insert'(gameId, text) {
     check(text, String);
     check(gameId, String);

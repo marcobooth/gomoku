@@ -6,6 +6,7 @@ import { FlowRouter } from 'meteor/kadira:flow-router';
 import { Games } from '../api/collections.js';
 import Board from './Board.jsx'
 import JoinGame from './JoinGame.jsx'
+import PieceColour from './PieceColour.jsx'
 import GameMessages from './GameMessages.jsx'
 
 class Game extends Component {
@@ -32,11 +33,9 @@ class Game extends Component {
 
     return (
       <div className="container">
-        <h2>
-          Gomoku - Da Game
-        </h2>
         { winner }
         <div>
+          <PieceColour game={this.props.game} currentUser={this.props.currentUser} />
           <Board game={this.props.game} currentUser={this.props.currentUser} />
         </div>
         <GameMessages />
