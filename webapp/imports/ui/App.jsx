@@ -11,11 +11,13 @@ class App extends Component {
     return (
       <div className="container">
         <header>
-          <a href={ pathFor( '/' ) }>
-            <h1>Gomoku</h1>
-          </a>
+          <div className="ui menu">
+            <a href={pathFor( '/' )} className="item">Gomoku</a>
+            <div className="right menu">
+              <AccountsUIWrapper />
+            </div>
+          </div>
         </header>
-        <AccountsUIWrapper />
         {this.props.content}
       </div>
     );

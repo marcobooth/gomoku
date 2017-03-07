@@ -28,15 +28,20 @@ class Home extends Component {
 
   render() {
     return (
-      <div className="container">
-        <button onClick={this.handleClick.bind(this, "player")}>
-          1 v 1
-        </button>
-
-        <button onClick={this.handleClick.bind(this, "AI")}>
-          1 v AI
-        </button>
-      </div>
+        <div className="ui two column centered grid">
+          <div className="four wide column">
+            <button className="massive ui labeled icon button" onClick={this.handleClick.bind(this, "player")}>
+              <i className="user icon"></i>
+              1 v 1
+            </button>
+          </div>
+          <div className="four wide column">
+            <button className="massive ui right labeled icon button" onClick={this.handleClick.bind(this, "AI")}>
+              <i className="laptop icon"></i>
+              1 v AI
+            </button>
+          </div>
+        </div>
     );
   }
 }
