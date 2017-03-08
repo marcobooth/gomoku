@@ -22,9 +22,20 @@ class GameMessages extends Component {
 
   renderMessages() {
     var renderedMessages = this.props.messages.map((message, index) => {
-      return <div key={index}>{ message.text }</div>
+      return (
+        <div className="comment" key={index}>
+          <div className="content">
+            <a className="author">{ message.userId }</a>
+            <div className="metadata">
+              <span className="date">{ message.dateCreated.toLocaleTimeString() }</span>
+            </div>
+            <div className="text">
+              { message.text }
+            </div>
+          </div>
+        </div>
+      )
     })
-
     return renderedMessages
   }
 
@@ -39,24 +50,22 @@ class GameMessages extends Component {
   }
 
   render() {
-    console.log("this.props:", this.props)
     return (
-      <div className="container">
-        <h2>
-          Messages
-        </h2>
-        <div>
-          { this.renderMessages() }
-        </div>
-        <form onSubmit={this.handleSubmit}>
+      <div className="ui comments">
+        <h3 className="ui dividing header">Comments</h3>
+        { this.renderMessages() }
+        <form className="ui reply form" onSubmit={this.handleSubmit}>
           <label>
             Message:
             <input type="text" value={this.state.value} onChange={this.handleChange} />
           </label>
-          <input type="submit" value="Submit" />
+
+          <button type="submit" className="ui blue labeled submit icon button">
+            <i className="icon edit"></i> Add Reply
+          </button>
         </form>
       </div>
-    );
+    )
   }
 }
 
