@@ -58,6 +58,8 @@ HighScores.propTypes = {
 };
 
 export default createContainer(() => {
+  Meteor.subscribe('user_data')
+  
   return {
     users: Meteor.users.find().fetch(),
   };
