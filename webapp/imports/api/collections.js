@@ -43,7 +43,7 @@ Messages.attachSchema(new SimpleSchema({
   gameId: {
     type: String
   },
-  userId: {
+  username: {
     type: String,
     optional: true
   },

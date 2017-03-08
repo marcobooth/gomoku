@@ -25,7 +25,7 @@ class GameMessages extends Component {
       return (
         <div className="comment" key={index}>
           <div className="content">
-            <a className="author">{ message.userId }</a>
+            <a className="author">{ message.username }</a>
             <div className="metadata">
               <span className="date">{ message.dateCreated.toLocaleTimeString() }</span>
             </div>

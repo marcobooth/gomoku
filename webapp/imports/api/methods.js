@@ -67,7 +67,7 @@ Meteor.methods({
     return Messages.insert({
       text,
       gameId,
-      userId: this.userId,
+      username: Meteor.user().username,
       dateCreated: new Date
     })
   },
