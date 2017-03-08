@@ -4,6 +4,7 @@ import { Meteor } from 'meteor/meteor';
 import { createContainer } from 'meteor/react-meteor-data';
 import { pathFor } from '../../utilities/flow_helper.js';
 import { Games } from '../api/collections.js';
+import HighScores from './HighScores.jsx'
 
 class Home extends Component {
 
@@ -28,6 +29,7 @@ class Home extends Component {
 
   render() {
     return (
+      <div>
         <div className="ui two column centered grid">
           <div className="four wide column">
             <button className="massive ui labeled icon button" onClick={this.handleClick.bind(this, "player")}>
@@ -42,6 +44,10 @@ class Home extends Component {
             </button>
           </div>
         </div>
+
+        <HighScores />
+      </div>
+
     );
   }
 }

@@ -9,7 +9,6 @@ export default class PieceColour extends Component {
   }
 
   componentDidMount() {
-    // TODO why is this not done by semanticUI
     $('.ui.dropdown').dropdown()
   }
 
