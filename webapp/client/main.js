@@ -9,6 +9,7 @@ import GameContainer from '../imports/ui/Game.jsx'
 import '../imports/startup/accounts-config.js'
 
 FlowRouter.route("/", {
+  name: 'home',
   action() {
     mount(AppContainer, {
       content: <HomeContainer />

@@ -9,16 +9,24 @@ class App extends Component {
 
   render() {
     return (
-      <div className="container">
-        <header>
-          <div className="ui menu">
-            <a href={pathFor( '/' )} className="item">Gomoku</a>
+      <div>
+        <div className="ui borderless menu">
+          <div className="ui container">
+            <a href={pathFor("home")} className="header item">
+              Gomoku
+            </a>
+
             <div className="right menu">
-              <AccountsUIWrapper />
+              <div className="item">
+                <AccountsUIWrapper />
+              </div>
             </div>
           </div>
-        </header>
-        {this.props.content}
+        </div>
+
+        <div className="ui container">
+          {this.props.content}
+        </div>
       </div>
     );
   }

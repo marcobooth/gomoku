@@ -68,7 +68,7 @@ Meteor.methods({
       text,
       gameId,
       username: Meteor.user().username,
-      dateCreated: new Date
+      dateCreated: new Date()
     })
   },
 })
