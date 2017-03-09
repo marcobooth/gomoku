@@ -4,10 +4,6 @@ import { Games } from '../collections.js'
 const child_process = require('child_process');
 const exec = child_process.exec;
 
-Meteor.publish('user_data', function () {
-  return Meteor.users.find({}, { fields: { 'won' : true, 'drawn': true, 'lost': true }})
-})
-
 Meteor.methods({
   'games.handleMove'(gameId, rowIndex, pointIndex) {
     check(gameId, String);

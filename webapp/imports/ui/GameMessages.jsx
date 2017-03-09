@@ -73,7 +73,8 @@ Messages.propTypes = {
 };
 
 export default createContainer(() => {
-  gameId = FlowRouter.getParam("_id")
+  let gameId = FlowRouter.getParam("_id")
+  Meteor.subscribe('messageData', gameId)
   return {
     gameId,
     messages: Messages.find({ gameId }).fetch(),

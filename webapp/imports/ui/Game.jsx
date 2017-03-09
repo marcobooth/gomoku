@@ -48,7 +48,8 @@ Game.propTypes = {
 };
 
 export default createContainer(( params ) => {
-  gameId = FlowRouter.getParam("_id")
+  let gameId = FlowRouter.getParam("_id")
+  Meteor.subscribe('gameData')
   return {
     game: Games.findOne(gameId),
     currentUser: Meteor.user(),
