@@ -21,15 +21,21 @@ Meteor.methods({
         if (error) {
           console.log("error");
         }
-        // return stdout
-        if (stdout === "winner\n") {
-          // unsure of output for this, so only updating one player for now
-          // TODO why did I need to use .fetch when using find
+        else if (stdout === "winner\n") {
           p1 = Meteor.users.findOne({ "_id" : game.p1 })
           let gamesWon = p1.won ? p1.won + 1 : 1
-          Meteor.users.update(game.p1, { $set: { won: gamesWon } })
 
-          Games.update(gameId, { $set: { status: "winner" }})
+          Meteor.users.update(game.p1, {
+            $set: {
+              won: gamesWon
+            }
+          })
+
+          Games.update(gameId, {
+            $set: {
+              status: "winner"
+            }
+          })
         } else if (stdout === "validmove\n") {
           console.log("I'm in the valid move");
           console.log("game:", game)
@@ -37,7 +43,12 @@ Meteor.methods({
           newGameArray[rowIndex][pointIndex] = game.currentPlayer
           let currentPlayer = game.currentPlayer === game.p1 ? game.p2 : game.p1
           // TODO ask flenge how to add to part of the array
-          Games.update(gameId, { $set: { board: newGameArray, currentPlayer: currentPlayer }});
+          Games.update(gameId, {
+            $set: {
+              board: newGameArray,
+              currentPlayer: currentPlayer
+            }
+          });
         } else {
           console.log("In the other");
           console.log("stdout:", stdout)

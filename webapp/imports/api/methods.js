@@ -40,7 +40,12 @@ Meteor.methods({
   },
   'games.join'(gameId) {
     const game = Games.findOne(gameId);
-    Games.update(gameId, { $set: { p2: this.userId, status: 'started' }});
+    Games.update(gameId, {
+      $set: {
+        p2: this.userId,
+        status: 'started'
+      }
+    });
   },
   'games.changePieceColour'(gameId, userId, colour) {
     const game = Games.findOne(gameId);

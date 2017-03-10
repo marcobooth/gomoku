@@ -10,18 +10,12 @@ class GameMessages extends Component {
     super(props);
     this.state = {value: ''};
 
-    // TODO Why are we dong this? Explore bind
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
-    this.handleCreateMessages = this.handleCreateMessages.bind(this);
-  }
-
-  handleCreateMessages(text) {
-    Meteor.call('messages.insert', this.props.gameId, text);
   }
 
   renderMessages() {
-    var renderedMessages = this.props.messages.map((message, index) => {
+    return renderedMessages = this.props.messages.map((message, index) => {
       return (
         <div className="comment" key={index}>
           <div className="content">
@@ -36,7 +30,6 @@ class GameMessages extends Component {
         </div>
       )
     })
-    return renderedMessages
   }
 
   handleChange(event) {
@@ -44,7 +37,7 @@ class GameMessages extends Component {
   }
 
   handleSubmit(event) {
-    this.handleCreateMessages(this.state.value)
+    Meteor.call('messages.insert', this.props.gameId, this.state.value)
     this.setState({value: ''});
     event.preventDefault();
   }

@@ -13,24 +13,21 @@ class Home extends Component {
       if (error) {
         console.log("making a new game error:", error)
       }
-      if (_id) {
+      else if (_id) {
         FlowRouter.go('Games.show', { _id });
       }
-      // console.log("gameId:", gameId)
-    });
-    // console.log("I have been clicked")
+    })
   }
 
   renderGames(games) {
     if (games) {
-      let renderGames = games.map((game, index) => {
+      return renderGames = games.map((game, index) => {
         return (
           <div key={index}>
             <a href={ pathFor('Games.show', { _id: game._id })}>{game._id}</a>
           </div>
         )
       })
-      return renderGames
     }
   }
 

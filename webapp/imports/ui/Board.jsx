@@ -35,7 +35,7 @@ export default class Board extends Component {
   }
 
   renderBoard(readonly) {
-    var renderedBoard = this.props.game.board.map((row, rowIndex) => {
+    return renderedBoard = this.props.game.board.map((row, rowIndex) => {
       return <div className="row" key={rowIndex} style={{display: 'flex'}}>
         {row.map((point, pointIndex) => {
           if (point === null) {
@@ -62,13 +62,10 @@ export default class Board extends Component {
           }
         })}
       </div>
-    });
-    return renderedBoard;
+    })
   }
 
   render() {
-    console.log("in Board");
-    console.log("this.props:", this.props)
     let { currentUser, game } = this.props
 
     let readonly

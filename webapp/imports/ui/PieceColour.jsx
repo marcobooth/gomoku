@@ -21,13 +21,13 @@ export default class PieceColour extends Component {
           <div className="text">Change piece colour</div>
           <i className="dropdown icon"></i>
           <div className="menu">
-            <div onClick={this.handlePieceColourChange.bind(this, "red")} className="item ui red button">Red</div>
-            <div onClick={this.handlePieceColourChange.bind(this, "orange")} className="item ui orange button">Orange</div>
-            <div onClick={this.handlePieceColourChange.bind(this, "yellow")} className="item ui yellow button">Yellow</div>
-            <div onClick={this.handlePieceColourChange.bind(this, "olive")} className="item ui olive button">Olive</div>
-            <div onClick={this.handlePieceColourChange.bind(this, "green")} className="item ui green button">Green</div>
-            <div onClick={this.handlePieceColourChange.bind(this, "teal")} className="item ui teal button">Teal</div>
-            <div onClick={this.handlePieceColourChange.bind(this, "blue")} className="item ui blue button">Blue</div>
+            <div onClick={this.handlePieceColourChange.bind(this, "red")} className="item ui red basic button">Red</div>
+            <div onClick={this.handlePieceColourChange.bind(this, "orange")} className="item ui orange basic button">Orange</div>
+            <div onClick={this.handlePieceColourChange.bind(this, "yellow")} className="item ui yellow basic button">Yellow</div>
+            <div onClick={this.handlePieceColourChange.bind(this, "olive")} className="item ui olive basic button">Olive</div>
+            <div onClick={this.handlePieceColourChange.bind(this, "green")} className="item ui green basic button">Green</div>
+            <div onClick={this.handlePieceColourChange.bind(this, "teal")} className="item ui teal basic button">Teal</div>
+            <div onClick={this.handlePieceColourChange.bind(this, "blue")} className="item ui blue basic button">Blue</div>
           </div>
         </div>
       </div>

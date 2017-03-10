@@ -8,7 +8,7 @@ import tablesort from '../jquery/tablesort.js'
 class HighScores extends Component {
 
   renderHighScoreRows() {
-    var renderedRows = this.props.users.map((user, index) => {
+    return renderedRows = this.props.users.map((user, index) => {
       return (
         <tr key={index}>
           <td>{user.username}</td>
@@ -18,7 +18,6 @@ class HighScores extends Component {
         </tr>
       )
     })
-    return renderedRows
   }
 
   componentDidMount() {
