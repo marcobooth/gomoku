@@ -1,10 +1,12 @@
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import { Games, Messages } from './collections.js'
+import { ensureLoggedIn } from '../utilities/ensureLoggedIn.js'
 
 Meteor.methods({
-  'games.insert'(typeGame) {
-    // check(text, String);
+  'games.insert'(isAI) {
+    check(isAI, Boolean)
+
     if (! this.userId) {
       throw new Meteor.Error('not-authorized');
     }
@@ -14,16 +16,13 @@ Meteor.methods({
                 [undefined, undefined, undefined, undefined, undefined],
                 [undefined, undefined, undefined, undefined, undefined]]
 
-    if (typeGame === 'AI') {
+    if (isAI === true) {
       return Games.insert({
         board: board,
         currentPlayer: this.userId,
         p1: this.userId,
         p2: 'AI',
-        p1Colour: 'red',
-        p2Colour: 'black',
         status: 'started',
-        winner: undefined
       })
     } else {
       return Games.insert({
@@ -31,23 +30,30 @@ Meteor.methods({
         currentPlayer: this.userId,
         p1: this.userId,
         p2: undefined,
-        p1Colour: 'red',
-        p2Colour: 'black',
         status: 'creating',
-        winner: undefined
       })
     }
   },
   'games.join'(gameId) {
-    const game = Games.findOne(gameId);
-    Games.update(gameId, {
+    check(gameId, String)
+
+    ensureLoggedIn.bind(this)
+
+    Games.update({
+      _id: gameId,
+      status: 'creating'
+    }, {
       $set: {
         p2: this.userId,
         status: 'started'
       }
-    });
+    })
   },
   'games.changePieceColour'(gameId, userId, colour) {
+    check(gameId, String)
+    check(userId, String)
+    check(colour, String)
+
     const game = Games.findOne(gameId);
 
     let playerToChange
@@ -60,20 +66,15 @@ Meteor.methods({
     Games.update(gameId, { $set: { [playerToChange] : colour }});
   },
   'messages.insert'(gameId, text) {
-    check(text, String);
     check(gameId, String);
+    check(text, String);
 
-    console.log("About to add a message");
-
-    if (! this.userId) {
-      throw new Meteor.Error('not-authorized');
-    }
+    ensureLoggedIn.bind(this)
 
     return Messages.insert({
       text,
       gameId,
       username: Meteor.user().username,
-      dateCreated: new Date()
     })
   },
 })

@@ -1,17 +1,18 @@
-import React, { Component, PropTypes } from 'react';
-import ReactDOM from 'react-dom';
-import { Meteor } from 'meteor/meteor';
-import { createContainer } from 'meteor/react-meteor-data';
-import { FlowRouter } from 'meteor/kadira:flow-router';
-import { Messages } from '../api/collections.js';
+import React, { Component, PropTypes } from 'react'
+import ReactDOM from 'react-dom'
+import { Meteor } from 'meteor/meteor'
+import { createContainer } from 'meteor/react-meteor-data'
+import { FlowRouter } from 'meteor/kadira:flow-router'
+import { Messages } from '../api/collections.js'
+var moment = require('moment')
 
 class GameMessages extends Component {
   constructor(props) {
-    super(props);
-    this.state = {value: ''};
+    super(props)
+    this.state = {value: ''}
 
-    this.handleChange = this.handleChange.bind(this);
-    this.handleSubmit = this.handleSubmit.bind(this);
+    this.handleChange = this.handleChange.bind(this)
+    this.handleSubmit = this.handleSubmit.bind(this)
   }
 
   renderMessages() {
@@ -21,7 +22,7 @@ class GameMessages extends Component {
           <div className="content">
             <a className="author">{ message.username }</a>
             <div className="metadata">
-              <span className="date">{ message.dateCreated.toLocaleTimeString() }</span>
+              <span className="date">{ moment(message.dateCreated, "YYYYMMDD").fromNow() }</span>
             </div>
             <div className="text">
               { message.text }
@@ -33,13 +34,13 @@ class GameMessages extends Component {
   }
 
   handleChange(event) {
-    this.setState({value: event.target.value});
+    this.setState({value: event.target.value})
   }
 
   handleSubmit(event) {
     Meteor.call('messages.insert', this.props.gameId, this.state.value)
-    this.setState({value: ''});
-    event.preventDefault();
+    this.setState({value: ''})
+    event.preventDefault()
   }
 
   render() {
@@ -63,7 +64,7 @@ class GameMessages extends Component {
 }
 
 Messages.propTypes = {
-};
+}
 
 export default createContainer(() => {
   let gameId = FlowRouter.getParam("_id")
@@ -72,5 +73,5 @@ export default createContainer(() => {
     gameId,
     messages: Messages.find({ gameId }).fetch(),
     currentUser: Meteor.user(),
-  };
-}, GameMessages);
+  }
+}, GameMessages)

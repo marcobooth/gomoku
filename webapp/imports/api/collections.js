@@ -5,6 +5,16 @@ export const Games = new Mongo.Collection('games')
 // ONLY FOR TESTING, REMOVE THIS LINE. Well I probably should, it's a global variable..
 Collections = { Games, Messages }
 
+dateCreatedAutoValue = function () {
+  if (this.isInsert) {
+    return new Date();
+  } else if (this.isUpsert) {
+    return { $setOnInsert: new Date() };
+  } else {
+    this.unset();  // Prevent user from supplying their own value
+  }
+}
+
 Games.attachSchema(new SimpleSchema({
   // can't declare Array straight, must specify what the value will be
   board: {
@@ -22,11 +32,11 @@ Games.attachSchema(new SimpleSchema({
   },
   p1Colour: {
     type: String,
-    optional: true
+    defaultValue: 'red'
   },
   p2Colour: {
     type: String,
-    optional: true
+    defaultValue: 'blue'
   },
   status: {
     type: String
@@ -35,7 +45,7 @@ Games.attachSchema(new SimpleSchema({
     type: String,
     optional: true
   },
-}));
+}))
 
 export const Messages = new Mongo.Collection('messages');
 
@@ -48,10 +58,9 @@ Messages.attachSchema(new SimpleSchema({
   },
   username: {
     type: String,
-    optional: true
   },
   dateCreated: {
     type: Date,
-    optional: true
+    autoValue: dateCreatedAutoValue
   },
-}));
+}))

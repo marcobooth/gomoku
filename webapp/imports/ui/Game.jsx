@@ -10,10 +10,6 @@ import GameMessages from './GameMessages.jsx'
 
 class Game extends Component {
 
-  handleJoinGame() {
-    Meteor.call('games.join', this.props.game._id);
-  }
-
   render() {
     if (!this.props.subscription.ready()) {
       return <div>Loading...</div>

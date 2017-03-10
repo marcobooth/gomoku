@@ -23,7 +23,7 @@ export default class Board extends Component {
   }
 
   renderSpectatorBox() {
-    if (!this.props.game.p2) {
+    if (!this.props.game.p2 && this.props.currentUser) {
       return (
         <div>
           <div>Want to join the game?</div>
@@ -38,15 +38,15 @@ export default class Board extends Component {
     return renderedBoard = this.props.game.board.map((row, rowIndex) => {
       return <div className="row" key={rowIndex} style={{display: 'flex'}}>
         {row.map((point, pointIndex) => {
-          if (point === null) {
-            var currentPointColour = "grey"
+
+          let currentPointColour = "grey"
+          if (point === this.props.game.p1) {
+            currentPointColour = this.props.game.p1Colour
           }
-          else if (point === this.props.game.p1) {
-            var currentPointColour = this.props.game.p1Colour
+          else if (point === this.props.game.p2) {
+            currentPointColour = this.props.game.p2Colour
           }
-          else {
-            var currentPointColour = this.props.game.p2Colour
-          }
+
           if (readonly) {
             return <div className="dot"
               key={pointIndex}
