@@ -1,11 +1,10 @@
 import React, { Component, PropTypes } from 'react';
 import ReactDOM from 'react-dom';
 import { Meteor } from 'meteor/meteor';
-import { createContainer } from 'meteor/react-meteor-data';
 import { pathFor } from '../utilities/flow_helper.js';
 import AccountsUIWrapper from './AccountsUIWrapper.jsx';
 
-class App extends Component {
+export default class App extends Component {
 
   render() {
     return (
@@ -31,12 +30,3 @@ class App extends Component {
     );
   }
 }
-
-App.propTypes = {
-};
-
-export default createContainer(() => {
-
-  return {
-  };
-}, App);

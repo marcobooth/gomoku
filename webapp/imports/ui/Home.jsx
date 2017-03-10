@@ -34,7 +34,7 @@ class Home extends Component {
   render() {
 
     if (!this.props.subscription.ready()) {
-      return <div>Loading...</div>
+      return <div><button className="ui loading button"></button>Loading...</div>
     }
 
     return (
@@ -64,9 +64,6 @@ class Home extends Component {
     );
   }
 }
-
-Home.propTypes = {
-};
 
 export default createContainer(() => {
 

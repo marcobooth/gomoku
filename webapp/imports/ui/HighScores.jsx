@@ -46,9 +46,6 @@ class HighScores extends Component {
   }
 }
 
-HighScores.propTypes = {
-};
-
 export default createContainer(() => {
   Meteor.subscribe('highScoreData')
 

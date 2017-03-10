@@ -13,7 +13,6 @@ export default class PieceColour extends Component {
   }
 
   render() {
-      console.log("this.props:", this.props)
 
     return (
       <div>
@@ -34,6 +33,3 @@ export default class PieceColour extends Component {
     );
   }
 }
-
-PieceColour.propTypes = {
-};

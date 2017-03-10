@@ -15,7 +15,10 @@ export default class Board extends Component {
   }
 
   renderCurrentTurn(readonly) {
-    if (readonly) {
+    if (this.props.game.status === "creating") {
+      return <div><button className="ui loading button"></button>Waiting for another player</div>
+    }
+    else if (readonly) {
       return <div>Not your turn</div>
     } else {
       return <div>It is your turn</div>
@@ -85,7 +88,4 @@ export default class Board extends Component {
       </div>
     )
   }
-}
-
-Board.propTypes = {
 }

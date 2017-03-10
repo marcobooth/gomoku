@@ -44,9 +44,15 @@ class GameMessages extends Component {
   }
 
   render() {
+    if (!this.props.currentUser) {
+      return <div>Please login to use in-game messages</div>
+    } else if (!this.props.subscription.ready()) {
+      return <div><button className="ui loading button"></button>Loading...</div>
+    }
+
     return (
       <div className="ui comments">
-        <h3 className="ui dividing header">Comments</h3>
+        <h3 className="ui dividing header">Messages</h3>
         { this.renderMessages() }
         <form className="ui reply form" onSubmit={this.handleSubmit}>
           <label>
@@ -63,13 +69,17 @@ class GameMessages extends Component {
   }
 }
 
-Messages.propTypes = {
+GameMessages.propTypes = {
+  messages: React.PropTypes.array,
+  gameId: React.PropTypes.string,
+  currentUser: React.PropTypes.object
 }
 
 export default createContainer(() => {
   let gameId = FlowRouter.getParam("_id")
-  Meteor.subscribe('messageData', gameId)
+
   return {
+    subscription: Meteor.subscribe('messageData', gameId),
     gameId,
     messages: Messages.find({ gameId }).fetch(),
     currentUser: Meteor.user(),

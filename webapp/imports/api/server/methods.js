@@ -1,8 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import { Games } from '../collections.js'
-const child_process = require('child_process');
-const exec = child_process.exec;
+const { exec } = require('child_process');
 
 Meteor.methods({
   'games.handleMove'(gameId, rowIndex, pointIndex) {

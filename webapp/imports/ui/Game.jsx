@@ -12,7 +12,7 @@ class Game extends Component {
 
   render() {
     if (!this.props.subscription.ready()) {
-      return <div>Loading...</div>
+      return <div><button className="ui loading button"></button>Loading...</div>
     }
 
     // let game, status, currentUser = { this.props... }
@@ -37,7 +37,9 @@ class Game extends Component {
 }
 
 Game.propTypes = {
-};
+  game: React.PropTypes.object,
+  currentUser: React.PropTypes.object
+}
 
 export default createContainer(( params ) => {
   let gameId = FlowRouter.getParam("_id")
