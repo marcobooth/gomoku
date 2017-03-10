@@ -51,17 +51,18 @@ export default class Board extends Component {
           }
 
           if (readonly) {
-            return <div className="dot"
-              key={pointIndex}
-              style={{background: currentPointColour}}>
-            </div>
-          }
-          else {
-            return <div className="dot"
-              key={pointIndex}
-              style={{background: currentPointColour}}
-              onClick={this.handleGameMove.bind(this, rowIndex, pointIndex)}>
-            </div>
+            return <div className="box" key={pointIndex}>
+                      <div className="dot"
+                        style={{background: currentPointColour}}>
+                      </div>
+                    </div>
+          } else {
+            return <div className="box" key={pointIndex}>
+                    <div className="dot"
+                         style={{background: currentPointColour}}
+                         onClick={this.handleGameMove.bind(this, rowIndex, pointIndex)}>
+                    </div>
+                   </div>
           }
         })}
       </div>

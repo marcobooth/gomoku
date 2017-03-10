@@ -5,6 +5,7 @@ import { createContainer } from 'meteor/react-meteor-data';
 import { pathFor } from '../utilities/flow_helper.js';
 import { Games } from '../api/collections.js';
 import HighScores from './HighScores.jsx'
+import { Session } from 'meteor/session'
 
 class Home extends Component {
 
@@ -23,7 +24,7 @@ class Home extends Component {
     if (games) {
       return renderGames = games.map((game, index) => {
         let linkText
-        if (isWatchable === false && game.p1 === Meteor.user()._id) {
+        if (isWatchable === false && Meteor.user() && game.p1 === Meteor.user()._id) {
           return ''
         }
         else if (isWatchable) {
@@ -43,8 +44,16 @@ class Home extends Component {
     }
   }
 
-  render() {
+  componentWillUnmount() {
+    delete Session.keys['showGamesLimit']
+  }
 
+  showMoreGames(e) {
+    e.preventDefault()
+    Session.set("showGamesLimit", 10)
+  }
+
+  render() {
     if (!this.props.subscription) {
       return <div><button className="ui loading button"></button>Loading...</div>
     }
@@ -67,6 +76,7 @@ class Home extends Component {
             <div className="eight wide column">
               <h2 className="center">Watch a Game</h2>
               { this.renderGames(this.props.startedGames, true) }
+              <div onClick={this.showMoreGames.bind(this)}>Show more...</div>
             </div>
             <div className="eight wide column">
               <h2 className="center">Join a Game</h2>
@@ -83,9 +93,10 @@ class Home extends Component {
 }
 
 export default createContainer(() => {
+  Session.get("showGamesLimit") ? '' : Session.set("showGamesLimit", 4)
   return {
     subscription: Meteor.subscribe('games').ready(),
-    startedGames: Games.find({ status: 'started'}, { limit: 5 }).fetch(),
+    startedGames: Games.find({ status: 'started'}, { limit: Session.get("showGamesLimit") }).fetch(),
     joinableGames: Games.find({ status: 'creating'}, { limit: 5 }).fetch(),
   }
 }, Home)

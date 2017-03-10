@@ -1,10 +1,13 @@
 /* CSS declarations go here */
 .dot {
   background: black;
-  width: 15px;
-  height: 15px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
-  margin: 35px;
+  margin: 10px;
+}
+.box {
+  border: solid 1px rgba(34, 36, 38, .15);
 }
 #login-dropdown-list {
   left: -148px;
@@ -27,4 +30,7 @@
 }
 .highscores {
   padding: 5em 0em;
+}
+.spaceHeader {
+  margin-top: 50px;
 }

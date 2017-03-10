@@ -24,13 +24,20 @@ class Game extends Component {
     }
 
     return (
-      <div className="ui container">
+      <div className="ui container spaceHeader">
         { winner }
-        <div>
-          <PieceColour game={this.props.game} currentUser={this.props.currentUser} />
-          <Board game={this.props.game} currentUser={this.props.currentUser} />
+
+        <div className="ui grid">
+          <div className="eight wide column">
+            <Board game={this.props.game} currentUser={this.props.currentUser} />
+          </div>
+          <div className="eight wide column">
+            <h3 className="center">Game Information</h3>
+            <PieceColour game={this.props.game} currentUser={this.props.currentUser} />
+            <GameMessages />
+          </div>
         </div>
-        <GameMessages />
+
       </div>
     );
   }

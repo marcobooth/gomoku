@@ -1,8 +1,8 @@
-import React, { Component, PropTypes } from 'react';
-import ReactDOM from 'react-dom';
-import { Meteor } from 'meteor/meteor';
-import { pathFor } from '../utilities/flow_helper.js';
-import AccountsUIWrapper from './AccountsUIWrapper.jsx';
+import React, { Component, PropTypes } from 'react'
+import ReactDOM from 'react-dom'
+import { Meteor } from 'meteor/meteor'
+import { pathFor } from '../utilities/flow_helper.js'
+import AccountsUIWrapper from './AccountsUIWrapper.jsx'
 
 export default class App extends Component {
 
@@ -25,6 +25,6 @@ export default class App extends Component {
 
         {this.props.content}
       </div>
-    );
+    )
   }
 }

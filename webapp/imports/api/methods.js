@@ -10,12 +10,12 @@ Meteor.methods({
     if (! this.userId) {
       throw new Meteor.Error('not-authorized');
     }
-    let board = [[undefined, undefined, undefined, undefined, undefined],
-                [undefined, undefined, undefined, undefined, undefined],
-                [undefined, undefined, undefined, undefined, undefined],
-                [undefined, undefined, undefined, undefined, undefined],
-                [undefined, undefined, undefined, undefined, undefined]]
+    let board = []
+    for (let i = 0; i < 19; i++) {
+      board.push([undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined])
+    }
     let user = Meteor.user()
+
     if (isAI === true) {
       return Games.insert({
         board: board,

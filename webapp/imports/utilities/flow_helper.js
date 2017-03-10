@@ -2,7 +2,6 @@ import { FlowRouter } from 'meteor/kadira:flow-router'
 
 export const pathFor = ( path, params ) => {
   let query = params && params.query ? FlowRouter._qs.parse( params.query ) : {}
-  console.log("query:", query)
   return FlowRouter.path( path, params, query )
 }
 
