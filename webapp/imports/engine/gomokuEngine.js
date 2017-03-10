@@ -11,10 +11,14 @@ class ThreatFinder {
 // define in which ways threats can be found
 // NOTE: step functions modify the passed object
 const threatFinders = [
-  (location, delta) => { location.row += delta },
-  (location, delta) => { location.col += delta },
-  (location, delta) => { location.row += delta; location.col += delta },
-  (location, delta) => { location.row += delta; location.col -= delta },
+  (location, delta) => { location.row += delta }, // down
+  (location, delta) => { location.col += delta }, // right
+  (location, delta) => {
+    location.row += delta; location.col += delta // right-up
+  },
+  (location, delta) => {
+    location.row += delta; location.col -= delta // right-down
+  },
 ]
 
 export class Board {
@@ -54,9 +58,7 @@ export class Board {
     // create new values for everything, reusing as much memory as possible
     let newValues = this.values.slice();
     newValues[row] = this.values[row].slice()
-
     let player = !this.maximizingPlayer
-
     let newThreats = this.threats.slice();
 
     // put the piece down
@@ -76,15 +78,15 @@ export class Board {
       // and then do the reverse of all that
       let deltas = [ -1, 1 ]
 
-      let directionalThreats = _.map([ true, false ], (firstBit) => {
+      let directionalThreats = _.map([ false, true ], (firstBit) => {
         let threat = newThreat(player, finderIndex, { row, col })
 
         // go the other way the second time around
-        for (secondBit of [ true, false ]) {
+        for (secondBit of [ false, true ]) {
           let current = { row, col }
           let skipped = []
 
-          for (let i = 0; i < 5; i++) {
+          for (let i = 0; (i < 5) && (threat.span + skipped.length < 5); i++) {
             // clever, eh? http://stackoverflow.com/a/3618366
             stepCell(current, deltas[firstBit ^ secondBit])
 
@@ -102,8 +104,8 @@ export class Board {
 
               // if we skipped any to get here add those too
               // NOTE: threat.played order matters in combineThreats
-              threat.played.concat(skipped)
               threat.played.push(current)
+              threat.skipped = threat.skipped.concat(skipped)
               threat.span += 1 + skipped.length
               skipped = []
             } else if (value === null) {
@@ -152,9 +154,4 @@ export class Board {
 
   // getters for testing
   getThreats() { return this.threats }
-}
-
-export function getBestMove(board) {
-  // convert from two
-  return 3;
 }
