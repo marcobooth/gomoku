@@ -26,3 +26,4 @@ semantic:ui
 less
 juliancwirko:postcss
 audit-argument-checks
+practicalmeteor:mocha
