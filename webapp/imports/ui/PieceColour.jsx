@@ -14,8 +14,12 @@ export default class PieceColour extends Component {
 
   render() {
 
+    if (!this.props.currentUser) {
+      return <div></div>
+    }
+
     return (
-      <div>
+      <div className="center">
         <div className="ui dropdown">
           <div className="text">Change piece colour</div>
           <i className="dropdown icon"></i>

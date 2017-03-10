@@ -56,6 +56,7 @@ Meteor.methods({
     check(userId, String)
     check(colour, String)
 
+    ensureLoggedIn.bind(this)
     const game = Games.findOne(gameId);
 
     let playerToChange

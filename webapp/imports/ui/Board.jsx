@@ -1,40 +1,11 @@
 import React, { Component, PropTypes } from 'react';
 import ReactDOM from 'react-dom';
 import { Meteor } from 'meteor/meteor';
-import { createContainer } from 'meteor/react-meteor-data';
-import { FlowRouter } from 'meteor/kadira:flow-router';
 
 export default class Board extends Component {
 
-  handleJoinGame() {
-    Meteor.call('games.join', this.props.game._id);
-  }
-
   handleGameMove(rowIndex, pointIndex) {
     Meteor.call('games.handleMove', this.props.game._id, rowIndex, pointIndex);
-  }
-
-  renderCurrentTurn(readonly) {
-    if (this.props.game.status === "creating") {
-      return <div><button className="ui loading button"></button>Waiting for another player</div>
-    }
-    else if (readonly) {
-      return <div>Not your turn</div>
-    } else {
-      return <div>It is your turn</div>
-    }
-  }
-
-  renderSpectatorBox() {
-    if (!this.props.game.p2 && this.props.currentUser) {
-      return (
-        <div>
-          <div>Want to join the game?</div>
-          <button onClick={this.handleJoinGame.bind(this)} className="massive positive ui button">Join Game</button>
-        </div>
-      )
-    }
-    return <div>You are currently spectating</div>
   }
 
   renderBoard(readonly) {
@@ -70,22 +41,9 @@ export default class Board extends Component {
   }
 
   render() {
-    let { currentUser, game } = this.props
-
-    let readonly
-    let spectatorMode = false
-    if (!currentUser || (game.p1 !== currentUser._id && game.p2 !== currentUser._id)) {
-      spectatorMode = true
-      readonly = true
-    } else {
-      // checks if game has started, is over, or if this player has the current turn
-      readonly = game.status === "creating" || game.status === "winner" || (currentUser._id != game.currentPlayer)
-    }
-
     return (
       <div>
-        { spectatorMode ? this.renderSpectatorBox() : this.renderCurrentTurn(readonly)}
-        {this.renderBoard(readonly)}
+        {this.renderBoard(this.props.readonly)}
       </div>
     )
   }

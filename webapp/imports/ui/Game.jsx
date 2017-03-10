@@ -5,6 +5,7 @@ import { createContainer } from 'meteor/react-meteor-data';
 import { FlowRouter } from 'meteor/kadira:flow-router';
 import { Games } from '../api/collections.js';
 import Board from './Board.jsx'
+import GameInfo from './GameInfo.jsx'
 import PieceColour from './PieceColour.jsx'
 import GameMessages from './GameMessages.jsx'
 
@@ -19,20 +20,28 @@ class Game extends Component {
     if (!this.props.game) {
       return <div>Invalid game!</div>
     }
-    if (this.props.game.status === "winner") {
-      var winner = <div>Somebody won the game!!</div>
+
+    let { currentUser, game } = this.props
+
+    let readonly
+    let spectatorMode = false
+    if (!currentUser || (game.p1 !== currentUser._id && game.p2 !== currentUser._id)) {
+      spectatorMode = true
+      readonly = true
+    } else {
+      // checks if game has started, is over, or if this player has the current turn
+      readonly = game.status === "creating" || game.status === "winner" || (currentUser._id != game.currentPlayer)
     }
 
     return (
       <div className="ui container spaceHeader">
-        { winner }
-
-        <div className="ui grid">
+        <div className="ui very relaxed grid">
           <div className="eight wide column">
-            <Board game={this.props.game} currentUser={this.props.currentUser} />
+            <Board game={this.props.game} readonly={readonly} />
           </div>
           <div className="eight wide column">
-            <h3 className="center">Game Information</h3>
+            <h2 className="center">Game Information</h2>
+            <GameInfo game={this.props.game} spectatorMode={spectatorMode} readonly={readonly} />
             <PieceColour game={this.props.game} currentUser={this.props.currentUser} />
             <GameMessages />
           </div>

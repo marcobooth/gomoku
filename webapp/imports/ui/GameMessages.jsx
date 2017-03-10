@@ -52,7 +52,7 @@ class GameMessages extends Component {
 
     return (
       <div className="ui comments">
-        <h3 className="ui dividing header">Messages</h3>
+        <h3 className="ui dividing header center">Messages</h3>
         { this.renderMessages() }
         <form className="ui reply form" onSubmit={this.handleSubmit}>
           <label>
@@ -60,9 +60,11 @@ class GameMessages extends Component {
             <input type="text" value={this.state.value} onChange={this.handleChange} />
           </label>
 
-          <button type="submit" className="ui blue labeled submit icon button">
-            <i className="icon edit"></i> Add Reply
-          </button>
+          <div className="topSpace">
+            <button type="submit" className="ui blue labeled submit icon button">
+              <i className="icon edit"></i> Add Reply
+            </button>
+          </div>
         </form>
       </div>
     )
