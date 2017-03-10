@@ -46,7 +46,7 @@ class GameMessages extends Component {
   render() {
     if (!this.props.currentUser) {
       return <div>Please login to use in-game messages</div>
-    } else if (!this.props.subscription.ready()) {
+    } else if (!this.props.subReady) {
       return <div><button className="ui loading button"></button>Loading...</div>
     }
 
@@ -79,7 +79,7 @@ export default createContainer(() => {
   let gameId = FlowRouter.getParam("_id")
 
   return {
-    subscription: Meteor.subscribe('messageData', gameId),
+    subReady: Meteor.subscribe('messageData', gameId).ready(),
     gameId,
     messages: Messages.find({ gameId }).fetch(),
     currentUser: Meteor.user(),

@@ -22,11 +22,10 @@ Meteor.methods({
         }
         else if (stdout === "winner\n") {
           p1 = Meteor.users.findOne({ "_id" : game.p1 })
-          let gamesWon = p1.won ? p1.won + 1 : 1
 
           Meteor.users.update(game.p1, {
-            $set: {
-              won: gamesWon
+            $inc: {
+              won: 1
             }
           })
 

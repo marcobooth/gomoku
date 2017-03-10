@@ -2,9 +2,6 @@ import { Mongo } from 'meteor/mongo';
 
 export const Games = new Mongo.Collection('games')
 
-// ONLY FOR TESTING, REMOVE THIS LINE. Well I probably should, it's a global variable..
-Collections = { Games, Messages }
-
 dateCreatedAutoValue = function () {
   if (this.isInsert) {
     return new Date();
@@ -64,3 +61,6 @@ Messages.attachSchema(new SimpleSchema({
     autoValue: dateCreatedAutoValue
   },
 }))
+
+// ONLY FOR TESTING, REMOVE THIS LINE. Well I probably should, it's a global variable..
+Collections = { Games, Messages }

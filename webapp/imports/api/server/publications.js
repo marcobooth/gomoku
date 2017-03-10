@@ -16,6 +16,7 @@ Meteor.publish('gamesData', function () {
 })
 
 Meteor.publish('messageData', function (gameId) {
+  console.log("gameId:", gameId)
   check(gameId, String);
 
   return Messages.find({ gameId })
