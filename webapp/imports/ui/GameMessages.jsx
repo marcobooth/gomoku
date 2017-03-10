@@ -79,7 +79,7 @@ export default createContainer(() => {
   let gameId = FlowRouter.getParam("_id")
 
   return {
-    subReady: Meteor.subscribe('messageData', gameId).ready(),
+    subReady: Meteor.subscribe('messages', gameId).ready(),
     gameId,
     messages: Messages.find({ gameId }).fetch(),
     currentUser: Meteor.user(),

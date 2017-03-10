@@ -1,8 +1,30 @@
 /* CSS declarations go here */
 .dot {
- background: black;
- width: 15px;
- height: 15px;
- border-radius: 50%;
- margin: 35px;
+  background: black;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  margin: 35px;
+}
+#login-dropdown-list {
+  left: -148px;
+}
+#mainHeader {
+  min-height: 400px;
+  padding-top: 6em;
+}
+.center {
+  text-align: center;
+}
+.buttons {
+  margin-top: 4em;
+}
+#mainButton {
+  margin-right: 50px;
+}
+.findMoreGames {
+  padding-top: 5em;
+}
+.highscores {
+  padding: 5em 0em;
 }

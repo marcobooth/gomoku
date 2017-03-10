@@ -26,8 +26,8 @@ class HighScores extends Component {
 
   render() {
     return (
-      <div>
-        <h1>High Scores</h1>
+      <div className="highscores">
+        <h1 className="center">High Scores</h1>
         <table className="ui sortable celled table">
           <thead>
             <tr>

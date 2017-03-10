@@ -23,7 +23,14 @@ Games.attachSchema(new SimpleSchema({
   p1: {
     type: String
   },
+  p1Username: {
+    type: String
+  },
   p2: {
+    type: String,
+    optional: true
+  },
+  p2Username: {
     type: String,
     optional: true
   },

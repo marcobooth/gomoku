@@ -73,7 +73,7 @@ export default class Board extends Component {
 
     let readonly
     let spectatorMode = false
-    if (!currentUser || (game.p1 != currentUser._id && game.p2 != currentUser._id)) {
+    if (!currentUser || (game.p1 !== currentUser._id && game.p2 !== currentUser._id)) {
       spectatorMode = true
       readonly = true
     } else {

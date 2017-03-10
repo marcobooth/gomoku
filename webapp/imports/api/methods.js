@@ -15,21 +15,23 @@ Meteor.methods({
                 [undefined, undefined, undefined, undefined, undefined],
                 [undefined, undefined, undefined, undefined, undefined],
                 [undefined, undefined, undefined, undefined, undefined]]
-
+    let user = Meteor.user()
     if (isAI === true) {
       return Games.insert({
         board: board,
-        currentPlayer: this.userId,
-        p1: this.userId,
+        currentPlayer: user._id,
+        p1: user._id,
+        p1Username: user.username,
         p2: 'AI',
+        p2Username: 'AI',
         status: 'started',
       })
     } else {
       return Games.insert({
         board: board,
-        currentPlayer: this.userId,
-        p1: this.userId,
-        p2: undefined,
+        currentPlayer: user._id,
+        p1: user._id,
+        p1Username: user.username,
         status: 'creating',
       })
     }

@@ -11,7 +11,7 @@ import GameMessages from './GameMessages.jsx'
 class Game extends Component {
 
   render() {
-    if (!this.props.subscription.ready()) {
+    if (!this.props.subscription) {
       return <div><button className="ui loading button"></button>Loading...</div>
     }
 
@@ -24,7 +24,7 @@ class Game extends Component {
     }
 
     return (
-      <div className="container">
+      <div className="ui container">
         { winner }
         <div>
           <PieceColour game={this.props.game} currentUser={this.props.currentUser} />
@@ -45,7 +45,7 @@ export default createContainer(( params ) => {
   let gameId = FlowRouter.getParam("_id")
 
   return {
-    subscription: Meteor.subscribe('gameData', gameId),
+    subscription: Meteor.subscribe('game', gameId).ready(),
     game: Games.findOne(gameId),
     currentUser: Meteor.user(),
   };

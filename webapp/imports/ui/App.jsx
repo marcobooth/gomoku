@@ -9,7 +9,7 @@ export default class App extends Component {
   render() {
     return (
       <div>
-        <div className="ui borderless menu">
+        <div className="ui borderless inverted fixed menu">
           <div className="ui container">
             <a href={pathFor("home")} className="header item">
               Gomoku
@@ -23,9 +23,7 @@ export default class App extends Component {
           </div>
         </div>
 
-        <div className="ui container">
-          {this.props.content}
-        </div>
+        {this.props.content}
       </div>
     );
   }

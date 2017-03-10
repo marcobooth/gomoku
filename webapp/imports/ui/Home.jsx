@@ -19,12 +19,24 @@ class Home extends Component {
     })
   }
 
-  renderGames(games) {
+  renderGames(games, isWatchable) {
     if (games) {
       return renderGames = games.map((game, index) => {
+        let linkText
+        if (isWatchable === false && game.p1 === Meteor.user()._id) {
+          return ''
+        }
+        else if (isWatchable) {
+          linkText = game.p1Username + " vs. " + game.p2Username
+        } else {
+          linkText = "Play against " + game.p1Username
+        }
         return (
-          <div key={index}>
-            <a href={ pathFor('Games.show', { _id: game._id })}>{game._id}</a>
+          <div className="center" key={index}>
+            <a href={ pathFor('Games.show', { _id: game._id })}>
+              { linkText }
+              <i className="angle right icon"></i>
+            </a>
           </div>
         )
       })
@@ -33,43 +45,47 @@ class Home extends Component {
 
   render() {
 
-    if (!this.props.subscription.ready()) {
+    if (!this.props.subscription) {
       return <div><button className="ui loading button"></button>Loading...</div>
     }
 
     return (
       <div>
-        <div className="ui two column centered grid">
-          <div className="four wide column">
-            <button className="massive ui labeled icon button" onClick={this.handleClick.bind(this, false)}>
-              <i className="user icon"></i>
-              1 v 1
-            </button>
-          </div>
-          <div className="four wide column">
-            <button className="massive ui right labeled icon button" onClick={this.handleClick.bind(this, true)}>
-              <i className="laptop icon"></i>
-              1 v AI
-            </button>
+        <div id="mainHeader" className="ui inverted vertical masthead center aligned segment">
+          <h1 className="ui header">
+            Play the Game
+          </h1>
+          <h2>We really hope you lose. Honestly, it would help us a lot in the correction.</h2>
+          <div className="buttons">
+            <div id="mainButton" className="ui huge primary button" onClick={this.handleClick.bind(this, false)}>Play Against A Friend</div>
+            <div className="ui huge primary button" onClick={this.handleClick.bind(this, true)}>Play Against AI</div>
           </div>
         </div>
-        <h3>Games to Watch</h3>
-        { this.renderGames(this.props.startedGames) }
-        <h3>Games to Join</h3>
-        { this.renderGames(this.props.joinableGames) }
 
-        <HighScores />
+        <div className="ui container findMoreGames">
+          <div className="ui grid">
+            <div className="eight wide column">
+              <h2 className="center">Watch a Game</h2>
+              { this.renderGames(this.props.startedGames, true) }
+            </div>
+            <div className="eight wide column">
+              <h2 className="center">Join a Game</h2>
+              { this.renderGames(this.props.joinableGames, false) }
+            </div>
+          </div>
+
+          <HighScores />
+        </div>
       </div>
 
-    );
+    )
   }
 }
 
 export default createContainer(() => {
-
   return {
-    subscription: Meteor.subscribe('gamesData'),
-    startedGames: Games.find({ status: 'started'}).fetch(),
-    joinableGames: Games.find({ status: 'creating'}).fetch(),
-  };
-}, Home);
+    subscription: Meteor.subscribe('games').ready(),
+    startedGames: Games.find({ status: 'started'}, { limit: 5 }).fetch(),
+    joinableGames: Games.find({ status: 'creating'}, { limit: 5 }).fetch(),
+  }
+}, Home)
