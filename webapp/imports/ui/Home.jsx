@@ -21,13 +21,25 @@ class Home extends Component {
     // console.log("I have been clicked")
   }
 
-  renderBoardIds() {
-    return this.props.boards.map((board) => {
-      return (<li><a href={ pathFor( '/boards/:id', { id: board._id }) }> {board._id}</a></li>);
-    });
+  renderGames(games) {
+    if (games) {
+      let renderGames = games.map((game, index) => {
+        return (
+          <div key={index}>
+            <a href={ pathFor('Games.show', { _id: game._id })}>{game._id}</a>
+          </div>
+        )
+      })
+      return renderGames
+    }
   }
 
   render() {
+
+    if (!this.props.subscription.ready()) {
+      return <div>Loading...</div>
+    }
+
     return (
       <div>
         <div className="ui two column centered grid">
@@ -44,6 +56,10 @@ class Home extends Component {
             </button>
           </div>
         </div>
+        <h3>Games to Watch</h3>
+        { this.renderGames(this.props.startedGames) }
+        <h3>Games to Join</h3>
+        { this.renderGames(this.props.joinableGames) }
 
         <HighScores />
       </div>
@@ -58,6 +74,8 @@ Home.propTypes = {
 export default createContainer(() => {
 
   return {
-    games: Games.find({}).fetch(),
+    subscription: Meteor.subscribe('gamesData'),
+    startedGames: Games.find({ status: 'started'}).fetch(),
+    joinableGames: Games.find({ status: 'creating'}).fetch(),
   };
 }, Home);

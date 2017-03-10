@@ -1,6 +1,9 @@
 import { Mongo } from 'meteor/mongo';
 
-export const Games = new Mongo.Collection('games');
+export const Games = new Mongo.Collection('games')
+
+// ONLY FOR TESTING, REMOVE THIS LINE. Well I probably should, it's a global variable..
+Collections = { Games, Messages }
 
 Games.attachSchema(new SimpleSchema({
   // can't declare Array straight, must specify what the value will be

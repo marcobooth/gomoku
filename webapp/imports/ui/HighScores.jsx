@@ -7,13 +7,8 @@ import tablesort from '../jquery/tablesort.js'
 
 class HighScores extends Component {
 
-  handleCreateMessages(text) {
-    Meteor.call('messages.insert', this.props.gameId, text);
-  }
-
   renderHighScoreRows() {
     var renderedRows = this.props.users.map((user, index) => {
-      console.log("user:", user)
       return (
         <tr key={index}>
           <td>{user.username}</td>
@@ -29,8 +24,6 @@ class HighScores extends Component {
   componentDidMount() {
     $('table').tablesort()
   }
-
-
 
   render() {
     return (

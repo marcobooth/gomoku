@@ -67,6 +67,8 @@ export default class Board extends Component {
   }
 
   render() {
+    console.log("in Board");
+    console.log("this.props:", this.props)
     let { currentUser, game } = this.props
 
     let readonly

@@ -15,9 +15,13 @@ class Game extends Component {
   }
 
   render() {
+    if (!this.props.subscription.ready()) {
+      return <div>Loading...</div>
+    }
+
     // let game, status, currentUser = { this.props... }
     if (!this.props.game) {
-      return <div></div>
+      return <div>Invalid game!</div>
     }
     if (this.props.game.status === "winner") {
       var winner = <div>Somebody won the game!!</div>
@@ -41,8 +45,9 @@ Game.propTypes = {
 
 export default createContainer(( params ) => {
   let gameId = FlowRouter.getParam("_id")
-  Meteor.subscribe('gameData')
+
   return {
+    subscription: Meteor.subscribe('gameData', gameId),
     game: Games.findOne(gameId),
     currentUser: Meteor.user(),
   };
