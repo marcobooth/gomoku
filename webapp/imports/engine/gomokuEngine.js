@@ -57,7 +57,7 @@ export class Board {
   // add expansions, add the threat to the threat list, link to it through
   // toThreats
   static addThreat(newThreats, newToThreats, oldToThreats, threat, values) {
-    // add expansions to the threat
+    // add expansions to the threat if necessary
     if (threat.span < 5) {
       let possibleExtensions = [
         { delta: -1, playedIndex: 0 },
