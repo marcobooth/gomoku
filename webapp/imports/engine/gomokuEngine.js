@@ -1,14 +1,14 @@
+// NOTE: we should sort the possible moves based on how many threats they can
+// help for the current player and how many they can disrupt for the other
+// player
+
 export const BOARD_SIZE = 19
 
 // generate some default values
+
 const defaultInPlay = {}
 _.times(BOARD_SIZE, (index) => {
   defaultInPlay[index] = {}
-})
-
-const defaultCellToThreats = Array(BOARD_SIZE);
-_.times(BOARD_SIZE, (index) => {
-  defaultCellToThreats[index] = Array(BOARD_SIZE)
 })
 
 // define in which ways threats can be found
@@ -24,10 +24,20 @@ const threatFinders = [
   },
 ]
 
+const defaultCellThreats = Array(threatFinders.length);
+_.times(threatFinders.length, (finderIndex) => {
+  defaultCellThreats[finderIndex] = Array(BOARD_SIZE)
+
+  _.times(BOARD_SIZE, (row) => {
+    defaultCellThreats[finderIndex][row] = Array(BOARD_SIZE)
+  })
+})
+
+
 export class Board {
   // NOTE: player === true means that the player is the maximizing player
   constructor(values, player = true, inPlayCells = defaultInPlay,
-        threats = [], cellThreats = defaultCellToThreats) {
+        threats = [], cellThreats = defaultCellThreats) {
     this.values = values
     this.player = player
     this.inPlayCells = inPlayCells
@@ -55,9 +65,19 @@ export class Board {
   }
 
   // add expansions, add the threat to the threat list, link to it through
-  // toThreats
-  static addThreat(newThreats, newToThreats, oldToThreats, threat, values) {
-    // add expansions to the threat if necessary
+  // cellThreat (which is returned)
+  static addThreat(newThreats, cellThreats, oldCellThreats, threat, values) {
+    Board.calculateExtensions(threat, values)
+
+    newThreats.push(threat)
+
+    // add to the cellThreats
+
+  }
+
+  // calculate extensions to the threat
+  static calculateExtensions(threat, values) {
+    threat.expansions = []
     if (threat.span < 5) {
       let possibleExtensions = [
         { delta: -1, playedIndex: 0 },
@@ -68,20 +88,34 @@ export class Board {
         let location = _.clone(threat.played[playedIndex])
         threatFinders[threat.finderIndex](location, delta)
 
-        // XXX: what happens when the board is the current player there?
+        // what happens when the board is the current player there? =>
+        // it'd be included in the threat or else the threat is long enough
+        // to not have extensions
         if (!Board.outsideBoard(location) &&
             values[location.row][location.col] === null) {
           threat.expansions.push(location)
         }
       })
     }
-
-    newThreats.push(threat)
-
-    // TODO: add to the toThreats thing
   }
 
-  // sort by column then row
+  static mergeThreats(oldThreat, newThreat) {
+    _.each(oldThreat.played, (location) => {
+      newThreat.played.push(location)
+    })
+
+    _.each(oldThreat.skipped, (location) => {
+      newThreat.skipped.push(location)
+    })
+
+    newThreat.played.sort(Board.compareLocations)
+
+    Board.calculateExtensions(newThreat)
+
+    return newThreat
+  }
+
+  // compare by column then row
   // NOTE: order important in addThreat when adding extension information
   // because of the way deltas work with the current implementation of
   // threatFinders
@@ -100,9 +134,7 @@ export class Board {
     let newValues = this.values.slice();
     newValues[row] = this.values[row].slice()
     let newThreats = this.threats.slice();
-    let newCellThreats = Object.assign({}, this.cellThreats)
-
-    // console.log(`\nmoving ${this.player}: (${row}, ${col})`)
+    let newCellThreats = this.cellThreats
 
     // put the piece down
     newValues[row][col] = this.player
@@ -115,13 +147,15 @@ export class Board {
 
     // figure out if we need to add any threats for the current player
     for (finderIndex in threatFinders) {
-      // console.log(`finderIndex: ${finderIndex}`)
       let stepCell = threatFinders[finderIndex]
 
       // go backwards and then forwards, adding to the threat in each direction,
       // and then do the reverse of all that
       let deltas = [ -1, 1 ]
       let addThreats = []
+
+      // keep track if we've already joined a threat
+      let joinedThreat
 
       _.each([ false, true ], (firstBit) => {
         let threat = Board.newThreat(this.player, finderIndex,
@@ -136,7 +170,6 @@ export class Board {
           for (i = 0; (i < 5) && (threat.span + skipped.length < 5); i++) {
             // clever, eh? http://stackoverflow.com/a/3618366
             stepCell(current, deltas[firstBit ^ secondBit])
-            // console.log(`after step of ${deltas[firstBit ^ secondBit]}: (${current.row}, ${current.col})`)
 
             // check to see if we're still on the board
             if (Board.outsideBoard(current)) {
@@ -147,8 +180,27 @@ export class Board {
             if (value === this.player) {
               // it's this player's
 
-              // TODO: if the cell we're looking at is part of a threat with
+              // if the cell we're looking at is part of a threat with
               // this finder, check to see if this should join that threat.
+              let existingThreats = newCellThreats[finderIndex][row][col]
+              if (existingThreats) {
+                for (let existingIndex of existingThreats) {
+                  let existing = newThreats[existingIndex]
+
+                  // check to see if we should join that threat =>
+                  // clone and modify that threat to include the current stuff
+                  if (existing.span + threat.span + skipped.length <= 5) {
+                    // don't join it if the other direction has already
+                    if (joinedThreat === existing) {
+                      return
+                    }
+                    console.log("hi")
+                    joinedThreat = mergeThreats(existing, threat)
+
+                    newThreats[existingIndex] = joinedThreat
+                  }
+                }
+              }
 
               threat.played.push(_.clone(current))
               threat.skipped = threat.skipped.concat(skipped)
@@ -169,13 +221,20 @@ export class Board {
       })
 
       // if the first's span is 1, so is the second's
-      if (addThreats[0].span === 1) continue
+      if (addThreats.length === 0 || addThreats[0].span === 1) continue
 
+      // sort the played array of the threats (useful later on)
+      _.each(addThreats, (threat) => {
+        threat.played.sort(Board.compareLocations)
+      })
+
+      // add the first threat
       Board.addThreat(newThreats, newCellThreats, this.cellThreats,
           addThreats[0], newValues)
 
-      // check to see if the directional threats are the same
-      if (!_.isEqual(addThreats[0].played, addThreats[1].played)) {
+      // add the second threat only if it's different from the first one
+      if (addThreats.length > 1 &&
+          !_.isEqual(addThreats[0].played, addThreats[1].played)) {
         Board.addThreat(newThreats, newCellThreats, this.cellThreats,
             addThreats[1], newValues)
       }

@@ -40,12 +40,11 @@ describe('Gomoku engine', function () {
     assert.deepEqual(threats[0], {
       player: true,
       finderIndex: "1",
-      played: [ { row, col: 6 }, { row, col: 2 } ],
+      played: [ { row, col: 2 }, { row, col: 6 } ],
       skipped: [ { row, col: 5 }, { row, col: 4 }, { row, col: 3 } ],
       expansions: [],
       span: 5,
     })
-    console.log(threats[1])
     assert.deepEqual(threats[1], {
       player: true,
       finderIndex: "1",
@@ -79,7 +78,7 @@ describe('Gomoku engine', function () {
   })
 
   //                      01234567890123456789
-  it('moves from scratch: .......1234.........', function () {
+  it('moves from scratch: .......1235...4.....', function () {
     let board = new Board(blankBoard)
 
     let row = 7;
@@ -87,7 +86,8 @@ describe('Gomoku engine', function () {
     assert.equal(board.getThreats().length, 0)
 
     board = board.move({ row, col: 8 }).move({ row: 0, col: 10 })
-    assert.deepEqual(board.getThreats()[1], {
+    assert.equal(board.getThreats().length, 1)
+    assert.deepEqual(board.getThreats()[0], {
       player: true,
       finderIndex: "1",
       played: [ { row, col: 7 }, { row, col: 8 } ],
@@ -96,7 +96,8 @@ describe('Gomoku engine', function () {
       span: 2,
     })
 
-    board = board.move({ row, col: 8 }).move({ row: 0, col: 19 })
+    board = board.move({ row, col: 9 }).move({ row: 0, col: 19 })
+    assert.equal(board.getThreats().length, 1)
     assert.deepEqual(board.getThreats()[0], {
       player: true,
       finderIndex: "1",
@@ -106,14 +107,55 @@ describe('Gomoku engine', function () {
       span: 3,
     })
 
-    board = board.move({ row, col: 9 }).move({ row: 19, col: 0 })
-    assert.deepEqual(board.getThreats()[1], {
+    board = board.move({ row, col: 14 }).move({ row: 0, col: 19 })
+        .move({ row, col: 10 }).move({ row: 19, col: 10 })
+    assert.equal(board.getThreats().length, 2)
+    assert.deepEqual(board.getThreats()[0], {
       player: true,
       finderIndex: "1",
       played: [ { row, col: 7 }, { row, col: 8 }, { row, col: 9 }, { row, col: 10 } ],
       skipped: [],
       expansions: [ { row, col: 6 }, { row, col: 11 } ],
       span: 4,
+    })
+    // TODO: the other span 5
+    // assert.deepEqual(board.getThreats()[1], {
+    //   player: true,
+    //   finderIndex: "1",
+    //   played: [ { row, col: 7 }, { row, col: 8 }, { row, col: 9 }, { row, col: 10 } ],
+    //   skipped: [],
+    //   expansions: [ { row, col: 6 }, { row, col: 11 } ],
+    //   span: 4,
+    // })
+  })
+
+  //                      01234567890123456789
+  it('moves from scratch: .......1.3.2.........', function () {
+    let board = new Board(blankBoard)
+
+    let row = 7;
+    board = board.move({ row, col: 7 }).move({ row: 0, col: 0 })
+        .move({ row, col: 11 }).move({ row: 0, col: 10 })
+    assert.equal(board.getThreats().length, 1)
+    assert.deepEqual(board.getThreats()[0], {
+      player: true,
+      finderIndex: "1",
+      played: [ { row, col: 7 }, { row, col: 11 } ],
+      skipped: [ { row, col: 8 }, { row, col: 9 }, { row, col: 10 } ],
+      expansions: [],
+      span: 5,
+    })
+
+    board = board.move({ row, col: 9 })
+    assert.equal(board.getThreats().length, 1)
+    assert.deepEqual(board.getThreats()[0], {
+      player: true,
+      finderIndex: "1",
+      // NOTE: might need to sort here
+      played: [ { row, col: 7 }, { row, col: 9 }, { row, col: 11 } ],
+      skipped: [ { row, col: 8 }, { row, col: 10 } ],
+      expansions: [],
+      span: 5,
     })
   })
 })
