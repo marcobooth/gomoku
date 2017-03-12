@@ -1,3 +1,5 @@
+import Immutable from "immutable"
+
 // NOTE: we should sort the possible moves based on how many threats they can
 // help for the current player and how many they can disrupt for the other
 // player
@@ -24,14 +26,19 @@ const threatFinders = [
   },
 ]
 
-const defaultCellThreats = Array(threatFinders.length);
+var jsCellThreats = Array(threatFinders.length);
 _.times(threatFinders.length, (finderIndex) => {
-  defaultCellThreats[finderIndex] = Array(BOARD_SIZE)
+  jsCellThreats[finderIndex] = Array(BOARD_SIZE)
 
   _.times(BOARD_SIZE, (row) => {
-    defaultCellThreats[finderIndex][row] = Array(BOARD_SIZE)
+    jsCellThreats[finderIndex][row] = Array(BOARD_SIZE)
+
+    _.times(BOARD_SIZE, (col) => {
+      jsCellThreats[finderIndex][row][col] = {}
+    })
   })
 })
+const defaultCellThreats = Immutable.fromJS(jsCellThreats)
 
 
 export class Board {
@@ -65,14 +72,20 @@ export class Board {
   }
 
   // add expansions, add the threat to the threat list, link to it through
-  // cellThreat (which is returned)
-  static addThreat(newThreats, cellThreats, oldCellThreats, threat, values) {
+  // cellThreats (which is returned)
+  static addThreat(newThreats, cellThreats, threat, values) {
     Board.calculateExtensions(threat, values)
 
     newThreats.push(threat)
 
     // add to the cellThreats
+    let threatIndex = newThreats.length - 1
+    _.each(threat.played.concat(threat.skipped), ({ row, col }) => {
+      let path = [threat.finderIndex, row, col, threatIndex]
+      cellThreats = cellThreats.setIn(path, true)
+    })
 
+    return cellThreats
   }
 
   // calculate extensions to the threat
@@ -182,23 +195,25 @@ export class Board {
 
               // if the cell we're looking at is part of a threat with
               // this finder, check to see if this should join that threat.
-              let existingThreats = newCellThreats[finderIndex][row][col]
-              if (existingThreats) {
-                for (let existingIndex of existingThreats) {
-                  let existing = newThreats[existingIndex]
+              let existingThreats = Object.keys(newCellThreats.getIn([finderIndex, row, col]).toJS())
+              for (let existingIndex of existingThreats) {
+                let existing = newThreats[existingIndex]
 
-                  // check to see if we should join that threat =>
-                  // clone and modify that threat to include the current stuff
-                  if (existing.span + threat.span + skipped.length <= 5) {
-                    // don't join it if the other direction has already
-                    if (joinedThreat === existing) {
-                      return
-                    }
-                    console.log("hi")
-                    joinedThreat = mergeThreats(existing, threat)
+                console.log("FOUND EXISTING")
+                console.log("existing:", existing)
+                console.log("threat.span:", threat.span)
+                console.log("skipped.length:", skipped.length)
 
-                    newThreats[existingIndex] = joinedThreat
+                // check to see if we should join that threat =>
+                // clone and modify that threat to include the current stuff
+                if (existing.span + threat.span + skipped.length <= 5) {
+                  // don't join it if the other direction has already
+                  if (joinedThreat === existing) {
+                    return
                   }
+                  joinedThreat = mergeThreats(existing, threat)
+
+                  newThreats[existingIndex] = joinedThreat
                 }
               }
 
@@ -229,13 +244,13 @@ export class Board {
       })
 
       // add the first threat
-      Board.addThreat(newThreats, newCellThreats, this.cellThreats,
+      newCellThreats = Board.addThreat(newThreats, newCellThreats,
           addThreats[0], newValues)
 
       // add the second threat only if it's different from the first one
       if (addThreats.length > 1 &&
           !_.isEqual(addThreats[0].played, addThreats[1].played)) {
-        Board.addThreat(newThreats, newCellThreats, this.cellThreats,
+        newCellThreats = Board.addThreat(newThreats, newCellThreats,
             addThreats[1], newValues)
       }
     }
