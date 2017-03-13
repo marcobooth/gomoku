@@ -9,7 +9,9 @@ export default class PieceColour extends Component {
   }
 
   componentDidMount() {
-    $('.ui.dropdown').dropdown()
+    $('.ui.dropdown').dropdown({
+      action: "select"
+    })
   }
 
   render() {
