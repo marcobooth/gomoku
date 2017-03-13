@@ -45,8 +45,8 @@ class GameMessages extends Component {
 
   render() {
     if (!this.props.currentUser) {
-      return <div>Please login to use in-game messages</div>
-    } else if (!this.props.subReady) {
+      return <div className="center">Please login to use in-game messages</div>
+    } else if (!this.props.loading) {
       return <div><button className="ui loading button"></button>Loading...</div>
     }
 
@@ -56,7 +56,7 @@ class GameMessages extends Component {
         { this.renderMessages() }
         <form className="ui reply form" onSubmit={this.handleSubmit}>
           <label>
-            Message:
+            Compose your message:
             <input type="text" value={this.state.value} onChange={this.handleChange} />
           </label>
 
@@ -79,9 +79,10 @@ GameMessages.propTypes = {
 
 export default createContainer(() => {
   let gameId = FlowRouter.getParam("_id")
+  let fetchMessages = Meteor.subscribe('messages', gameId)
 
   return {
-    subReady: Meteor.subscribe('messages', gameId).ready(),
+    loading: fetchMessages.ready(),
     gameId,
     messages: Messages.find({ gameId }).fetch(),
     currentUser: Meteor.user(),

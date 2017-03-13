@@ -13,7 +13,7 @@ Meteor.methods({
     // console.log("game:", game)
     // set an updating attribute, only allow one thing at a time
 
-    if (game.board[rowIndex][pointIndex] === null) {
+    if (!game.board[rowIndex][pointIndex]) {
       // send it to the python script.
       // v Player - invalid move, valid move, winner
       exec("python ../../../../../../test.py", Meteor.bindEnvironment(function(error, stdout, stderr) {
@@ -36,15 +36,11 @@ Meteor.methods({
           })
         } else if (stdout === "validmove\n") {
           console.log("I'm in the valid move");
-          console.log("game:", game)
-          let newGameArray = game.board
-          newGameArray[rowIndex][pointIndex] = game.currentPlayer
-          let currentPlayer = game.currentPlayer === game.p1 ? game.p2 : game.p1
-          // TODO ask flenge how to add to part of the array
+          let nextPlayer = game.currentPlayer === game.p1 ? game.p2 : game.p1
           Games.update(gameId, {
             $set: {
-              board: newGameArray,
-              currentPlayer: currentPlayer
+              [`board.${rowIndex}.${pointIndex}`]: game.currentPlayer,
+              currentPlayer: nextPlayer
             }
           });
         } else {

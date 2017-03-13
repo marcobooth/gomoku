@@ -12,7 +12,7 @@ import GameMessages from './GameMessages.jsx'
 class Game extends Component {
 
   render() {
-    if (!this.props.subscription) {
+    if (!this.props.loading) {
       return <div><button className="ui loading button"></button>Loading...</div>
     }
 
@@ -41,7 +41,7 @@ class Game extends Component {
           </div>
           <div className="eight wide column">
             <h2 className="center">Game Information</h2>
-            <GameInfo game={this.props.game} spectatorMode={spectatorMode} readonly={readonly} />
+            <GameInfo game={this.props.game} spectatorMode={spectatorMode} readonly={readonly} currentUser={this.props.currentUser} />
             <PieceColour game={this.props.game} currentUser={this.props.currentUser} />
             <GameMessages />
           </div>
@@ -59,9 +59,9 @@ Game.propTypes = {
 
 export default createContainer(( params ) => {
   let gameId = FlowRouter.getParam("_id")
-
+  let fetchGame = Meteor.subscribe('game', gameId)
   return {
-    subscription: Meteor.subscribe('game', gameId).ready(),
+    loading: fetchGame.ready(),
     game: Games.findOne(gameId),
     currentUser: Meteor.user(),
   };

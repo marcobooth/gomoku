@@ -2,7 +2,7 @@ import { Games, Messages } from '../collections.js'
 import { check } from 'meteor/check';
 
 Meteor.publish('highScoreData', function () {
-  return Meteor.users.find({}, { fields: { username: 'true', 'won' : true, 'drawn': true, 'lost': true }})
+  return Meteor.users.find({}, { fields: { username: 'true', won : true, drawn: true, lost: true }})
 })
 
 Meteor.publish('game', function (gameId) {

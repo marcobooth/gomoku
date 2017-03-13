@@ -54,7 +54,7 @@ class Home extends Component {
   }
 
   render() {
-    if (!this.props.subscription) {
+    if (!this.props.loading) {
       return <div><button className="ui loading button"></button>Loading...</div>
     }
 
@@ -94,8 +94,9 @@ class Home extends Component {
 
 export default createContainer(() => {
   Session.get("showGamesLimit") ? '' : Session.set("showGamesLimit", 4)
+  let fetchGame = Meteor.subscribe('games')
   return {
-    subscription: Meteor.subscribe('games').ready(),
+    loading: fetchGame.ready(),
     startedGames: Games.find({ status: 'started'}, { limit: Session.get("showGamesLimit") }).fetch(),
     joinableGames: Games.find({ status: 'creating'}, { limit: 5 }).fetch(),
   }

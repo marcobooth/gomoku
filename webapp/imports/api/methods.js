@@ -41,12 +41,15 @@ Meteor.methods({
 
     ensureLoggedIn.bind(this)
 
+    let user = Meteor.user()
+
     Games.update({
       _id: gameId,
       status: 'creating'
     }, {
       $set: {
-        p2: this.userId,
+        p2: user._id,
+        p2Username: user.username,
         status: 'started'
       }
     })
