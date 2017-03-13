@@ -7,9 +7,8 @@ Meteor.methods({
   'games.insert'(isAI) {
     check(isAI, Boolean)
 
-    if (! this.userId) {
-      throw new Meteor.Error('not-authorized');
-    }
+    ensureLoggedIn(this.userId)
+
     let board = []
     for (let i = 0; i < 19; i++) {
       board.push([undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined])
@@ -39,9 +38,9 @@ Meteor.methods({
   'games.join'(gameId) {
     check(gameId, String)
 
-    ensureLoggedIn.bind(this)
-
     let user = Meteor.user()
+
+    ensureLoggedIn(this.userId)
 
     Games.update({
       _id: gameId,
@@ -59,7 +58,7 @@ Meteor.methods({
     check(userId, String)
     check(colour, String)
 
-    ensureLoggedIn.bind(this)
+    ensureLoggedIn(this.userId)
     const game = Games.findOne(gameId);
 
     let playerToChange
@@ -75,7 +74,7 @@ Meteor.methods({
     check(gameId, String);
     check(text, String);
 
-    ensureLoggedIn.bind(this)
+    ensureLoggedIn(this.userId)
 
     return Messages.insert({
       text,

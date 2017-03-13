@@ -1,6 +1,5 @@
-export function ensureLoggedIn() {
-  console.log("this.userId:", this.userId)
-  if (! this.userId) {
+export function ensureLoggedIn(userId) {
+  if (! userId) {
     throw new Meteor.Error('not-logged-in');
   }
 }

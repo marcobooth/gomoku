@@ -21,11 +21,12 @@ class Home extends Component {
   }
 
   renderGames(games, isWatchable) {
+    let renderGames
     if (games) {
-      return renderGames = games.map((game, index) => {
+      renderGames = games.map((game, index) => {
         let linkText
         if (isWatchable === false && Meteor.user() && game.p1 === Meteor.user()._id) {
-          return ''
+          return null
         }
         else if (isWatchable) {
           linkText = game.p1Username + " vs. " + game.p2Username
@@ -41,6 +42,14 @@ class Home extends Component {
           </div>
         )
       })
+      // removes falsey values "", 0 and undefined
+      renderGames = renderGames.filter(Boolean)
+    }
+
+    if (renderGames.length === 0) {
+      return <div className="center">No games available</div>
+    } else {
+      return renderGames
     }
   }
 

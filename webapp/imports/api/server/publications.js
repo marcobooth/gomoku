@@ -1,5 +1,6 @@
 import { Games, Messages } from '../collections.js'
 import { check } from 'meteor/check';
+import { ensureLoggedIn } from '../../utilities/ensureLoggedIn.js'
 
 Meteor.publish('highScoreData', function () {
   return Meteor.users.find({}, { fields: { username: 'true', won : true, drawn: true, lost: true }})
@@ -16,5 +17,6 @@ Meteor.publish('games', function () {
 
 Meteor.publish('messages', function (gameId) {
   check(gameId, String);
+  ensureLoggedIn(this.userId)
   return Messages.find({ gameId })
 })

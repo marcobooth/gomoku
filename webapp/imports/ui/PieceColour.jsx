@@ -10,7 +10,6 @@ export default class PieceColour extends Component {
 
   componentDidMount() {
     $('.ui.dropdown').dropdown({
-      action: "select"
     })
   }
 
@@ -22,17 +21,18 @@ export default class PieceColour extends Component {
 
     return (
       <div className="center">
-        <div className="ui dropdown">
-          <div className="text">Change piece colour</div>
+        Change piece colour to &nbsp;
+        <div className="ui inline dropdown">
+          <div className="text"></div>
           <i className="dropdown icon"></i>
           <div className="menu">
-            <div onClick={this.handlePieceColourChange.bind(this, "red")} className="item ui red basic button">Red</div>
-            <div onClick={this.handlePieceColourChange.bind(this, "orange")} className="item ui orange basic button">Orange</div>
-            <div onClick={this.handlePieceColourChange.bind(this, "yellow")} className="item ui yellow basic button">Yellow</div>
-            <div onClick={this.handlePieceColourChange.bind(this, "olive")} className="item ui olive basic button">Olive</div>
-            <div onClick={this.handlePieceColourChange.bind(this, "green")} className="item ui green basic button">Green</div>
-            <div onClick={this.handlePieceColourChange.bind(this, "teal")} className="item ui teal basic button">Teal</div>
-            <div onClick={this.handlePieceColourChange.bind(this, "blue")} className="item ui blue basic button">Blue</div>
+            <div onClick={this.handlePieceColourChange.bind(this, "red")} className="item" style={{color: 'red'}}>Red</div>
+            <div onClick={this.handlePieceColourChange.bind(this, "orange")} className="item" style={{color: 'orange'}}>Orange</div>
+            <div onClick={this.handlePieceColourChange.bind(this, "yellow")} className="item" style={{color: 'yellow'}}>Yellow</div>
+            <div onClick={this.handlePieceColourChange.bind(this, "olive")} className="item" style={{color: 'olive'}}>Olive</div>
+            <div onClick={this.handlePieceColourChange.bind(this, "green")} className="item active" style={{color: 'green'}}>Green</div>
+            <div onClick={this.handlePieceColourChange.bind(this, "teal")} className="item" style={{color: 'teal'}}>Teal</div>
+            <div onClick={this.handlePieceColourChange.bind(this, "blue")} className="item" style={{color: 'blue'}}>Blue</div>
           </div>
         </div>
       </div>
