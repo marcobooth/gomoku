@@ -10,8 +10,18 @@ Meteor.publish('game', function (gameId) {
   return Games.find(gameId)
 })
 
-Meteor.publish('games', function () {
-  return Games.find({}, { fields: { status: true, p1: true, p2: true, p1Username: true, p2Username: true }})
+Meteor.publish('listGames', function (status, limit) {
+  check(status, String)
+  check(limit, Number)
+
+  return Games.find({
+    status
+  }, {
+    fields: {
+      status: true, p1: true, p2: true, p1Username: true, p2Username: true
+    },
+    limit
+  })
 })
 
 Meteor.publish('messages', function (gameId) {

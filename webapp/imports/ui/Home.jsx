@@ -6,6 +6,7 @@ import { pathFor } from '../utilities/flow_helper.js';
 import { Games } from '../api/collections.js';
 import HighScores from './HighScores.jsx'
 import { Session } from 'meteor/session'
+import { ReactiveVar } from 'meteor/reactive-var'
 
 class Home extends Component {
 
@@ -48,13 +49,8 @@ class Home extends Component {
     delete Session.keys['showGamesLimit']
   }
 
-  showMoreGames(e) {
-    e.preventDefault()
-    Session.set("showGamesLimit", 10)
-  }
-
   render() {
-    if (!this.props.subscription) {
+    if (this.props.loadingData) {
       return <div><button className="ui loading button"></button>Loading...</div>
     }
 
@@ -76,11 +72,12 @@ class Home extends Component {
             <div className="eight wide column">
               <h2 className="center">Watch a Game</h2>
               { this.renderGames(this.props.startedGames, true) }
-              <div onClick={this.showMoreGames.bind(this)}>Show more...</div>
+              <a onClick={this.props.loadMoreStartedGames.bind(this)}>Show more...</a>
             </div>
             <div className="eight wide column">
               <h2 className="center">Join a Game</h2>
               { this.renderGames(this.props.joinableGames, false) }
+              <a onClick={this.props.loadMoreStartedGames.bind(this)}>Show more...</a>
             </div>
           </div>
 
@@ -92,11 +89,38 @@ class Home extends Component {
   }
 }
 
-export default createContainer(() => {
-  Session.get("showGamesLimit") ? '' : Session.set("showGamesLimit", 4)
-  return {
-    subscription: Meteor.subscribe('games').ready(),
-    startedGames: Games.find({ status: 'started'}, { limit: Session.get("showGamesLimit") }).fetch(),
-    joinableGames: Games.find({ status: 'creating'}, { limit: 5 }).fetch(),
+export default createContainer({
+  getInitialState() {
+    return {
+      startedLimit: new ReactiveVar(5),
+      creatingLimit: new ReactiveVar(5)
+    }
+  },
+  getMeteorData(props, state) {
+    const { startedLimit, creatingLimit } = state
+
+    let startedSub =
+        Meteor.subscribe("listGames", "started", startedLimit.get())
+    let startedGames = Games.find({
+      status: 'started'
+    }, {
+      limit: startedLimit.get()
+    }).fetch()
+
+    let creatingSub =
+        Meteor.subscribe("listGames", "creating", creatingLimit.get())
+    let joinableGames = Games.find({
+      status: 'creating'
+    }, {
+      limit: creatingLimit.get()
+    }).fetch()
+
+    return {
+      loadingData: !startedSub.ready() || !creatingSub.ready(),
+      startedGames,
+      joinableGames,
+      loadMoreStartedGames() { startedLimit.set(startedLimit.get() + 5) },
+      loadMoreCreatingGames() { creatingLimit.set(creatingLimit.get() + 5) }
+    }
   }
 }, Home)
