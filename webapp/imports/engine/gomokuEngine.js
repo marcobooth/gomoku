@@ -92,6 +92,7 @@ export class Board {
   static calculateExtensions(threat, values) {
     threat.expansions = []
     if (threat.span < 5) {
+
       let possibleExtensions = [
         { delta: -1, playedIndex: 0 },
         { delta: 1, playedIndex: threat.played.length - 1 },
@@ -112,20 +113,41 @@ export class Board {
     }
   }
 
-  static mergeThreats(oldThreat, newThreat) {
+  static mergeThreats(oldThreat, newThreat, values, cellThreats, threatIndex) {
+    // add to cellThreats
+    _.each(newThreat.played.concat(newThreat.skipped), loc => {
+      let path = [newThreat.finderIndex, loc.row, loc.col, threatIndex]
+      cellThreats = cellThreats.setIn(path, true)
+    })
+
+    // remove old skipped values that have just been played
+    let oldSkipped = oldThreat.skipped
+    _.each(newThreat.played, (location) => {
+      oldSkipped = oldThreat.skipped.filter((skipped) => {
+        return skipped.row !== location.row || skipped.col !== location.col
+      })
+    })
+
     _.each(oldThreat.played, (location) => {
       newThreat.played.push(location)
     })
 
-    _.each(oldThreat.skipped, (location) => {
+    _.each(oldSkipped, (location) => {
       newThreat.skipped.push(location)
     })
 
+
+    // recalculate span
     newThreat.played.sort(Board.compareLocations)
+    let first = newThreat.played[0]
+    let last = newThreat.played[newThreat.played.length - 1]
+    let rowDiff = Math.abs(first.row - last.row)
+    let colDiff = Math.abs(first.col - last.col)
+    newThreat.span = Math.max(rowDiff, colDiff) + 1
 
-    Board.calculateExtensions(newThreat)
+    Board.calculateExtensions(newThreat, values)
 
-    return newThreat
+    return cellThreats
   }
 
   // compare by column then row
@@ -167,12 +189,11 @@ export class Board {
       let deltas = [ -1, 1 ]
       let addThreats = []
 
-      // keep track if we've already joined a threat
-      let joinedThreat
+      // keep track of which threats have been joined
+      let joinedThreats = {}
 
       _.each([ false, true ], (firstBit) => {
-        let threat = Board.newThreat(this.player, finderIndex,
-            { row, col })
+        let threat = Board.newThreat(this.player, finderIndex, { row, col })
 
         // go the other way the second time around
         for (secondBit of [ false, true ]) {
@@ -180,40 +201,48 @@ export class Board {
           let skipped = []
           let blocked = false
 
+          nextCell:
           for (i = 0; (i < 5) && (threat.span + skipped.length < 5); i++) {
             // clever, eh? http://stackoverflow.com/a/3618366
             stepCell(current, deltas[firstBit ^ secondBit])
 
             // check to see if we're still on the board
-            if (Board.outsideBoard(current)) {
-              break
-            }
+            if (Board.outsideBoard(current)) break
 
             let value = newValues[current.row][current.col]
             if (value === this.player) {
-              // it's this player's
-
               // if the cell we're looking at is part of a threat with
               // this finder, check to see if this should join that threat.
-              let existingThreats = Object.keys(newCellThreats.getIn([finderIndex, row, col]).toJS())
-              for (let existingIndex of existingThreats) {
-                let existing = newThreats[existingIndex]
+              let threatsPath = [finderIndex, current.row, current.col]
+              let currentThreats = newCellThreats.getIn(threatsPath)
 
-                console.log("FOUND EXISTING")
-                console.log("existing:", existing)
-                console.log("threat.span:", threat.span)
-                console.log("skipped.length:", skipped.length)
+              for (let threatIndex of currentThreats.keys()) {
+                // don't join it if it's already been joined
+                // NOTE: joinedThreats has larger scope
+                if (joinedThreats[threatIndex]) continue nextCell
 
-                // check to see if we should join that threat =>
-                // clone and modify that threat to include the current stuff
-                if (existing.span + threat.span + skipped.length <= 5) {
-                  // don't join it if the other direction has already
-                  if (joinedThreat === existing) {
-                    return
+                // check to see if we should join that threat
+                let potentialLocations = threat.played
+                    .concat(threat.skipped).concat(skipped)
+                let overlap = _.reduce(potentialLocations, (total, loc) => {
+                  let path = [finderIndex, loc.row, loc.col, threatIndex]
+                  if (newCellThreats.getIn(path)) {
+                    total += 1
                   }
-                  joinedThreat = mergeThreats(existing, threat)
 
-                  newThreats[existingIndex] = joinedThreat
+                  return total;
+                }, 0)
+
+                let toExtend = threat.span + skipped.length - overlap
+                let existing = newThreats[threatIndex]
+                if (existing.span + toExtend <= 5) {
+                  joinedThreats[threatIndex] = true
+
+                  newCellThreats = Board.mergeThreats(existing, threat,
+                      newValues, newCellThreats, threatIndex)
+                  newThreats[threatIndex] = threat
+
+                  return
                 }
               }
 
@@ -232,27 +261,44 @@ export class Board {
           }
         }
 
+        if (threat.played.length <= 1) return
+
+        // make sure it's "new" - has a cell with no threats that've been
+        // joined
+        let noThreatsCell = false
+        let locations = threat.played.concat(threat.skipped)
+
+        for (index in locations) {
+          let location = locations[index]
+          let path = [finderIndex, location.row, location.col]
+          let threatIndexes = Object.keys(newCellThreats.getIn(path).toJS())
+          let filteredIndexes = _.filter(threatIndexes, index => {
+            return !joinedThreats[index]
+          })
+
+          if (filteredIndexes.length === 0) {
+            noThreatsCell = true
+            break
+          }
+        }
+        if (!noThreatsCell) return
+
+        // sort the played array of the threats (useful later on)
+        threat.played.sort(Board.compareLocations)
+
         addThreats.push(threat)
       })
 
-      // if the first's span is 1, so is the second's
-      if (addThreats.length === 0 || addThreats[0].span === 1) continue
-
-      // sort the played array of the threats (useful later on)
-      _.each(addThreats, (threat) => {
-        threat.played.sort(Board.compareLocations)
-      })
-
-      // add the first threat
-      newCellThreats = Board.addThreat(newThreats, newCellThreats,
-          addThreats[0], newValues)
-
-      // add the second threat only if it's different from the first one
+      // if the two threats are the same only add one of them
       if (addThreats.length > 1 &&
-          !_.isEqual(addThreats[0].played, addThreats[1].played)) {
-        newCellThreats = Board.addThreat(newThreats, newCellThreats,
-            addThreats[1], newValues)
+          _.isEqual(addThreats[0].played, addThreats[1].played)) {
+        addThreats = addThreats.slice(0, 1)
       }
+
+      _.each(addThreats, (threat) => {
+        newCellThreats = Board.addThreat(newThreats, newCellThreats, threat,
+            newValues)
+      })
     }
 
     // update the in play cells
@@ -296,4 +342,5 @@ export class Board {
 
   // getters for testing
   getThreats() { return this.threats }
+  getCellThreats() { return this.cellThreats }
 }
