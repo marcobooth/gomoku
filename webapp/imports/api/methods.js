@@ -2,6 +2,7 @@ import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import { Games, Messages } from './collections.js'
 import { ensureLoggedIn } from '../utilities/ensureLoggedIn.js'
+import _ from 'underscore'
 
 Meteor.methods({
   'games.insert'(isAI) {
@@ -15,25 +16,20 @@ Meteor.methods({
     }
     let user = Meteor.user()
 
-    if (isAI === true) {
-      return Games.insert({
-        board: board,
-        currentPlayer: user._id,
-        p1: user._id,
-        p1Username: user.username,
-        p2: 'AI',
-        p2Username: 'AI',
-        status: 'started',
-      })
-    } else {
-      return Games.insert({
-        board: board,
-        currentPlayer: user._id,
-        p1: user._id,
-        p1Username: user.username,
-        status: 'creating',
-      })
+    let newBoard = {
+      board: board,
+      currentPlayer: user._id,
+      p1: user._id,
+      p1Username: user.username,
+      status: 'started'
     }
+
+    if (isAI === true) {
+      _.extend(newBoard, { p2: 'AI', p2Username: 'AI', status: 'started' })
+    } else {
+      _.extend(newBoard, { status: 'creating' })
+    }
+    return Games.insert(newBoard)
   },
   'games.join'(gameId) {
     check(gameId, String)

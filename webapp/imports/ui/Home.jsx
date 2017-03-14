@@ -20,6 +20,22 @@ class Home extends Component {
     })
   }
 
+  openLoginMenu() {
+    return 1
+  }
+
+  renderButtons() {
+    if (! Meteor.user()) {
+      return <div className="ui huge primary button" onClick={this.openLoginMenu.bind(this)}>Signup / Login</div>
+    }
+    return (
+      <div>
+        <div id="mainButton" className="ui huge primary button" onClick={this.handleClick.bind(this, false)}>Play Against A Friend</div>
+        <div className="ui huge primary button" onClick={this.handleClick.bind(this, true)}>Play Against AI</div>
+      </div>
+    )
+  }
+
   renderGames(games, isWatchable) {
     let renderGames
     if (games) {
@@ -53,15 +69,6 @@ class Home extends Component {
     }
   }
 
-  componentWillUnmount() {
-    delete Session.keys['showGamesLimit']
-  }
-
-  showMoreGames(e) {
-    e.preventDefault()
-    Session.set("showGamesLimit", 10)
-  }
-
   render() {
     if (!this.props.loading) {
       return <div><button className="ui loading button"></button>Loading...</div>
@@ -75,8 +82,7 @@ class Home extends Component {
           </h1>
           <h2>We really hope you lose. Honestly, it would help us a lot in the correction.</h2>
           <div className="buttons">
-            <div id="mainButton" className="ui huge primary button" onClick={this.handleClick.bind(this, false)}>Play Against A Friend</div>
-            <div className="ui huge primary button" onClick={this.handleClick.bind(this, true)}>Play Against AI</div>
+            { this.renderButtons() }
           </div>
         </div>
 
@@ -85,7 +91,6 @@ class Home extends Component {
             <div className="eight wide column">
               <h2 className="center">Watch a Game</h2>
               { this.renderGames(this.props.startedGames, true) }
-              <div onClick={this.showMoreGames.bind(this)}>Show more...</div>
             </div>
             <div className="eight wide column">
               <h2 className="center">Join a Game</h2>
@@ -101,12 +106,12 @@ class Home extends Component {
   }
 }
 
-export default createContainer(() => {
-  Session.get("showGamesLimit") ? '' : Session.set("showGamesLimit", 4)
-  let fetchGame = Meteor.subscribe('games')
+export default createContainer(function () {
+  let fetchJoinableGame = Meteor.subscribe('games', 'creating', 5)
+  let fetchStartableGame = Meteor.subscribe('games', 'started', 10)
   return {
-    loading: fetchGame.ready(),
-    startedGames: Games.find({ status: 'started'}, { limit: Session.get("showGamesLimit") }).fetch(),
-    joinableGames: Games.find({ status: 'creating'}, { limit: 5 }).fetch(),
+    loading: fetchJoinableGame.ready() && fetchStartableGame.ready(),
+    startedGames: Games.find({ status: 'started'}).fetch(),
+    joinableGames: Games.find({ status: 'creating'}).fetch(),
   }
 }, Home)

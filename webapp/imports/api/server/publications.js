@@ -7,12 +7,14 @@ Meteor.publish('highScoreData', function () {
 })
 
 Meteor.publish('game', function (gameId) {
-  check(gameId, String);
+  check(gameId, String)
   return Games.find(gameId)
 })
 
-Meteor.publish('games', function () {
-  return Games.find({}, { fields: { status: true, p1: true, p2: true, p1Username: true, p2Username: true }})
+Meteor.publish('games', function (status, limit) {
+  check(status, String)
+  check(limit, Number)
+  return Games.find({ status }, { limit, fields: { status: true, p1: true, p2: true, p1Username: true, p2Username: true }})
 })
 
 Meteor.publish('messages', function (gameId) {
