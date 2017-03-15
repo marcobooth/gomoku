@@ -124,7 +124,7 @@ describe('Gomoku engine', function () {
     })
 
     board = board.move({ row, col: 14 }).move({ row: 18, col: 0 })
-        .move({ row, col: 10 })//.move({ row: 18, col: 10 })
+                .move({ row, col: 10 })//.move({ row: 18, col: 10 })
     assert.equal(board.getThreats().length, 2)
     assert.deepEqual(board.getThreats()[0], {
       player: true,
@@ -150,7 +150,7 @@ describe('Gomoku engine', function () {
 
     let row = 7;
     board = board.move({ row, col: 7 }).move({ row: 0, col: 0 })
-        .move({ row, col: 11 }).move({ row: 0, col: 10 })
+                .move({ row, col: 11 }).move({ row: 0, col: 10 })
     assert.equal(board.getThreats().length, 1)
     assert.deepEqual(board.getThreats()[0], {
       player: true,
@@ -179,8 +179,8 @@ describe('Gomoku engine', function () {
 
     let row = 7;
     board = board.move({ row, col: 5 }).move({ row: 0, col: 0 })
-        .move({ row, col: 6 }).move({ row: 0, col: 10 })
-        .move({ row, col: 9 })
+                .move({ row, col: 6 }).move({ row: 0, col: 10 })
+                .move({ row, col: 9 })
     assert.equal(board.getThreats().length, 1)
     assert.deepEqual(board.getThreats()[0], {
       player: true,
@@ -198,8 +198,8 @@ describe('Gomoku engine', function () {
 
     let row = 7;
     board = board.move({ row, col: 10 }).move({ row: 0, col: 0 })
-        .move({ row, col: 11 }).move({ row: 0, col: 10 })
-        .move({ row, col: 7 })
+                .move({ row, col: 11 }).move({ row: 0, col: 10 })
+                .move({ row, col: 7 })
 
     assert.equal(board.getThreats().length, 1)
     assert.deepEqual(board.getThreats()[0], {
@@ -212,9 +212,17 @@ describe('Gomoku engine', function () {
     })
   })
 
-  // // force checking both threats on side to merge
-  // //                      01234567890123456789
-  // it('moves from scratch: ...3..14.2.........', function () {
-  //   // TODO: won't join the treat created by the 3rd move
-  // })
+  // force checking both threats on side to merge
+  //                      01234567890123456789
+  it('moves from scratch: ...3..14.2.........', function () {
+    let board = new Board(blankBoard)
+
+    let row = 7;
+    board = board.move({ row, col: 6 }).move({ row: 0, col: 0 })
+                .move({ row, col: 9 }).move({ row: 0, col: 10 })
+                .move({ row, col: 3 }).move({ row: 0, col: 18 })
+                .move({ row, col: 7 })
+
+    assert.equal(board.getThreats().length, 2)
+  })
 })
