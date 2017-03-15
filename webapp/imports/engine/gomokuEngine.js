@@ -4,6 +4,8 @@ import Immutable from "immutable"
 // help for the current player and how many they can disrupt for the other
 // player
 
+// TODO: put expansions in the cellToThreats?
+
 export const BOARD_SIZE = 19
 
 // generate some default values
@@ -19,10 +21,10 @@ const threatFinders = [
   (location, delta) => { location.row += delta }, // down
   (location, delta) => { location.col += delta }, // right
   (location, delta) => {
-    location.row += delta; location.col += delta // right-up
+    location.row += delta; location.col += delta // right-down
   },
   (location, delta) => {
-    location.row += delta; location.col -= delta // right-down
+    location.row += delta; location.col -= delta // right-up
   },
 ]
 
@@ -71,28 +73,15 @@ export class Board {
     }
   }
 
-  // add expansions, add the threat to the threat list, link to it through
-  // cellThreats (which is returned)
-  static addThreat(newThreats, cellThreats, threat, values) {
-    Board.calculateExtensions(threat, values)
-
-    newThreats.push(threat)
-
-    // add to the cellThreats
-    let threatIndex = newThreats.length - 1
-    _.each(threat.played.concat(threat.skipped), ({ row, col }) => {
-      let path = [threat.finderIndex, row, col, threatIndex]
-      cellThreats = cellThreats.setIn(path, true)
-    })
-
-    return cellThreats
+  static scoreThreat(threat) {
+    // TODO
+    return 0
   }
 
-  // calculate extensions to the threat
-  static calculateExtensions(threat, values) {
+  // calculate score, extensions for the threat
+  static extensionsAndScore(threat, values) {
     threat.expansions = []
     if (threat.span < 5) {
-
       let possibleExtensions = [
         { delta: -1, playedIndex: 0 },
         { delta: 1, playedIndex: threat.played.length - 1 },
@@ -111,6 +100,25 @@ export class Board {
         }
       })
     }
+
+    threat.score = Board.scoreThreat(threat)
+  }
+
+  // add expansions, add the threat to the threat list, link to it through
+  // cellThreats (which is returned)
+  static addThreat(newThreats, cellThreats, threat, values) {
+    Board.extensionsAndScore(threat, values)
+
+    newThreats.push(threat)
+
+    // add to the cellThreats
+    let threatIndex = newThreats.length - 1
+    _.each(threat.played.concat(threat.skipped), ({ row, col }) => {
+      let path = [threat.finderIndex, row, col, threatIndex]
+      cellThreats = cellThreats.setIn(path, threat.player)
+    })
+
+    return cellThreats
   }
 
   static mergeThreats(oldThreat, newThreat, values, cellThreats, threatIndex,
@@ -118,7 +126,7 @@ export class Board {
     // add to cellThreats
     _.each(newThreat.played.concat(newThreat.skipped), loc => {
       let path = [newThreat.finderIndex, loc.row, loc.col, threatIndex]
-      cellThreats = cellThreats.setIn(path, true)
+      cellThreats = cellThreats.setIn(path, newThreat.player)
     })
 
     // remove old skipped values that have just been played
@@ -156,7 +164,7 @@ export class Board {
     let colDiff = Math.abs(first.col - last.col)
     newThreat.span = Math.max(rowDiff, colDiff) + 1
 
-    Board.calculateExtensions(newThreat, values)
+    Board.extensionsAndScore(newThreat, values)
 
     return cellThreats
   }
@@ -205,6 +213,7 @@ export class Board {
 
       _.each([ false, true ], (firstBit) => {
         let threat = Board.newThreat(this.player, finderIndex, { row, col })
+        let totalPossibleExpansion = 1
 
         // go the other way the second time around
         for (secondBit of [ false, true ]) {
@@ -261,9 +270,11 @@ export class Board {
               threat.skipped = threat.skipped.concat(skipped)
               threat.span += 1 + skipped.length
               skipped = []
+              totalPossibleExpansion++
             } else if (value === null) {
               // it's an empty spot
               skipped.push(_.clone(current))
+              totalPossibleExpansion++
             } else {
               // it's the other player's -- time to quit this direction
               blocked = true
@@ -272,7 +283,7 @@ export class Board {
           }
         }
 
-        if (threat.played.length <= 1) return
+        if (threat.played.length <= 1 || totalPossibleExpansion < 5) return
 
         // make sure it's "new" - has a cell with no threats that've been
         // joined
@@ -300,7 +311,7 @@ export class Board {
         addThreats.push(threat)
       })
 
-      // if the two threats are the same only add one of them
+      // if the two threats are the same remove the second one
       if (addThreats.length > 1 &&
           _.isEqual(addThreats[0].played, addThreats[1].played)) {
         addThreats = addThreats.slice(0, 1)
@@ -340,14 +351,9 @@ export class Board {
         newCellThreats)
   }
 
-  static scoreThreat(threat) {
-    // TODO: score a threat
-    return 10
-  }
-
   heuristic() {
     return _.reduce(this.threats, (memo, threat) => {
-      return memo + scoreThreat(threat)
+      return memo + threat.score
     }, 0)
   }
 
