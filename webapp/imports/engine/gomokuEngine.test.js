@@ -181,10 +181,7 @@ describe('Gomoku engine', function () {
     board = board.move({ row, col: 5 }).move({ row: 0, col: 0 })
         .move({ row, col: 6 }).move({ row: 0, col: 10 })
         .move({ row, col: 9 })
-
     assert.equal(board.getThreats().length, 1)
-    // XXX isn't seeming to add the skipped cells if we merge...
-    console.log("board.getThreats()[0]:", board.getThreats()[0]);
     assert.deepEqual(board.getThreats()[0], {
       player: true,
       finderIndex: "1",
@@ -195,26 +192,25 @@ describe('Gomoku engine', function () {
     })
   })
 
-  // //                      01234567890123456789
-  // it('moves from scratch: .......3..12........', function () {
-  //   let board = new Board(blankBoard)
-  //
-  //   let row = 7;
-  //   board = board.move({ row, col: 10 }).move({ row: 0, col: 0 })
-  //       .move({ row, col: 11 }).move({ row: 0, col: 10 })
-  //       .move({ row, col: 7 })
-  //
-  //   assert.equal(board.getThreats().length, 1)
-  //   assert.deepEqual(board.getThreats()[0], {
-  //     player: true,
-  //     finderIndex: "1",
-  //     // NOTE: might need to sort here
-  //     played: [ { row, col: 7 }, { row, col: 10 }, { row, col: 11 } ],
-  //     skipped: [ { row, col: 8 }, { row, col: 9 } ],
-  //     expansions: [],
-  //     span: 5,
-  //   })
-  // })
+  //                      01234567890123456789
+  it('moves from scratch: .......3..12........', function () {
+    let board = new Board(blankBoard)
+
+    let row = 7;
+    board = board.move({ row, col: 10 }).move({ row: 0, col: 0 })
+        .move({ row, col: 11 }).move({ row: 0, col: 10 })
+        .move({ row, col: 7 })
+
+    assert.equal(board.getThreats().length, 1)
+    assert.deepEqual(board.getThreats()[0], {
+      player: true,
+      finderIndex: "1",
+      played: [ { row, col: 7 }, { row, col: 10 }, { row, col: 11 } ],
+      skipped: [ { row, col: 8 }, { row, col: 9 } ],
+      expansions: [],
+      span: 5,
+    })
+  })
 
   // // force checking both threats on side to merge
   // //                      01234567890123456789

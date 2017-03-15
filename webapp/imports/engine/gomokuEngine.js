@@ -113,7 +113,8 @@ export class Board {
     }
   }
 
-  static mergeThreats(oldThreat, newThreat, values, cellThreats, threatIndex) {
+  static mergeThreats(oldThreat, newThreat, values, cellThreats, threatIndex,
+        justSkipped) {
     // add to cellThreats
     _.each(newThreat.played.concat(newThreat.skipped), loc => {
       let path = [newThreat.finderIndex, loc.row, loc.col, threatIndex]
@@ -136,6 +137,16 @@ export class Board {
       newThreat.skipped.push(location)
     })
 
+    // add non-duplicate values from justSkipped
+    _.each(justSkipped, (location) => {
+      for (threatLoc of newThreat.skipped) {
+        if (threatLoc.row === location.row && threatLoc.col === location.col) {
+          return
+        }
+      }
+
+      newThreat.skipped.push(location)
+    })
 
     // recalculate span
     newThreat.played.sort(Board.compareLocations)
@@ -239,7 +250,7 @@ export class Board {
                   joinedThreats[threatIndex] = true
 
                   newCellThreats = Board.mergeThreats(existing, threat,
-                      newValues, newCellThreats, threatIndex)
+                      newValues, newCellThreats, threatIndex, skipped)
                   newThreats[threatIndex] = threat
 
                   return
