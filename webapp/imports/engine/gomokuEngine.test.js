@@ -20,6 +20,14 @@ _.times(BOARD_SIZE, () => {
 var { assert } = chai
 
 describe('Gomoku engine', function () {
+  it("doesn't accept invalid moves", function () {
+    let board = new Board(blankBoard)
+        .move({ row: 0, col: 0 })
+        .move({ row: 0, col: 0 })
+
+    assert.equal(board, undefined)
+  })
+
   //                      0123456789
   it('moves from scratch: ..1..43..2.........', function () {
     let startBoard = new Board(blankBoard)
@@ -38,7 +46,7 @@ describe('Gomoku engine', function () {
     board = board.move({ row, col: 9 }).move({ row: 0, col: 10 })
     assert(board.getThreats().length === 0)
 
-    board = board.move({ row, col: 6 }).move({ row: 0, col: 19 })
+    board = board.move({ row, col: 6 }).move({ row: 0, col: 18 })
 
     // check the threats
     assert.equal(board.getThreats().length, 2)

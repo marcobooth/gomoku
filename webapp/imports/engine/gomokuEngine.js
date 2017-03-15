@@ -229,7 +229,7 @@ export class Board {
 
   move({ row, col }) {
     // if there's already a piece there, it's an invalid move
-    if (this.values[row][col] !== undefined) return undefined
+    if (this.values[row][col] !== null) return undefined
 
     // create new values for everything, reusing as much memory as possible
     let newValues = this.values.slice();
@@ -242,12 +242,11 @@ export class Board {
 
     // check if we need to split any threats
     for (finderIndex in threatFinders) {
-      let path = [finderIndex, current.row, current.col]
-      let threatsHere = newCellThreats.getIn(path)
+      let threatsHere = newCellThreats.getIn([finderIndex, row, col])
 
       for ([threatIndex, player] of threatsHere.entrySeq()) {
         if (player !== this.player) {
-          
+          // TODO
         }
       }
     }
