@@ -4,7 +4,8 @@ import Immutable from "immutable"
 // help for the current player and how many they can disrupt for the other
 // player
 
-// TODO: put expansions in the cellToThreats?
+// TODO: put expansions in the cellToThreats? -- perhaps reduce while we're
+// going through the threats--make those moves better/worse
 
 export const BOARD_SIZE = 19
 
@@ -79,7 +80,7 @@ export class Board {
   }
 
   // calculate score, extensions for the threat
-  static extensionsAndScore(threat, values) {
+  static expansionsAndScore(threat, values) {
     threat.expansions = []
     if (threat.span < 5) {
       let possibleExtensions = [
@@ -107,7 +108,7 @@ export class Board {
   // add expansions, add the threat to the threat list, link to it through
   // cellThreats (which is returned)
   static addThreat(newThreats, cellThreats, threat, values) {
-    Board.extensionsAndScore(threat, values)
+    Board.expansionsAndScore(threat, values)
 
     newThreats.push(threat)
 
@@ -164,9 +165,52 @@ export class Board {
     let colDiff = Math.abs(first.col - last.col)
     newThreat.span = Math.max(rowDiff, colDiff) + 1
 
-    Board.extensionsAndScore(newThreat, values)
+    Board.expansionsAndScore(newThreat, values)
 
     return cellThreats
+  }
+
+  static updateCanExpand(threat, values) {
+    // try going both directions and count the number of non-opposition pieces
+    // NOTE: assume threat hasn't been bisected
+    let potentialSpan = threat.span
+    let startsAndDeltas = [
+      { start: threat.played[0], delta: -1 },
+      { start: threat.played[threat.played.length - 1], delta: 1 }
+    ]
+
+    for ({ start, delta } of startsAndDeltas) {
+      let current = _.clone(start)
+
+      for (let i = 0; i < 5 - threat.span; i++) {
+        threatFinders[threat.finderIndex](current, delta)
+
+        if (Board.outsideBoard(current) ||
+            values[current.row][current.col] === !threat.player) {
+          break
+        }
+
+        potentialSpan++
+      }
+    }
+
+    if (potentialSpan >= 5) {
+      // clone just in case it changes in expansionsAndScore
+      let newThreat = _.clone(threat)
+      Board.expansionsAndScore(newThreat, values)
+      return newThreat
+    }
+
+    // the threat can no longer expand enough so return undefined
+  }
+
+  static removeFromCellThreats(threatIndex, threat, newCellThreats) {
+    _.each(threat.played.concat(threat.skipped), (location) => {
+      let path = [threat.finderIndex, location.row, location.col, threatIndex]
+      newCellThreats = newCellThreats.deleteIn(path)
+    })
+
+    return newCellThreats
   }
 
   // compare by column then row
@@ -184,6 +228,9 @@ export class Board {
   }
 
   move({ row, col }) {
+    // if there's already a piece there, it's an invalid move
+    if (this.values[row][col] !== undefined) return undefined
+
     // create new values for everything, reusing as much memory as possible
     let newValues = this.values.slice();
     newValues[row] = this.values[row].slice()
@@ -193,13 +240,22 @@ export class Board {
     // put the piece down
     newValues[row][col] = this.player
 
+    // check if we need to split any threats
+    for (finderIndex in threatFinders) {
+      let path = [finderIndex, current.row, current.col]
+      let threatsHere = newCellThreats.getIn(path)
+
+      for ([threatIndex, player] of threatsHere.entrySeq()) {
+        if (player !== this.player) {
+          
+        }
+      }
+    }
+
     // TODO: remove any captured pieces, figure out if we need to remove any
     // threats due to removal
 
-    // TODO: if this piece was put on one or more threats for this player,
-    // update them
-
-    // figure out if we need to add any threats for the current player
+    // figure out if we need to add/join any threats for the current player
     for (finderIndex in threatFinders) {
       let stepCell = threatFinders[finderIndex]
 
@@ -208,18 +264,18 @@ export class Board {
       let deltas = [ -1, 1 ]
       let addThreats = []
 
-      // keep track of which threats have been joined
+      // keep track of which threats have been joined and updated
       let joinedThreats = {}
+      let updatedThreats = {}
 
       _.each([ false, true ], (firstBit) => {
         let threat = Board.newThreat(this.player, finderIndex, { row, col })
-        let totalPossibleExpansion = 1
+        let potentialSpan = 1
 
         // go the other way the second time around
         for (secondBit of [ false, true ]) {
           let current = { row, col }
           let skipped = []
-          let blocked = false
 
           nextCell:
           for (i = 0; (i < 5) && (threat.span + skipped.length < 5); i++) {
@@ -253,8 +309,8 @@ export class Board {
                   return total;
                 }, 0)
 
-                let toExtend = threat.span + skipped.length - overlap
                 let existing = newThreats[threatIndex]
+                let toExtend = threat.span + skipped.length - overlap
                 if (existing.span + toExtend <= 5) {
                   joinedThreats[threatIndex] = true
 
@@ -270,20 +326,36 @@ export class Board {
               threat.skipped = threat.skipped.concat(skipped)
               threat.span += 1 + skipped.length
               skipped = []
-              totalPossibleExpansion++
+              potentialSpan++
             } else if (value === null) {
               // it's an empty spot
               skipped.push(_.clone(current))
-              totalPossibleExpansion++
+              potentialSpan++
             } else {
-              // it's the other player's -- time to quit this direction
-              blocked = true
+              // it's the other player's piece -- time to quit this direction
+              // and check if this will disrupt any of their threats
+              let threatsPath = [finderIndex, current.row, current.col]
+              let threatsHere = newCellThreats.getIn(threatsPath)
+
+              threatsHere.keySeq().forEach(threatIndex => {
+                let current = newThreats[threatIndex]
+                updated = Board.updateCanExpand(current, newValues)
+
+                if (updated) {
+                  newThreats[threatIndex] = updated
+                } else {
+                  newCellThreats = Board.removeFromCellThreats(threatIndex,
+                      current, newCellThreats)
+                  delete newThreats[threatIndex]
+                }
+              });
+
               break
             }
           }
         }
 
-        if (threat.played.length <= 1 || totalPossibleExpansion < 5) return
+        if (threat.played.length <= 1 || potentialSpan < 5) return
 
         // make sure it's "new" - has a cell with no threats that've been
         // joined

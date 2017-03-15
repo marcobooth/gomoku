@@ -278,7 +278,53 @@ describe('Gomoku engine', function () {
 
     // block the true player from expanding
     board = board.move({ row: 2, col })
-    assert.equal(board.getThreats().length, 0)
+    assert.equal(board.getThreats().length, 1)
+    assert.equal(board.getThreats()[0], undefined)
+  })
+
+  it("splits threats that are broken in two", function () {
+    let board = new Board(blankBoard)
+
+    let col = 4
+    board = board.move({ row: 3, col }).move({ row: 0, col: 0 })
+                .move({ row: 4, col }).move({ row: 0, col: 10 })
+                .move({ row: 6, col }).move({ row: 0, col: 18 })
+                .move({ row: 7, col })
+
+    assert.equal(board.getThreats().length, 1)
+    assert.deepEqual(_.omit(board.getThreats()[0], "score"), {
+      player: true,
+      finderIndex: "0",
+      played: [
+        { row: 3, col },
+        { row: 4, col },
+        { row: 6, col },
+        { row: 7, col },
+      ],
+      skipped: [ { row: 5, col } ],
+      expansions: [],
+      span: 5,
+    })
+
+    // bisect the threat (false to move)
+    board = board.move({ row: 5, col })
+    assert.equal(board.getThreats().length, 2)
+    assert.deepEqual(_.omit(board.getThreats()[0], "score"), {
+      player: true,
+      finderIndex: "0",
+      played: [ { row: 3, col }, { row: 4, col }, ],
+      skipped: [],
+      expansions: [ { row: 2, col } ],
+      span: 2,
+    })
+    assert.deepEqual(_.omit(board.getThreats()[1], "score"), {
+      player: true,
+      finderIndex: "0",
+      played: [ { row: 6, col }, { row: 7, col }, ],
+      skipped: [],
+      expansions: [ { row: 8, col } ],
+      span: 2,
+    })
   })
 
   // it("a normal game", function () {
