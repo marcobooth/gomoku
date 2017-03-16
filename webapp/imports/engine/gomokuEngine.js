@@ -125,7 +125,8 @@ export class Board {
   static mergeThreats(oldThreat, newThreat, values, cellThreats, threatIndex,
         justSkipped) {
     // add to cellThreats
-    _.each(newThreat.played.concat(newThreat.skipped), loc => {
+    let toAdd = newThreat.played.concat(newThreat.skipped).concat(justSkipped)
+    _.each(toAdd, loc => {
       let path = [newThreat.finderIndex, loc.row, loc.col, threatIndex]
       cellThreats = cellThreats.setIn(path, newThreat.player)
     })
@@ -246,7 +247,55 @@ export class Board {
 
       for ([threatIndex, player] of threatsHere.entrySeq()) {
         if (player !== this.player) {
-          // TODO
+          newCellThreats = Board.removeFromCellThreats(threatIndex,
+              newThreats[threatIndex], newCellThreats)
+
+          delete newThreats[threatIndex]
+        }
+
+        // search in both directions to recreate the threats
+        for (delta of [-1, 1]) {
+          let played = []
+          let skipped = []
+
+          // find the first opposition piece
+          let current = { row, col }
+          let stepCell = threatFinders[finderIndex]
+          do {
+            stepCell(current, delta)
+          } while (newValues[current.row][current.col] === null)
+
+          // check to see if it's already in another threat
+          let path = [finderIndex, current.row, current.col]
+          if (newCellThreats.getIn(path).size) continue
+
+          // continue the threat from there
+          let newThreat = Board.newThreat(!this.player, finderIndex,
+              _.clone(current))
+          for (var i = 0; i < 4; i++) {
+            stepCell(current, delta)
+
+            if (Board.outsideBoard(current)) break
+
+            let value = newValues[current.row][current.col]
+            if (value === !this.player) {
+              newThreat.played.push(_.clone(current))
+              newThreat.skipped = newThreat.skipped.concat(skipped)
+              newThreat.span += 1 + skipped.length
+              skipped = []
+            } else if (value === null) {
+              skipped.push(_.clone(current))
+            } else {
+              break
+            }
+          }
+
+          // if the found threat is big enough, add it to the list
+          if (newThreat.played.length > 1) {
+            newThreat.played.sort(Board.compareLocations)
+            newCellThreats = Board.addThreat(newThreats, newCellThreats,
+                newThreat, newValues)
+          }
         }
       }
     }

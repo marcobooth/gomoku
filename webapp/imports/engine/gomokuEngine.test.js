@@ -293,13 +293,59 @@ describe('Gomoku engine', function () {
   it("splits threats that are broken in two", function () {
     let board = new Board(blankBoard)
 
+    let row = 4
+    board = board.move({ row, col: 3 }).move({ col: 0, row: 0 })
+                .move({ row, col: 4 }).move({ col: 0, row: 10 })
+                .move({ row, col: 6 }).move({ col: 0, row: 18 })
+                .move({ row, col: 7 })
+
+    assert.equal(board.getThreats().length, 1)
+    assert.deepEqual(_.omit(board.getThreats()[0], "score"), {
+      player: true,
+      finderIndex: "1",
+      played: [
+        { row, col: 3 },
+        { row, col: 4 },
+        { row, col: 6 },
+        { row, col: 7 },
+      ],
+      skipped: [ { row, col: 5 } ],
+      expansions: [],
+      span: 5,
+    })
+
+    // bisect the threat (false to move)
+    board = board.move({ row, col: 5 })
+    assert.equal(board.getThreats().length, 3)
+    assert.deepEqual(_.omit(board.getThreats()[1], "score"), {
+      player: true,
+      finderIndex: "1",
+      played: [ { row, col: 3 }, { row, col: 4 }, ],
+      skipped: [],
+      expansions: [ { row, col: 2 } ],
+      span: 2,
+    })
+    assert.deepEqual(_.omit(board.getThreats()[2], "score"), {
+      player: true,
+      finderIndex: "1",
+      played: [ { row, col: 6 }, { row, col: 7 }, ],
+      skipped: [],
+      expansions: [ { row, col: 8 } ],
+      span: 2,
+    })
+  })
+
+  it("splits threats that are broken in two part 2", function () {
+    let board = new Board(blankBoard)
+
     let col = 4
     board = board.move({ row: 3, col }).move({ row: 0, col: 0 })
                 .move({ row: 4, col }).move({ row: 0, col: 10 })
                 .move({ row: 6, col }).move({ row: 0, col: 18 })
-                .move({ row: 7, col })
+                .move({ row: 7, col }).move({ row: 18, col: 0 })
+                .move({ row: 9, col })
 
-    assert.equal(board.getThreats().length, 1)
+    assert.equal(board.getThreats().length, 2)
     assert.deepEqual(_.omit(board.getThreats()[0], "score"), {
       player: true,
       finderIndex: "0",
@@ -313,11 +359,19 @@ describe('Gomoku engine', function () {
       expansions: [],
       span: 5,
     })
+    assert.deepEqual(_.omit(board.getThreats()[1], "score"), {
+      player: true,
+      finderIndex: "0",
+      played: [ { row: 6, col }, { row: 7, col }, { row: 9, col } ],
+      skipped: [ { row: 8, col } ],
+      expansions: [ { row: 5, col }, { row: 10, col } ],
+      span: 4,
+    })
 
     // bisect the threat (false to move)
     board = board.move({ row: 5, col })
-    assert.equal(board.getThreats().length, 2)
-    assert.deepEqual(_.omit(board.getThreats()[0], "score"), {
+    assert.equal(board.getThreats().length, 3)
+    assert.deepEqual(_.omit(board.getThreats()[2], "score"), {
       player: true,
       finderIndex: "0",
       played: [ { row: 3, col }, { row: 4, col }, ],
@@ -328,78 +382,30 @@ describe('Gomoku engine', function () {
     assert.deepEqual(_.omit(board.getThreats()[1], "score"), {
       player: true,
       finderIndex: "0",
-      played: [ { row: 6, col }, { row: 7, col }, ],
-      skipped: [],
-      expansions: [ { row: 8, col } ],
-      span: 2,
+      played: [ { row: 6, col }, { row: 7, col }, { row: 9, col } ],
+      skipped: [ { row: 8, col } ],
+      expansions: [ { row: 10, col } ],
+      span: 4,
     })
   })
 
   // it("a normal game", function () {
   //   let board = new Board(blankBoard)
   //
-  //   board = board.move({ row: 8, col: 8 }).move({ row: 9, col: 9 })
-  //                .move({ row: 8, col: 9 }).move({ row: 8, col: 10 })
-  //   assert.equal(board.getThreats().length, 2)
-  //   assert.deepEqual(_.omit(board.getThreats()[0], "score"), {
-  //     player: true,
-  //     finderIndex: "0",
-  //     played: [ { row: 8, col: 8 }, { row: 8, col: 9 } ],
-  //     skipped: [],
-  //     expansions: [ { row: 8, col: 7 } ],
-  //     span: 2,
-  //   })
-  //   assert.deepEqual(_.omit(board.getThreats()[1], "score"), {
-  //     player: true,
-  //     finderIndex: "3",
-  //     played: [ { row: 8, col: 10 }, { row: 9, col: 9 } ],
-  //     skipped: [],
-  //     expansions: [ { row: 7, col: 11 }, { row: 10, col: 8 } ],
-  //     span: 2,
-  //   })
-  //
-  //   board = board.move({ row: 8, col: 7 }) // true
-  //   assert.equal(board.getThreats().length, 2)
-  //   assert.deepEqual(_.omit(board.getThreats()[0], "score"), {
-  //     player: true,
-  //     finderIndex: "0",
-  //     played: [ { row: 8, col: 7 }, { row: 8, col: 8 }, { row: 8, col: 9 } ],
-  //     skipped: [],
-  //     expansions: [ { row: 8, col: 6 } ],
-  //     span: 3,
-  //   })
-  //
-  //   board = board.move({ row: 8, col: 6 }) // false
-  //   assert.equal(board.getThreats().length, 1)
-  //   assert.deepEqual(_.omit(board.getThreats()[0], "score"), {
-  //     player: true,
-  //     finderIndex: "3",
-  //     played: [ { row: 8, col: 10 }, { row: 9, col: 9 } ],
-  //     skipped: [],
-  //     expansions: [ { row: 7, col: 11 }, { row: 10, col: 8 } ],
-  //     span: 2,
-  //   })
-  //
-  //   board = board.move({ row: 8, col: 10 }) // true
-  //   assert.equal(board.getThreats().length, 1)
-  //   assert.deepEqual(_.omit(board.getThreats()[0], "score"), {
-  //     player: true,
-  //     finderIndex: "3",
-  //     played: [ { row: 8, col: 10 }, { row: 9, col: 9 } ],
-  //     skipped: [],
-  //     expansions: [ { row: 10, col: 8 } ],
-  //     span: 2,
-  //   })
-  //
-  //   board = board.move({ row: 8, col: 6 }) // false
-  //   assert.equal(board.getThreats().length, 1)
-  //   assert.deepEqual(_.omit(board.getThreats()[0], "score"), {
-  //     player: true,
-  //     finderIndex: "3",
-  //     played: [ { row: 8, col: 10 }, { row: 9, col: 9 } ],
-  //     skipped: [],
-  //     expansions: [ { row: 7, col: 11 }, { row: 10, col: 8 } ],
-  //     span: 2,
-  //   })
+  //   board = board.move({ row: 8, col: 9 })
+  //   board = board.move({ row: 9, col: 8 })
+  //   board = board.move({ row: 9, col: 9 })
+  //   board = board.move({ row: 10, col: 9 })
+  //   board = board.move({ row: 10, col: 8 })
+  //   board = board.move({ row: 11, col: 10 })
+  //   board = board.move({ row: 10, col: 9 })
+  //   board = board.move({ row: 10, col: 9 })
+  //   board = board.move({ row: 10, col: 9 })
+  //   board = board.move({ row: 10, col: 9 })
+  //   board = board.move({ row: 10, col: 9 })
+  //   board = board.move({ row: 10, col: 9 })
+  //   board = board.move({ row: 10, col: 9 })
+  //   board = board.move({ row: 10, col: 9 })
+  //   board = board.move({ row: 10, col: 9 })
   // })
 })
