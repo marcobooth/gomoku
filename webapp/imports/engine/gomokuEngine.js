@@ -1,11 +1,7 @@
 import Immutable from "immutable"
 
-// NOTE: we should sort the possible moves based on how many threats they can
-// help for the current player and how many they can disrupt for the other
-// player
-
-// TODO: put expansions in the cellToThreats? -- perhaps reduce while we're
-// going through the threats--make those moves better/worse
+// NOTE: if I were to recode this, I wouldn't have made Board objects
+// immutable. This would greatly simplify the logic required in Board.move().
 
 export const BOARD_SIZE = 19
 
@@ -25,7 +21,7 @@ const threatFinders = [
     location.row += delta; location.col += delta // right-down
   },
   (location, delta) => {
-    location.row += delta; location.col -= delta // right-up
+    location.row -= delta; location.col += delta // right-up
   },
 ]
 
@@ -43,16 +39,31 @@ _.times(threatFinders.length, (finderIndex) => {
 })
 const defaultCellThreats = Immutable.fromJS(jsCellThreats)
 
+export const blankValues = []
+_.times(BOARD_SIZE, () => {
+  let row = Array(BOARD_SIZE)
+  _.times(row.length, (index) => {
+    row[index] = null
+  })
+
+  blankValues.push(row)
+})
 
 export class Board {
   // NOTE: player === true means that the player is the maximizing player
-  constructor(values, player = true, inPlayCells = defaultInPlay,
-        threats = [], cellThreats = defaultCellThreats) {
-    this.values = values
+  constructor(player = true, values, inPlayCells = defaultInPlay,
+        threats = [], cellThreats = defaultCellThreats, winningThreat) {
+    if (values) {
+      this.values = values
+    } else {
+      this.values = JSON.parse(JSON.stringify(blankValues))
+    }
+
     this.player = player
     this.inPlayCells = inPlayCells
     this.threats = threats
     this.cellThreats = cellThreats
+    this.winningThreat = winningThreat
   }
 
   static newThreat(player, finderIndex, location) {
@@ -237,6 +248,7 @@ export class Board {
     newValues[row] = this.values[row].slice()
     let newThreats = this.threats.slice();
     let newCellThreats = this.cellThreats
+    let winningThreat
 
     // put the piece down
     newValues[row][col] = this.player
@@ -366,6 +378,10 @@ export class Board {
                       newValues, newCellThreats, threatIndex, skipped)
                   newThreats[threatIndex] = threat
 
+                  if (threat.played.length === 5) {
+                    winningThreat = threat
+                  }
+
                   return
                 }
               }
@@ -467,8 +483,8 @@ export class Board {
       }
     }
 
-    return new Board(newValues, !this.player, newInPlay, newThreats,
-        newCellThreats)
+    return new Board(!this.player, newValues, newInPlay, newThreats,
+        newCellThreats, winningThreat)
   }
 
   heuristic() {
@@ -480,4 +496,69 @@ export class Board {
   // getters for testing
   getThreats() { return this.threats }
   getCellThreats() { return this.cellThreats }
+  getWinningThreat() {
+    return this.winningThreat || {}
+  }
+
+  // NOTE: we should sort the possible moves based on how many threats they can
+  // help for the current player and how many they can disrupt for the other
+  // player
+
+  // TODO: put expansions in the cellToThreats? -- perhaps reduce while we're
+  // going through the threats--make those moves better/worse
+
+  getBestMove() {
+
+  }
+}
+
+export function createBoard(maximizingColor, colorValues) {
+  // convert colorValues to something we can feed into the move function
+  let colorMoves = {}
+  for (let row in colorValues) {
+    for (let col in colorValues[row]) {
+      let value = colorValues[row][col]
+
+      if (value) {
+        if (!colorMoves[value]) {
+          colorMoves[value] = []
+        }
+
+        colorMoves[value].push({
+          row: parseInt(row),
+          col: parseInt(col)
+        })
+      }
+    }
+  }
+
+  let playerColors = Object.keys(colorMoves)
+
+  // hardcoded starting move
+  if (playerColors.length === 0) {
+    return { row: 8, col: 8 }
+  }
+
+  if (playerColors.length === 1) {
+    playerColors.push("dummyColor")
+    colorMoves["dummyColor"] = []
+  }
+
+  // figure out who went first
+  if (colorMoves[playerColors[0]].length < colorMoves[playerColors[1]].length ||
+      playerColors[0] !== maximizingColor) {
+    playerColors.reverse()
+  }
+
+  // recreate board move by move
+  let board = new Board()
+  for (moveIndex in colorMoves[playerColors[0]]) {
+    board = board.move(colorMoves[playerColors[0]][moveIndex])
+
+    if (moveIndex < colorMoves[playerColors[1]].length) {
+      board = board.move(colorMoves[playerColors[1]][moveIndex])
+    }
+  }
+
+  return board
 }
