@@ -496,8 +496,13 @@ export class Board {
   // getters for testing
   getThreats() { return this.threats }
   getCellThreats() { return this.cellThreats }
+  hasWinner() { return !!this.winningThreat }
   getWinningThreat() {
     return this.winningThreat || {}
+  }
+
+  getMoves() {
+    // TODO
   }
 
   // NOTE: we should sort the possible moves based on how many threats they can
@@ -506,6 +511,31 @@ export class Board {
 
   // TODO: put expansions in the cellToThreats? -- perhaps reduce while we're
   // going through the threats--make those moves better/worse
+
+  alphabeta(depth, alpha, beta) {
+    if (depth === 0 || this.hasWinner()) {
+      return this.heuristic()
+    }
+
+    let value = this.player ?
+        Number.NEGATIVE_INFINITY : Number.POSITIVE_INFINITY
+
+    for (let move of this.getMoves()) {
+      let board = this.move(move)
+
+      if (this.player) {
+        value = Math.max(value, board.alphabeta(depth - 1, alpha, beta))
+        alpha = Math.max(alpha, value)
+      } else {
+        value = Math.max(value, board.alphabeta(depth - 1, alpha, beta))
+        beta = Math.max(beta, value)
+      }
+
+      if (beta <= alpha) break
+    }
+
+    return value
+  }
 
   getBestMove() {
 
