@@ -7,10 +7,8 @@ export const BOARD_SIZE = 19
 
 // generate some default values
 
-const defaultInPlay = {}
-_.times(BOARD_SIZE, (index) => {
-  defaultInPlay[index] = {}
-})
+const defaultInPlay = new Immutable.Map()
+
 
 // define in which ways threats can be found
 // NOTE: step functions modify the passed object
@@ -472,26 +470,17 @@ export class Board {
       })
     }
 
-    // update the in play cells
-    let newInPlay = Object.assign({}, this.inPlayCells);
-
-    // remove this cell
-    delete newInPlay[row][col]
+    // update in play cells
+    let newInPlay = this.inPlayCells.deleteIn([row, col])
 
     // add the cells around it
     for (let r = row - 1; r <= row + 1; r++) {
       if (r < 0 || r >= BOARD_SIZE) continue
 
       for (let c = col - 1; c <= col + 1; c++) {
-        // only add the cell if it's within bounds and blank
         if (c < 0 || c >= BOARD_SIZE || newValues[r][c] !== null) continue
 
-        // don't change the parent's information
-        if (newInPlay[r] === this.inPlayCells[r]) {
-          newInPlay[r] = Object.assign({}, this.inPlayCells[r])
-        }
-
-        newInPlay[r][c] = true
+        newInPlay = newInPlay.setIn([r, c], true)
       }
     }
 
@@ -505,11 +494,6 @@ export class Board {
     }, 0)
   }
 
-  // getters for testing
-  getThreats() { return this.threats }
-  getCellThreats() { return this.cellThreats }
-  getInPlayCells() { return this.inPlayCells }
-
   hasWinner() { return !!this.winningThreat }
   getWinningThreat() {
     return this.winningThreat || {}
@@ -518,9 +502,9 @@ export class Board {
   getMoves() {
     let moves = []
 
-    for (let row in this.inPlayCells) {
-      for (let col in this.inPlayCells[row]) {
-        if (this.inPlayCells[row][col]) {
+    for (let [row, rowColumns] of this.inPlayCells.entrySeq()) {
+      for (let [col, cellValue] of rowColumns.entrySeq()) {
+        if (cellValue) {
           moves.push({
             row: parseInt(row),
             col: parseInt(col)
@@ -548,11 +532,11 @@ export class Board {
   }
 
   alphabeta(depth, alpha, beta) {
-    console.log("  ".repeat(GLOBAL_DEPTH - depth), `ALPHA=${alpha}, BETA=${beta}`)
+    // console.log("    ".repeat(GLOBAL_DEPTH - depth), `alpha=${alpha}, beta=${beta}`)
 
     if (depth === 0 || this.hasWinner()) {
       let value = this.heuristic()
-      console.log("  ".repeat(GLOBAL_DEPTH - depth), "heuristic:", value)
+      // console.log("    ".repeat(GLOBAL_DEPTH - depth), "heuristic:", value)
 
       return { value }
     }
@@ -561,30 +545,33 @@ export class Board {
       value: this.player ? Number.NEGATIVE_INFINITY : Number.POSITIVE_INFINITY,
     }
 
-    for (let move of this.getMoves()) {
-      console.log("  ".repeat(GLOBAL_DEPTH - depth), `MOVE for ${this.player}:`, move)
+    let moves = this.getMoves()
+    // console.log("    ".repeat(GLOBAL_DEPTH - depth), `moves count: ${moves.length}`)
+    for (let move of moves) {
+      // console.log("    ".repeat(GLOBAL_DEPTH - depth), `MOVE for ${this.player}:`, move)
 
-      let board = this.move(move)
-      let child = board.alphabeta(depth - 1, alpha, beta)
+      let child = {
+        value: this.move(move).alphabeta(depth - 1, alpha, beta).value,
+        move,
+      }
 
       if (this.player) {
         valueAndMove = Board.compareABValues(Math.max, valueAndMove, child)
         alpha = Math.max(alpha, valueAndMove.value)
-        console.log("  ".repeat(GLOBAL_DEPTH - depth), `new alpha: ${alpha}`)
+        // console.log("    ".repeat(GLOBAL_DEPTH - depth), `new alpha: ${alpha}`)
       } else {
         valueAndMove = Board.compareABValues(Math.min, valueAndMove, child)
         beta = Math.min(beta, valueAndMove.value)
-        console.log("  ".repeat(GLOBAL_DEPTH - depth), `new beta: ${beta}`)
+        // console.log("    ".repeat(GLOBAL_DEPTH - depth), `new beta: ${beta}`)
       }
 
-      valueAndMove.move = move
-
       if (beta <= alpha) {
+        // console.log("    ".repeat(GLOBAL_DEPTH - depth), "beta <= alpha -- breaking")
         break
       }
     }
 
-    console.log("  ".repeat(GLOBAL_DEPTH - depth), "returning:", valueAndMove)
+    // console.log("    ".repeat(GLOBAL_DEPTH - depth), "returning:", valueAndMove)
 
     return valueAndMove
   }
@@ -593,9 +580,14 @@ export class Board {
     return this.alphabeta(GLOBAL_DEPTH, Number.NEGATIVE_INFINITY,
         Number.POSITIVE_INFINITY).move
   }
+
+  // getters for testing
+  getThreats() { return this.threats }
+  getCellThreats() { return this.cellThreats }
+  getInPlayCells() { return this.inPlayCells.toJS() }
 }
 
-var GLOBAL_DEPTH = 3
+var GLOBAL_DEPTH = 2
 
 export function createBoard(maximizingColor, colorValues) {
   // convert colorValues to something we can feed into the move function
