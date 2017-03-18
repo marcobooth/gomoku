@@ -378,84 +378,188 @@ describe('Gomoku engine', function () {
     })
   })
 
-  it("a normal game", function () {
-    let boardValues = JSON.parse(JSON.stringify(blankValues))
-    boardValues[8][9] = "white"
-    boardValues[9][8] = "black"
-    boardValues[9][9] = "white"
-    boardValues[10][9] = "black"
-    boardValues[10][8] = "white"
-    boardValues[11][10] = "black"
+  it("inPlayCells works properly", function () {
+    let board = new Board()
 
-    board = createBoard("white", boardValues)
-
-    assert.deepEqual(_.omit(board.getThreats()[0], "score"), {
-      player: true,
-      finderIndex: '0',
-      played: [ { row: 8, col: 9 }, { row: 9, col: 9 } ],
-      skipped: [],
-      expansions: [ { row: 7, col: 9 } ],
-      span: 2,
-    })
-    assert.deepEqual(_.omit(board.getThreats()[1], "score"), {
-      player: false,
-      finderIndex: '2',
-      played: [ { row: 9, col: 8 }, { row: 10, col: 9 }, { row: 11, col: 10 } ],
-      skipped: [],
-      expansions: [ { row: 8, col: 7 }, { row: 12, col: 11 } ],
-      span: 3,
-    })
-    assert.deepEqual(_.omit(board.getThreats()[2], "score"), {
-      player: true,
-      finderIndex: '3',
-      played: [ { row: 10, col: 8 }, { row: 9, col: 9 } ],
-      skipped: [],
-      expansions: [ { row: 11, col: 7 }, { row: 8, col: 10 } ],
-      span: 2,
+    let row = 7;
+    board = board.move({ row: 7, col: 7 })
+    assert.deepEqual(board.getInPlayCells(), {
+      0: {}, 1: {}, 2: {}, 3: {}, 4: {}, 5: {},
+      6: { 6: true, 7: true, 8: true },
+      7: { 6: true, 8: true },
+      8: { 6: true, 7: true, 8: true },
+      9: {}, 10: {}, 11: {}, 12: {}, 13: {},
+      14: {}, 15: {}, 16: {}, 17: {}, 18: {},
     })
 
-    // continue the game for a single move...
-    board = board.move({ row: 12, col: 11 }) // white
-    assert.deepEqual(_.omit(board.getThreats()[1], "score"), {
-      player: false,
-      finderIndex: '2',
-      played: [ { row: 9, col: 8 }, { row: 10, col: 9 }, { row: 11, col: 10 } ],
-      skipped: [],
-      expansions: [ { row: 8, col: 7 } ],
-      span: 3,
+    board = board.move({ row: 6, col: 6 })
+    assert.deepEqual(board.getInPlayCells(), {
+      0: {}, 1: {}, 2: {}, 3: {}, 4: {},
+      5: { 5: true, 6: true, 7: true },
+      6: { 5: true, 7: true, 8: true },
+      7: { 5: true, 6: true, 8: true },
+      8: { 6: true, 7: true, 8: true },
+      9: {},10: {}, 11: {}, 12: {}, 13: {},
+      14: {}, 15: {}, 16: {}, 17: {}, 18: {},
     })
 
-    boardValues[12][11] = "white"
-    boardValues[10][10] = "black"
-    boardValues[11][7] = "white"
+    board = board.move({ row: 0, col: 0 })
+    let betweenBoard = board
+    let betweenBoardSolution = {
+      0: { 1: true },
+      1: { 0: true, 1: true },
+      2: {}, 3: {}, 4: {},
+      5: { 5: true, 6: true, 7: true },
+      6: { 5: true, 7: true, 8: true },
+      7: { 5: true, 6: true, 8: true },
+      8: { 6: true, 7: true, 8: true },
+      9: {}, 10: {}, 11: {}, 12: {}, 13: {},
+      14: {}, 15: {}, 16: {}, 17: {}, 18: {},
+    }
+    assert.deepEqual(board.getInPlayCells(), betweenBoardSolution)
 
-    board = createBoard("black", boardValues)
-    // assert.deepEqual(board.getBestMove(), { row: 8, col: 10 })
+    board = board.move({ row: 18, col: 18 })
+    assert.deepEqual(board.getInPlayCells(), {
+      0: { 1: true },
+      1: { 0: true, 1: true },
+      2: {}, 3: {}, 4: {},
+      5: { 5: true, 6: true, 7: true },
+      6: { 5: true, 7: true, 8: true },
+      7: { 5: true, 6: true, 8: true },
+      8: { 6: true, 7: true, 8: true },
+      9: {}, 10: {}, 11: {}, 12: {}, 13: {},
+      14: {}, 15: {}, 16: {},
+      17: { 17: true, 18: true },
+      18: { 17: true },
+    })
 
-    boardValues[8][10] = "black"
-    boardValues[8][7] = "white"
-    board = createBoard("black", boardValues)
-    // assert.deepEqual(board.getBestMove(), { row: 9, col: 10 })
-
-    boardValues[9][10] = "black"
-    boardValues[12][6] = "white"
-
-    board = createBoard("black", boardValues)
-    assert.equal(board.getWinningThreat().played, undefined)
-    let bestMove = board.getBestMove()
-    // console.log("board.getBestMove():", board.getBestMove());
-    // assert.deepEqual(bestMove, { row: 9, col: 10 })
-
-    // NOTE: black can win with { row: 7, col: 10 } or { row: 12, col: 10 }
-    // play winning move and make sure it figures out we've won
-    boardValues[7][10] = "black"
-    board = createBoard("white", boardValues)
-    assert.deepEqual(board.getWinningThreat().played, [
-      { row: 7, col: 10 },
-      { row: 8, col: 10 },
-      { row: 9, col: 10 },
-      { row: 10, col: 10 },
-      { row: 11, col: 10 },
-    ])
+    // make sure it didn't change the last one
+    assert.deepEqual(betweenBoard.getInPlayCells(), betweenBoardSolution)
   })
+
+  it("easy win works", function () {
+    let boardValues = JSON.parse(JSON.stringify(blankValues))
+    boardValues[0][0] = "white"
+    boardValues[0][5] = "white"
+    boardValues[4][3] = "white"
+    boardValues[4][4] = "black"
+    boardValues[4][5] = "black"
+
+    // board = createBoard("black", boardValues)
+    // TODO
+
+    boardValues[0][10] = "white"
+    boardValues[4][6] = "black"
+    board = createBoard("black", boardValues)
+    assert.deepEqual(board.getBestMove(), { row: 4, col: 7 })
+
+    boardValues[0][15] = "white"
+    boardValues[4][7] = "black"
+    board = createBoard("black", boardValues)
+    assert.deepEqual(board.getInPlayCells(), {
+      0: {
+        1: true,
+        4: true, 6: true,
+        9: true, 11: true,
+        14: true, 16: true,
+      },
+      1: {
+        0: true, 1: true,
+        4: true, 5: true, 6: true,
+        9: true, 10: true, 11: true,
+        14: true, 15: true, 16: true
+      },
+      2: {},
+      3: { 2: true, 3: true, 4: true, 5: true, 6: true, 7: true, 8: true },
+      4: { 2: true, 8: true },
+      5: { 2: true, 3: true, 4: true, 5: true, 6: true, 7: true, 8: true },
+      6: {}, 7: {}, 8: {}, 9: {},
+      10: {}, 11: {}, 12: {}, 13: {}, 14: {},
+      15: {}, 16: {}, 17: {}, 18: {},
+    })
+    assert.deepEqual(board.getBestMove(), { row: 4, col: 8 })
+  })
+
+  // TODO: no good moves
+
+  // it("a normal game", function () {
+  //   let boardValues = JSON.parse(JSON.stringify(blankValues))
+  //   boardValues[8][9] = "white"
+  //   boardValues[9][8] = "black"
+  //   boardValues[9][9] = "white"
+  //   boardValues[10][9] = "black"
+  //   boardValues[10][8] = "white"
+  //   boardValues[11][10] = "black"
+  //
+  //   board = createBoard("white", boardValues)
+  //
+  //   assert.deepEqual(_.omit(board.getThreats()[0], "score"), {
+  //     player: true,
+  //     finderIndex: '0',
+  //     played: [ { row: 8, col: 9 }, { row: 9, col: 9 } ],
+  //     skipped: [],
+  //     expansions: [ { row: 7, col: 9 } ],
+  //     span: 2,
+  //   })
+  //   assert.deepEqual(_.omit(board.getThreats()[1], "score"), {
+  //     player: false,
+  //     finderIndex: '2',
+  //     played: [ { row: 9, col: 8 }, { row: 10, col: 9 }, { row: 11, col: 10 } ],
+  //     skipped: [],
+  //     expansions: [ { row: 8, col: 7 }, { row: 12, col: 11 } ],
+  //     span: 3,
+  //   })
+  //   assert.deepEqual(_.omit(board.getThreats()[2], "score"), {
+  //     player: true,
+  //     finderIndex: '3',
+  //     played: [ { row: 10, col: 8 }, { row: 9, col: 9 } ],
+  //     skipped: [],
+  //     expansions: [ { row: 11, col: 7 }, { row: 8, col: 10 } ],
+  //     span: 2,
+  //   })
+  //
+  //   // continue the game for a single move...
+  //   board = board.move({ row: 12, col: 11 }) // white
+  //   assert.deepEqual(_.omit(board.getThreats()[1], "score"), {
+  //     player: false,
+  //     finderIndex: '2',
+  //     played: [ { row: 9, col: 8 }, { row: 10, col: 9 }, { row: 11, col: 10 } ],
+  //     skipped: [],
+  //     expansions: [ { row: 8, col: 7 } ],
+  //     span: 3,
+  //   })
+  //
+  //   boardValues[12][11] = "white"
+  //   boardValues[10][10] = "black"
+  //   boardValues[11][7] = "white"
+  //
+  //   board = createBoard("black", boardValues)
+  //   // assert.deepEqual(board.getBestMove(), { row: 8, col: 10 })
+  //
+  //   boardValues[8][10] = "black"
+  //   boardValues[8][7] = "white"
+  //   board = createBoard("black", boardValues)
+  //   // assert.deepEqual(board.getBestMove(), { row: 9, col: 10 })
+  //
+  //   boardValues[9][10] = "black"
+  //   boardValues[12][6] = "white"
+  //
+  //   board = createBoard("black", boardValues)
+  //   assert.equal(board.getWinningThreat().played, undefined)
+  //   let bestMove = board.getBestMove()
+  //   console.log("board.getBestMove():", board.getBestMove());
+  //   assert.deepEqual(bestMove, { row: 9, col: 10 })
+  //
+  //   // NOTE: black can win with { row: 7, col: 10 } or { row: 12, col: 10 }
+  //   // play winning move and make sure it figures out we've won
+  //   boardValues[7][10] = "black"
+  //   board = createBoard("white", boardValues)
+  //   assert.deepEqual(board.getWinningThreat().played, [
+  //     { row: 7, col: 10 },
+  //     { row: 8, col: 10 },
+  //     { row: 9, col: 10 },
+  //     { row: 10, col: 10 },
+  //     { row: 11, col: 10 },
+  //   ])
+  // })
 })

@@ -49,6 +49,16 @@ _.times(BOARD_SIZE, () => {
   blankValues.push(row)
 })
 
+// should be referenced as such:
+// playedExtensions[played.length][expansions.length]
+// TODO: take into account skipped
+var playedExtensions = {
+  2: { 0: .5, 1: 1, 2: 4 },
+  3: { 0: 15, 1: 20, 2: 60 },
+  4: { 0: 90, 1: 100, 2: 1000000 },
+  5: { 0: Number.POSITIVE_INFINITY },
+}
+
 export class Board {
   // NOTE: player === true means that the player is the maximizing player
   constructor(player = true, values, inPlayCells = defaultInPlay,
@@ -86,11 +96,14 @@ export class Board {
   }
 
   static scoreThreat(threat) {
-    // TODO
-    return 0
+    let { played, expansions, player } = threat
+
+    let score = playedExtensions[played.length][expansions.length]
+
+    return score * (player ? 1 : -1)
   }
 
-  // calculate score, extensions for the threat
+  // calculate score, expansions for the threat
   static expansionsAndScore(threat, values) {
     threat.expansions = []
     if (threat.span < 5) {
@@ -105,7 +118,7 @@ export class Board {
 
         // what happens when the board is the current player there? =>
         // it'd be included in the threat or else the threat is long enough
-        // to not have extensions
+        // to not have expansions
         if (!Board.outsideBoard(location) &&
             values[location.row][location.col] === null) {
           threat.expansions.push(location)
@@ -461,18 +474,17 @@ export class Board {
 
     // update the in play cells
     let newInPlay = Object.assign({}, this.inPlayCells);
-    newInPlay[row] = Object.assign({}, this.inPlayCells[row])
 
     // remove this cell
     delete newInPlay[row][col]
 
     // add the cells around it
-    for (let r = row - 2; r <= row + 2; r++) {
+    for (let r = row - 1; r <= row + 1; r++) {
       if (r < 0 || r >= BOARD_SIZE) continue
 
-      for (let c = col - 2; c <= col + 2; c++) {
+      for (let c = col - 1; c <= col + 1; c++) {
         // only add the cell if it's within bounds and blank
-        if (c < 0 || c >= BOARD_SIZE || newValues[r][c] === null) continue
+        if (c < 0 || c >= BOARD_SIZE || newValues[r][c] !== null) continue
 
         // don't change the parent's information
         if (newInPlay[r] === this.inPlayCells[r]) {
@@ -496,51 +508,94 @@ export class Board {
   // getters for testing
   getThreats() { return this.threats }
   getCellThreats() { return this.cellThreats }
+  getInPlayCells() { return this.inPlayCells }
+
   hasWinner() { return !!this.winningThreat }
   getWinningThreat() {
     return this.winningThreat || {}
   }
 
   getMoves() {
-    // TODO
+    let moves = []
+
+    for (let row in this.inPlayCells) {
+      for (let col in this.inPlayCells[row]) {
+        if (this.inPlayCells[row][col]) {
+          moves.push({
+            row: parseInt(row),
+            col: parseInt(col)
+          })
+        }
+      }
+    }
+
+    // TODO: sort the possible moves based on how many threats they can help
+    // for the current player and how many they can disrupt for the other
+    // player
+
+    // TODO: put expansions in the cellToThreats? -- perhaps reduce while we're
+    // going through the threats--make those moves better/worses
+
+    return moves
   }
 
-  // NOTE: we should sort the possible moves based on how many threats they can
-  // help for the current player and how many they can disrupt for the other
-  // player
+  static compareABValues(compare, first, second) {
+    if (compare(first.value, second.value) === first.value) {
+      return first
+    }
 
-  // TODO: put expansions in the cellToThreats? -- perhaps reduce while we're
-  // going through the threats--make those moves better/worse
+    return second
+  }
 
   alphabeta(depth, alpha, beta) {
+    console.log("  ".repeat(GLOBAL_DEPTH - depth), `ALPHA=${alpha}, BETA=${beta}`)
+
     if (depth === 0 || this.hasWinner()) {
-      return this.heuristic()
+      let value = this.heuristic()
+      console.log("  ".repeat(GLOBAL_DEPTH - depth), "heuristic:", value)
+
+      return { value }
     }
 
-    let value = this.player ?
-        Number.NEGATIVE_INFINITY : Number.POSITIVE_INFINITY
+    let valueAndMove = {
+      value: this.player ? Number.NEGATIVE_INFINITY : Number.POSITIVE_INFINITY,
+    }
 
     for (let move of this.getMoves()) {
+      console.log("  ".repeat(GLOBAL_DEPTH - depth), `MOVE for ${this.player}:`, move)
+
       let board = this.move(move)
+      let child = board.alphabeta(depth - 1, alpha, beta)
 
       if (this.player) {
-        value = Math.max(value, board.alphabeta(depth - 1, alpha, beta))
-        alpha = Math.max(alpha, value)
+        valueAndMove = Board.compareABValues(Math.max, valueAndMove, child)
+        alpha = Math.max(alpha, valueAndMove.value)
+        console.log("  ".repeat(GLOBAL_DEPTH - depth), `new alpha: ${alpha}`)
       } else {
-        value = Math.max(value, board.alphabeta(depth - 1, alpha, beta))
-        beta = Math.max(beta, value)
+        valueAndMove = Board.compareABValues(Math.min, valueAndMove, child)
+        beta = Math.min(beta, valueAndMove.value)
+        console.log("  ".repeat(GLOBAL_DEPTH - depth), `new beta: ${beta}`)
       }
 
-      if (beta <= alpha) break
+      valueAndMove.move = move
+
+      if (beta <= alpha) {
+        break
+      }
     }
 
-    return value
+    console.log("  ".repeat(GLOBAL_DEPTH - depth), "returning:", valueAndMove)
+
+    return valueAndMove
   }
 
   getBestMove() {
-
+    return this.alphabeta(GLOBAL_DEPTH, Number.NEGATIVE_INFINITY,
+        Number.POSITIVE_INFINITY).move
   }
 }
+
+var GLOBAL_DEPTH = 3
 
 export function createBoard(maximizingColor, colorValues) {
   // convert colorValues to something we can feed into the move function
@@ -576,12 +631,12 @@ export function createBoard(maximizingColor, colorValues) {
 
   // figure out who went first
   if (colorMoves[playerColors[0]].length < colorMoves[playerColors[1]].length ||
-      playerColors[0] !== maximizingColor) {
+      playerColors[0] === maximizingColor) {
     playerColors.reverse()
   }
 
   // recreate board move by move
-  let board = new Board()
+  let board = new Board(playerColors[0] === maximizingColor)
   for (moveIndex in colorMoves[playerColors[0]]) {
     board = board.move(colorMoves[playerColors[0]][moveIndex])
 
