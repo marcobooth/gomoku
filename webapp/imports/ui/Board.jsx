@@ -22,10 +22,10 @@ export default class Board extends Component {
             background = this.props.game.p2Colour
           }
 
-          return <div className="boardSquare" key={pointIndex}>
+          return <div className="boardSquare" key={pointIndex}
+              onClick={this.handleGameMove.bind(this, rowIndex, pointIndex)}>
             <div className="content"
-                 style={{ background }}
-                 onClick={this.handleGameMove.bind(this, rowIndex, pointIndex)}>
+                 style={{ background }}>
             </div>
           </div>
         })}

@@ -501,27 +501,40 @@ export class Board {
   }
 
   getMoves() {
+    // the possible moves based on how many threats they can help
+    // for the current player and how many they can disrupt for the other
+    // player
     let moves = []
+
+    console.log(this.cellThreats)
 
     for (let [row, rowColumns] of this.inPlayCells.entrySeq()) {
       for (let [col, cellValue] of rowColumns.entrySeq()) {
-        if (cellValue) {
-          moves.push({
-            row: parseInt(row),
-            col: parseInt(col)
-          })
-        }
+        // TODO: include expansions information in the score somehow?
+        let score = 0
+        _.times(4, (finderIndex) => {
+          let path = [finderIndex, row, col]
+          let indexes = this.cellThreats.getIn(path)
+
+          console.log(path, indexes)
+
+          for (threatIndex of indexes.keySeq()) {
+            console.log("threatIndex:", threatIndex, " :: ", this.threats[threatIndex])
+            score += this.threats[threatIndex].score
+          }
+        })
+
+        moves.push({
+          score,
+          row: parseInt(row),
+          col: parseInt(col),
+        })
       }
     }
 
-    // TODO: sort the possible moves based on how many threats they can help
-    // for the current player and how many they can disrupt for the other
-    // player
-
-    // TODO: put expansions in the cellToThreats? -- perhaps reduce while we're
-    // going through the threats--make those moves better/worses
-
-    return moves
+    return moves.sort((first, second) => {
+      return second.score - first.score
+    })
   }
 
   static compareABValues(compare, first, second) {
@@ -533,11 +546,11 @@ export class Board {
   }
 
   alphabeta(depth, alpha, beta) {
-    // console.log("    ".repeat(GLOBAL_DEPTH - depth), `alpha=${alpha}, beta=${beta}`)
+    console.log("    ".repeat(GLOBAL_DEPTH - depth), `alpha=${alpha}, beta=${beta}`)
 
     if (depth === 0 || this.hasWinner()) {
       let value = this.heuristic()
-      // console.log("    ".repeat(GLOBAL_DEPTH - depth), "heuristic:", value)
+      console.log("    ".repeat(GLOBAL_DEPTH - depth), "heuristic:", value)
 
       return { value }
     }
@@ -547,9 +560,10 @@ export class Board {
     }
 
     let moves = this.getMoves()
-    // console.log("    ".repeat(GLOBAL_DEPTH - depth), `moves count: ${moves.length}`)
+
+    console.log("    ".repeat(GLOBAL_DEPTH - depth), `moves count: ${moves.length}`)
     for (let move of moves) {
-      // console.log("    ".repeat(GLOBAL_DEPTH - depth), `MOVE for ${this.player}:`, move)
+      console.log("    ".repeat(GLOBAL_DEPTH - depth), `MOVE for ${this.player}:`, move)
 
       let child = {
         value: this.move(move).alphabeta(depth - 1, alpha, beta).value,
@@ -583,8 +597,8 @@ export class Board {
       return { row: 8, col: 8 }
     }
 
-    return this.alphabeta(GLOBAL_DEPTH, Number.NEGATIVE_INFINITY,
-        Number.POSITIVE_INFINITY).move
+    return _.omit(this.alphabeta(GLOBAL_DEPTH, Number.NEGATIVE_INFINITY,
+        Number.POSITIVE_INFINITY).move, "score")
   }
 
   // return the thing we get from the input (strings)
@@ -602,7 +616,7 @@ export class Board {
   getInPlayCells() { return this.inPlayCells.toJS() }
 }
 
-var GLOBAL_DEPTH = 2
+var GLOBAL_DEPTH = 1
 
 export function createEngineState(maximizingColor, minimixingColor,
     colorValues) {
