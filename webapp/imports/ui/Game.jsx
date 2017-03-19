@@ -35,7 +35,7 @@ class Game extends Component {
 
     return (
       <div className="ui container spaceHeader">
-        <div className="ui very relaxed grid">
+        <div className="ui very relaxed stackable grid">
           <div className="eight wide column">
             <Board game={this.props.game} readonly={readonly} />
           </div>

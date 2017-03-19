@@ -82,7 +82,7 @@ Meteor.methods({
       setBoard(gameId, state.getStringBoard())
 
       if (state.hasWinner()) {
-        playerWon()
+        playerWon(game)
         return
       }
 

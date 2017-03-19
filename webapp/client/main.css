@@ -34,6 +34,26 @@
 .spaceHeader {
   margin-top: 50px;
 }
-.topSpace {
-  margin-top: 10px;
+
+
+/* board */
+/* https://spin.atomicobject.com/2015/07/14/css-responsive-square/ */
+.boardSquare {
+  border: 1px solid rgba(34, 36, 38, .45);
+  position: relative;
+  text-align: center;
+  width: 50%;
+}
+.boardSquare:after {
+  content: "";
+  display: block;
+  padding-bottom: 100%;
+}
+.boardSquare .content {
+  position: absolute;
+  border-radius: 50%;
+  height: 70%;
+  width: 70%;
+  margin-top: 15%;
+  margin-left: 15%;
 }

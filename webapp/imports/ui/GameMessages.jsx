@@ -60,7 +60,7 @@ class GameMessages extends Component {
             <input type="text" value={this.state.value} onChange={this.handleChange} />
           </label>
 
-          <div className="topSpace">
+          <div style={{"marginTop": "10px"}}>
             <button type="submit" className="ui blue labeled submit icon button">
               <i className="icon edit"></i> Add Reply
             </button>
