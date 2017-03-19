@@ -2,7 +2,7 @@ import _ from "underscore"
 import { chai } from 'meteor/practicalmeteor:chai';
 import Immutable from "immutable"
 
-import { Board, createBoard, blankValues } from "./gomokuEngine"
+import { Board, createEngineState, blankValues } from "./gomokuEngine"
 
 Im = Immutable
 
@@ -429,33 +429,27 @@ describe('Gomoku engine', function () {
     let boardValues = JSON.parse(JSON.stringify(blankValues))
     boardValues[0][0] = "white"
     boardValues[0][5] = "white"
+    boardValues[0][10] = "white"
     boardValues[4][3] = "white"
     boardValues[4][4] = "black"
     boardValues[4][5] = "black"
-
-    // board = createBoard("black", boardValues)
-    // TODO
-
-    boardValues[0][10] = "white"
     boardValues[4][6] = "black"
-    board = createBoard("black", boardValues)
-    // assert.deepEqual(board.getBestMove(), { row: 4, col: 7 })
-
-    boardValues[0][15] = "white"
     boardValues[4][7] = "black"
-    board = createBoard("black", boardValues)
+
+    board = createEngineState("white", "black", boardValues)
+    assert.deepEqual(board.getBestMove(), { row: 4, col: 8 })
+
+    board = createEngineState("black", "white", boardValues)
     assert.deepEqual(board.getInPlayCells(), {
       0: {
         1: true,
         4: true, 6: true,
         9: true, 11: true,
-        14: true, 16: true,
       },
       1: {
         0: true, 1: true,
         4: true, 5: true, 6: true,
         9: true, 10: true, 11: true,
-        14: true, 15: true, 16: true
       },
       3: { 2: true, 3: true, 4: true, 5: true, 6: true, 7: true, 8: true },
       4: { 2: true, 8: true },
@@ -475,7 +469,7 @@ describe('Gomoku engine', function () {
   //   boardValues[10][8] = "white"
   //   boardValues[11][10] = "black"
   //
-  //   board = createBoard("white", boardValues)
+  //   board = createEngineState("white", boardValues)
   //
   //   assert.deepEqual(_.omit(board.getThreats()[0], "score"), {
   //     player: true,
@@ -517,18 +511,18 @@ describe('Gomoku engine', function () {
   //   boardValues[10][10] = "black"
   //   boardValues[11][7] = "white"
   //
-  //   board = createBoard("black", boardValues)
+  //   board = createEngineState("black", boardValues)
   //   // assert.deepEqual(board.getBestMove(), { row: 8, col: 10 })
   //
   //   boardValues[8][10] = "black"
   //   boardValues[8][7] = "white"
-  //   board = createBoard("black", boardValues)
+  //   board = createEngineState("black", boardValues)
   //   // assert.deepEqual(board.getBestMove(), { row: 9, col: 10 })
   //
   //   boardValues[9][10] = "black"
   //   boardValues[12][6] = "white"
   //
-  //   board = createBoard("black", boardValues)
+  //   board = createEngineState("black", boardValues)
   //   assert.equal(board.getWinningThreat().played, undefined)
   //   let bestMove = board.getBestMove()
   //   console.log("board.getBestMove():", board.getBestMove());
@@ -537,7 +531,7 @@ describe('Gomoku engine', function () {
   //   // NOTE: black can win with { row: 7, col: 10 } or { row: 12, col: 10 }
   //   // play winning move and make sure it figures out we've won
   //   boardValues[7][10] = "black"
-  //   board = createBoard("white", boardValues)
+  //   board = createEngineState("white", boardValues)
   //   assert.deepEqual(board.getWinningThreat().played, [
   //     { row: 7, col: 10 },
   //     { row: 8, col: 10 },

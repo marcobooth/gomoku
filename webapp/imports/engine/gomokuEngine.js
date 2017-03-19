@@ -59,7 +59,7 @@ var playedExtensions = {
 
 export class Board {
   // NOTE: player === true means that the player is the maximizing player
-  constructor(player = true, values, inPlayCells = defaultInPlay,
+  constructor(player = true, toStringMap, values, inPlayCells = defaultInPlay,
         threats = [], cellThreats = defaultCellThreats, winningThreat) {
     if (values) {
       this.values = values
@@ -72,6 +72,7 @@ export class Board {
     this.threats = threats
     this.cellThreats = cellThreats
     this.winningThreat = winningThreat
+    this.toStringMap = toStringMap
   }
 
   static newThreat(player, finderIndex, location) {
@@ -484,8 +485,8 @@ export class Board {
       }
     }
 
-    return new Board(!this.player, newValues, newInPlay, newThreats,
-        newCellThreats, winningThreat)
+    return new Board(!this.player, this.toStringMap, newValues, newInPlay,
+        newThreats, newCellThreats, winningThreat)
   }
 
   heuristic() {
@@ -577,8 +578,22 @@ export class Board {
   }
 
   getBestMove() {
+    // hardcoded starting move
+    if (this.inPlayCells.size === 0) {
+      return { row: 8, col: 8 }
+    }
+
     return this.alphabeta(GLOBAL_DEPTH, Number.NEGATIVE_INFINITY,
         Number.POSITIVE_INFINITY).move
+  }
+
+  // return the thing we get from the input (strings)
+  getStringBoard() {
+    return _.map(this.values, (row) => {
+      return _.map(row, (value) => {
+        return this.toStringMap[value]
+      })
+    })
   }
 
   // getters for testing
@@ -589,9 +604,14 @@ export class Board {
 
 var GLOBAL_DEPTH = 2
 
-export function createBoard(maximizingColor, colorValues) {
+export function createEngineState(maximizingColor, minimixingColor,
+    colorValues) {
   // convert colorValues to something we can feed into the move function
-  let colorMoves = {}
+  let colorMoves = {
+    [ minimixingColor ]: [],
+    [ maximizingColor ]: [],
+  }
+
   for (let row in colorValues) {
     for (let col in colorValues[row]) {
       let value = colorValues[row][col]
@@ -611,24 +631,19 @@ export function createBoard(maximizingColor, colorValues) {
 
   let playerColors = Object.keys(colorMoves)
 
-  // hardcoded starting move
-  if (playerColors.length === 0) {
-    return { row: 8, col: 8 }
-  }
-
-  if (playerColors.length === 1) {
-    playerColors.push("dummyColor")
-    colorMoves["dummyColor"] = []
-  }
-
   // figure out who went first
   if (colorMoves[playerColors[0]].length < colorMoves[playerColors[1]].length ||
       playerColors[0] === maximizingColor) {
     playerColors.reverse()
   }
 
+  let toStringMap = {
+    true: maximizingColor,
+    false: minimixingColor,
+  }
+  let board = new Board(playerColors[0] === maximizingColor, toStringMap)
+
   // recreate board move by move
-  let board = new Board(playerColors[0] === maximizingColor)
   for (moveIndex in colorMoves[playerColors[0]]) {
     board = board.move(colorMoves[playerColors[0]][moveIndex])
 
