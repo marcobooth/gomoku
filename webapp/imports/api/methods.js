@@ -2,51 +2,49 @@ import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import { Games, Messages } from './collections.js'
 import { ensureLoggedIn } from '../utilities/ensureLoggedIn.js'
+import _ from 'underscore'
 
 Meteor.methods({
   'games.insert'(isAI) {
     check(isAI, Boolean)
 
-    if (! this.userId) {
-      throw new Meteor.Error('not-authorized');
-    }
+    ensureLoggedIn(this.userId)
+
     let board = []
     for (let i = 0; i < 19; i++) {
       board.push([undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined])
     }
     let user = Meteor.user()
 
-    if (isAI === true) {
-      return Games.insert({
-        board: board,
-        currentPlayer: user._id,
-        p1: user._id,
-        p1Username: user.username,
-        p2: 'AI',
-        p2Username: 'AI',
-        status: 'started',
-      })
-    } else {
-      return Games.insert({
-        board: board,
-        currentPlayer: user._id,
-        p1: user._id,
-        p1Username: user.username,
-        status: 'creating',
-      })
+    let newBoard = {
+      board: board,
+      currentPlayer: user._id,
+      p1: user._id,
+      p1Username: user.username,
+      status: 'started'
     }
+
+    if (isAI === true) {
+      _.extend(newBoard, { p2: 'AI', p2Username: 'AI', status: 'started' })
+    } else {
+      _.extend(newBoard, { status: 'creating' })
+    }
+    return Games.insert(newBoard)
   },
   'games.join'(gameId) {
     check(gameId, String)
 
-    ensureLoggedIn.bind(this)
+    ensureLoggedIn(this.userId)
+
+    let user = Meteor.user()
 
     Games.update({
       _id: gameId,
       status: 'creating'
     }, {
       $set: {
-        p2: this.userId,
+        p2: user._id,
+        p2Username: user.username,
         status: 'started'
       }
     })
@@ -56,7 +54,7 @@ Meteor.methods({
     check(userId, String)
     check(colour, String)
 
-    ensureLoggedIn.bind(this)
+    ensureLoggedIn(this.userId)
     const game = Games.findOne(gameId);
 
     let playerToChange
@@ -72,7 +70,7 @@ Meteor.methods({
     check(gameId, String);
     check(text, String);
 
-    ensureLoggedIn.bind(this)
+    ensureLoggedIn(this.userId)
 
     return Messages.insert({
       text,
