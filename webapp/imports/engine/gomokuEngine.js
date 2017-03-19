@@ -504,37 +504,46 @@ export class Board {
     // the possible moves based on how many threats they can help
     // for the current player and how many they can disrupt for the other
     // player
+    let cellMoves = this.inPlayCells.toJS()
+
+    _.each(cellMoves, (rowColumns, row) => {
+      _.each(rowColumns, (value, col) => {
+        cellMoves[row][col] = 0
+      })
+    })
+
+
+    _.each(this.threats, (threat) => {
+      let addToScore = ({ row, col }) => {
+        if (!cellMoves[row]) {
+          cellMoves[row] = {}
+        }
+
+        cellMoves[row][col] += Math.abs(threat.score)
+      }
+
+      _.each(threat.skipped, addToScore)
+      _.each(threat.expansions, addToScore)
+    })
+
     let moves = []
+    _.each(cellMoves, (colValues, row) => {
+      row = parseInt(row)
 
-    console.log(this.cellThreats)
-
-    for (let [row, rowColumns] of this.inPlayCells.entrySeq()) {
-      for (let [col, cellValue] of rowColumns.entrySeq()) {
-        // TODO: include expansions information in the score somehow?
-        let score = 0
-        _.times(4, (finderIndex) => {
-          let path = [finderIndex, row, col]
-          let indexes = this.cellThreats.getIn(path)
-
-          console.log(path, indexes)
-
-          for (threatIndex of indexes.keySeq()) {
-            console.log("threatIndex:", threatIndex, " :: ", this.threats[threatIndex])
-            score += this.threats[threatIndex].score
-          }
-        })
-
+      _.each(colValues, (score, col) => {
         moves.push({
           score,
-          row: parseInt(row),
-          col: parseInt(col),
+          row,
+          col: parseInt(col)
         })
-      }
-    }
+      })
+    })
 
-    return moves.sort((first, second) => {
+    let sorted = moves.sort((first, second) => {
       return second.score - first.score
     })
+
+    return sorted
   }
 
   static compareABValues(compare, first, second) {
@@ -546,11 +555,11 @@ export class Board {
   }
 
   alphabeta(depth, alpha, beta) {
-    console.log("    ".repeat(GLOBAL_DEPTH - depth), `alpha=${alpha}, beta=${beta}`)
+    // console.log("    ".repeat(GLOBAL_DEPTH - depth), `alpha=${alpha}, beta=${beta}`)
 
     if (depth === 0 || this.hasWinner()) {
       let value = this.heuristic()
-      console.log("    ".repeat(GLOBAL_DEPTH - depth), "heuristic:", value)
+      // console.log("    ".repeat(GLOBAL_DEPTH - depth), "heuristic:", value)
 
       return { value }
     }
@@ -561,9 +570,9 @@ export class Board {
 
     let moves = this.getMoves()
 
-    console.log("    ".repeat(GLOBAL_DEPTH - depth), `moves count: ${moves.length}`)
+    // console.log("    ".repeat(GLOBAL_DEPTH - depth), `moves count: ${moves.length}`)
     for (let move of moves) {
-      console.log("    ".repeat(GLOBAL_DEPTH - depth), `MOVE for ${this.player}:`, move)
+      // console.log("    ".repeat(GLOBAL_DEPTH - depth), `MOVE for ${this.player}:`, move)
 
       let child = {
         value: this.move(move).alphabeta(depth - 1, alpha, beta).value,
@@ -616,7 +625,7 @@ export class Board {
   getInPlayCells() { return this.inPlayCells.toJS() }
 }
 
-var GLOBAL_DEPTH = 1
+var GLOBAL_DEPTH = 3
 
 export function createEngineState(maximizingColor, minimixingColor,
     colorValues) {
@@ -647,7 +656,7 @@ export function createEngineState(maximizingColor, minimixingColor,
 
   // figure out who went first
   if (colorMoves[playerColors[0]].length < colorMoves[playerColors[1]].length ||
-      playerColors[0] === maximizingColor) {
+      playerColors[0] !== maximizingColor) {
     playerColors.reverse()
   }
 
