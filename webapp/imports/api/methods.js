@@ -34,9 +34,9 @@ Meteor.methods({
   'games.join'(gameId) {
     check(gameId, String)
 
-    let user = Meteor.user()
-
     ensureLoggedIn(this.userId)
+
+    let user = Meteor.user()
 
     Games.update({
       _id: gameId,

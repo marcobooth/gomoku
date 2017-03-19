@@ -70,7 +70,7 @@ class Home extends Component {
   }
 
   render() {
-    if (!this.props.loading) {
+    if (!this.props.loaded) {
       return <div><button className="ui loading button"></button>Loading...</div>
     }
 
@@ -110,7 +110,7 @@ export default createContainer(function () {
   let fetchJoinableGame = Meteor.subscribe('games', 'creating', 5)
   let fetchStartableGame = Meteor.subscribe('games', 'started', 10)
   return {
-    loading: fetchJoinableGame.ready() && fetchStartableGame.ready(),
+    loaded: fetchJoinableGame.ready() && fetchStartableGame.ready(),
     startedGames: Games.find({ status: 'started'}).fetch(),
     joinableGames: Games.find({ status: 'creating'}).fetch(),
   }

@@ -12,7 +12,7 @@ import GameMessages from './GameMessages.jsx'
 class Game extends Component {
 
   render() {
-    if (!this.props.loading) {
+    if (!this.props.loaded) {
       return <div><button className="ui loading button"></button>Loading...</div>
     }
 
@@ -61,7 +61,7 @@ export default createContainer(( params ) => {
   let gameId = FlowRouter.getParam("_id")
   let fetchGame = Meteor.subscribe('game', gameId)
   return {
-    loading: fetchGame.ready(),
+    loaded: fetchGame.ready(),
     game: Games.findOne(gameId),
     currentUser: Meteor.user(),
   };
