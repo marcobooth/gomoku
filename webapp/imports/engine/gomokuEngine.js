@@ -501,7 +501,7 @@ export class Board {
   }
 
   getMoves() {
-    // the possible moves based on how many threats they can help
+    // sort the possible moves based on how many threats they can help
     // for the current player and how many they can disrupt for the other
     // player
     let cellMoves = this.inPlayCells.toJS()

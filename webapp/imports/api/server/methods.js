@@ -60,7 +60,7 @@ Meteor.methods({
     })
 
     if (!state) {
-      return new Meteor.Errir("invalid-move")
+      return new Meteor.Error("invalid-move")
     }
 
     setBoard(gameId, state.getStringBoard())
@@ -75,20 +75,18 @@ Meteor.methods({
     // if it's vs. AI, figure out the best move and then move there
     game = Games.findOne(game._id)
     if (game.currentPlayer === "AI") {
-      new Promise(Meteor.bindEnvironment(() => {
-        bestMove = state.getBestMove()
+      bestMove = state.getBestMove()
 
-        state = state.move(bestMove)
+      state = state.move(bestMove)
 
-        setBoard(gameId, state.getStringBoard())
+      setBoard(gameId, state.getStringBoard())
 
-        if (state.hasWinner()) {
-          playerWon(game)
-          return
-        }
+      if (state.hasWinner()) {
+        playerWon(game)
+        return
+      }
 
-        playerMoved(game)
-      }))
+      playerMoved(game)
     }
   }
 })
