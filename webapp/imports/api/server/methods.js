@@ -75,40 +75,18 @@ Meteor.methods({
     // if it's vs. AI, figure out the best move and then move there
     game = Games.findOne(game._id)
     if (game.currentPlayer === "AI") {
+      bestMove = state.getBestMove()
 
+      state = state.move(bestMove)
+
+      setBoard(gameId, state.getStringBoard())
+
+      if (state.hasWinner()) {
+        playerWon()
+        return
+      }
+
+      playerMoved(game)
     }
-
-    //   let nextPlayer = game.currentPlayer === game.p1 ? game.p2 : game.p1
-    //   Games.update(gameId, {
-    //     $set: {
-    //       [`board.${rowIndex}.${pointIndex}`]: game.currentPlayer,
-    //       currentPlayer: nextPlayer
-    //     }
-    //   });
-    //
-    //     } else if (stdout === "validmove\n") {
-    //       console.log("I'm in the valid move");
-    //       console.log("game:", game)
-    //       let newGameArray = game.board
-    //       newGameArray[rowIndex][pointIndex] = game.currentPlayer
-    //       let currentPlayer = game.currentPlayer === game.p1 ? game.p2 : game.p1
-    //       // TODO ask flenge how to add to part of the array
-    //       Games.update(gameId, {
-    //         $set: {
-    //           board: newGameArray,
-    //           currentPlayer: currentPlayer
-    //         }
-    //       });
-    //     } else {
-    //       console.log("In the other");
-    //       console.log("stdout:", stdout)
-    //       console.log("stdout === winner:", stdout == "winner")
-    //       // TODO ask flenge how to send error to client
-    //       throw new Meteor.Error("create-failed");
-    //     }
-    //   }))
-    // } else {
-    //   console.log("point has already been taken");
-    // }
   }
 })
