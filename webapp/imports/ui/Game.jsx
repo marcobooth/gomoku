@@ -21,9 +21,7 @@ class Game extends Component {
 
         if (game.currentPlayer === userId) {
           console.log("our turn")
-        }
-
-        if (game.currentPlayer === "AI" &&
+        } else if (game.currentPlayer === "AI" &&
             (userId === game.p1 || userId === game.p2)) {
           let state = createEngineState("AI", "AI", userId, game.board)
 
