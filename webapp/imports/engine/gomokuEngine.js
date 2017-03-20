@@ -512,7 +512,6 @@ export class Board {
       })
     })
 
-
     _.each(this.threats, (threat) => {
       let addToScore = ({ row, col }) => {
         if (!cellMoves[row]) {
@@ -543,6 +542,8 @@ export class Board {
       return second.score - first.score
     })
 
+    if (logging) console.log(sorted)
+
     return sorted
   }
 
@@ -572,7 +573,10 @@ export class Board {
 
     // console.log("    ".repeat(GLOBAL_DEPTH - depth), `moves count: ${moves.length}`)
     for (let move of moves) {
-      // console.log("    ".repeat(GLOBAL_DEPTH - depth), `MOVE for ${this.player}:`, move)
+      if (depth === GLOBAL_DEPTH && move.row === 5 && move.col === 9) {
+        logging = true
+      }
+      if (logging) console.log("    ".repeat(GLOBAL_DEPTH - depth), `MOVE for ${this.player}:`, move)
 
       let child = {
         value: this.move(move).alphabeta(depth - 1, alpha, beta).value,
@@ -625,9 +629,10 @@ export class Board {
   getInPlayCells() { return this.inPlayCells.toJS() }
 }
 
-var GLOBAL_DEPTH = 3
+logging = false
+var GLOBAL_DEPTH = 4
 
-export function createEngineState(maximizingColor, minimixingColor,
+export function createEngineState(nextPlayer, maximizingColor, minimixingColor,
     colorValues) {
   // convert colorValues to something we can feed into the move function
   let colorMoves = {
@@ -656,7 +661,7 @@ export function createEngineState(maximizingColor, minimixingColor,
 
   // figure out who went first
   if (colorMoves[playerColors[0]].length < colorMoves[playerColors[1]].length ||
-      playerColors[0] !== maximizingColor) {
+      playerColors[0] !== nextPlayer) {
     playerColors.reverse()
   }
 
@@ -664,14 +669,18 @@ export function createEngineState(maximizingColor, minimixingColor,
     true: maximizingColor,
     false: minimixingColor,
   }
-  let board = new Board(playerColors[0] === maximizingColor, toStringMap)
+  console.log(playerColors[0] === maximizingColor)
+  let board = new Board(playerColors[0] === nextPlayer, toStringMap)
 
   // recreate board move by move
+  let count = 0
   for (moveIndex in colorMoves[playerColors[0]]) {
+    console.log("moved:", colorMoves[playerColors[0]][moveIndex])
     board = board.move(colorMoves[playerColors[0]][moveIndex])
 
     if (moveIndex < colorMoves[playerColors[1]].length) {
       board = board.move(colorMoves[playerColors[1]][moveIndex])
+      console.log("moved:", colorMoves[playerColors[1]][moveIndex])
     }
   }
 

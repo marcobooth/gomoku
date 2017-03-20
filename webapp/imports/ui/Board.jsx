@@ -3,10 +3,11 @@ import ReactDOM from 'react-dom';
 import { Meteor } from 'meteor/meteor';
 
 export default class Board extends Component {
+  handleGameMove(row, col) {
+    let { readonly, game } = this.props
 
-  handleGameMove(rowIndex, pointIndex) {
-    if (!this.props.readonly) {
-      Meteor.call('games.handleMove', this.props.game._id, rowIndex, pointIndex);
+    if (!readonly) {
+      Meteor.call('games.handleMove', game._id, row, col);
     }
   }
 

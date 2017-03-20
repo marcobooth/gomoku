@@ -2,37 +2,11 @@ import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import { Games } from '../collections.js'
 const { exec } = require('child_process');
-import { createEngineState } from "../../engine/gomokuEngine"
 import { ensureLoggedIn } from '../../utilities/ensureLoggedIn.js'
+import { createEngineState } from "../../engine/gomokuEngine"
 
 function playerMoved(game) {
-  Games.update(game._id, {
-    $set: {
-      currentPlayer: game.currentPlayer === game.p1 ? game.p2 : game.p1,
-    }
-  });
-}
 
-function playerWon(game) {
-  Games.update(game._id, {
-    $set: {
-      status: "winner"
-    }
-  })
-
-  Meteor.users.update(game.currentPlayer, {
-    $inc: {
-      won: 1
-    }
-  })
-}
-
-function setBoard(gameId, board) {
-  Games.update(gameId, {
-    $set: {
-      board
-    }
-  })
 }
 
 Meteor.methods({
@@ -41,19 +15,26 @@ Meteor.methods({
     check(rowIndex, Number);
     check(pointIndex, Number);
 
-    let game = Games.findOne(gameId);
-    // console.log("game:", game)
-    // set an updating attribute, only allow one thing at a time
+    let userId = Meteor.userId()
+    ensureLoggedIn(userId)
 
-    // TODO: ensure logged in and make sure the current player is the one
-    // making the move
+    let game = Games.findOne(gameId);
+
+    let playingForAI = game.currentPlayer === "AI" &&
+        (userId === game.p1 || userId === game.p2)
+    if (userId !== game.currentPlayer && !playingForAI) {
+      throw new Meteor.Error("not-your-game")
+    }
+
+    // TODO: check status of game
 
     if (game.board[rowIndex][pointIndex]) {
       throw new Meteor.Error("cell-taken")
     }
 
     let otherPlayer = game.currentPlayer === game.p1 ? game.p2 : game.p1
-    let state = createEngineState(game.currentPlayer, otherPlayer, game.board)
+    let state = createEngineState(otherPlayer, game.currentPlayer,
+        otherPlayer, game.board)
     state = state.move({
       row: rowIndex,
       col: pointIndex
@@ -63,30 +44,53 @@ Meteor.methods({
       return new Meteor.Error("invalid-move")
     }
 
-    setBoard(gameId, state.getStringBoard())
+    let board = state.getStringBoard()
+
+    // TODO: check for full board ==> tie
 
     if (state.hasWinner()) {
-      playerWon(game)
+      Games.update(gameId, {
+        $set: {
+          board,
+          status: "winner",
+        }
+      })
+
+      console.log(game.currentPlayer)
+      Meteor.users.update(game.currentPlayer, { $inc: { won: 1 } })
+
+      Meteor.users.update(otherPlayer, { $inc: { lost: 1 } })
+
       return
+    } else {
+      Games.update(game._id, {
+        $set: {
+          board,
+          currentPlayer: otherPlayer,
+        }
+      });
     }
 
-    playerMoved(game)
-
-    // if it's vs. AI, figure out the best move and then move there
-    game = Games.findOne(game._id)
-    if (game.currentPlayer === "AI") {
-      bestMove = state.getBestMove()
-
-      state = state.move(bestMove)
-
-      setBoard(gameId, state.getStringBoard())
-
-      if (state.hasWinner()) {
-        playerWon(game)
-        return
-      }
-
-      playerMoved(game)
-    }
+    // // if it's vs. AI, figure out the best move and then move there
+    // game = Games.findOne(game._id)
+    // if (game.currentPlayer === "AI") {
+    //   let start = new Date().getTime()
+    //   let bestMove = state.getBestMove()
+    //   let end = new Date().getTime()
+    //
+    //   console.log(`took ${end - start}ms to generate best move: ` +
+    //       `(${bestMove.row}, ${bestMove.col})`)
+    //
+    //   state = state.move(bestMove)
+    //
+    //   setBoard(gameId, state.getStringBoard())
+    //
+    //   if (state.hasWinner()) {
+    //     playerWon(game)
+    //     return
+    //   }
+    //
+    //   playerMoved(game)
+    // }
   }
 })

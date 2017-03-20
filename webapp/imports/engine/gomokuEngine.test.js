@@ -436,10 +436,10 @@ describe('Gomoku engine', function () {
     boardValues[4][6] = "black"
     boardValues[4][7] = "black"
 
-    board = createEngineState("white", "black", boardValues)
+    board = createEngineState("white", "white", "black", boardValues)
     assert.deepEqual(board.getBestMove(), { row: 4, col: 8 })
 
-    board = createEngineState("black", "white", boardValues)
+    board = createEngineState("black", "black", "white", boardValues)
     assert.deepEqual(board.getInPlayCells(), {
       0: {
         1: true,
@@ -457,6 +457,42 @@ describe('Gomoku engine', function () {
     })
     assert.deepEqual(board.getBestMove(), { row: 4, col: 8 })
   })
+
+  it("doesn't break on bug 1", function () {
+    let boardValues = [
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,"AI",null,null,null,null,null,"AI",null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,"gss8TeMy9miWFbSMf",null,null,null,"gss8TeMy9miWFbSMf",null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,"gss8TeMy9miWFbSMf",null,"gss8TeMy9miWFbSMf",null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,"gss8TeMy9miWFbSMf",null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,"gss8TeMy9miWFbSMf","AI","gss8TeMy9miWFbSMf",null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,"AI",null,"AI",null,"AI",null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,"AI","AI",null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+    ]
+
+    let board = createEngineState("AI", "AI", "gss8TeMy9miWFbSMf", boardValues)
+    assert.isDefined(board.getBestMove())
+  })
+
+  // TODO:
+  // 6 before, 7 after => should block 4-in-a-row
+//   [null,null,null,null,null,null,null,null,null,null,"gss8TeMy9miWFbSMf",null,null,null,null,null,null,null,null]
+// VM3602:1 [null,null,null,null,null,null,null,null,null,"gss8TeMy9miWFbSMf",null,null,null,null,null,null,null,null,null]
+// VM3602:1 [null,null,null,null,null,null,null,null,"gss8TeMy9miWFbSMf","AI",null,null,null,null,null,null,null,null,null]
+// VM3602:1 [null,null,null,null,null,null,null,"gss8TeMy9miWFbSMf","AI",null,null,null,null,null,null,null,null,null,null]
+// VM3602:1 [null,null,null,null,null,null,null,"AI",null,null,null,null,null,null,null,null,null,null,null]
+// VM3602:1 [null,null,null,null,null,null,"AI",null,null,null,null,null,null,null,null,null,null,null,null]
 
   // TODO: no good moves
 
