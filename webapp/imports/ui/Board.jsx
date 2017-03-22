@@ -25,9 +25,7 @@ export default class Board extends Component {
 
           return <div className="boardSquare" key={pointIndex}
               onClick={this.handleGameMove.bind(this, rowIndex, pointIndex)}>
-            <div className="content"
-                 style={{ background }}>
-            </div>
+            <div className="content" style={{ background }}></div>
           </div>
         })}
       </div>
