@@ -8,16 +8,25 @@ import HighScores from './HighScores.jsx'
 import { ReactiveVar } from 'meteor/reactive-var'
 
 class Home extends Component {
+  constructor() {
+    super()
+
+    this.state = {
+      vsAILoading: false,
+      vsHumanLoading: false,
+    }
+  }
 
   handleClick(isAI) {
     Meteor.call('games.insert', isAI, (error, _id) => {
       if (error) {
         console.log("making a new game error:", error)
-      }
-      else if (_id) {
+      } else if (_id) {
         FlowRouter.go('Games.show', { _id });
       }
     })
+
+    this.setState({ [ isAI ? "vsAILoading" : "vsHumanLoading" ]: true })
   }
 
   openLoginMenu() {
@@ -28,10 +37,26 @@ class Home extends Component {
     if (! Meteor.user()) {
       return <div className="ui huge primary button" onClick={this.openLoginMenu.bind(this)}>Signup / Login</div>
     }
+
+    let vsHumanClasses = "ui huge primary button"
+    let vsAIClasses = "ui huge primary button"
+    if (this.state.vsHumanLoading) {
+      vsHumanClasses += " loading"
+    }
+    if (this.state.vsAILoading) {
+      vsAIClasses += " loading"
+    }
+
     return (
       <div>
-        <div id="mainButton" className="ui huge primary button" onClick={this.handleClick.bind(this, false)}>Play Against A Friend</div>
-        <div className="ui huge primary button" onClick={this.handleClick.bind(this, true)}>Play Against AI</div>
+        <div id="mainButton" className={vsHumanClasses}
+            onClick={this.handleClick.bind(this, false)}>
+          Play Against A Friend
+        </div>
+        <div className={vsAIClasses}
+            onClick={this.handleClick.bind(this, true)}>
+          Play Against AI
+        </div>
       </div>
     )
   }
