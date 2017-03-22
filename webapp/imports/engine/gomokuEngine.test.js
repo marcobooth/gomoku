@@ -436,10 +436,10 @@ describe('Gomoku engine', function () {
     boardValues[4][6] = "black"
     boardValues[4][7] = "black"
 
-    board = createEngineState("white", "white", "black", boardValues)
+    board = createEngineState("white", "black", boardValues)
     assert.deepEqual(board.getBestMove(), { row: 4, col: 8 })
 
-    board = createEngineState("black", "black", "white", boardValues)
+    board = createEngineState("black", "white", boardValues)
     assert.deepEqual(board.getInPlayCells(), {
       0: {
         1: true,
@@ -465,10 +465,10 @@ describe('Gomoku engine', function () {
       [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
       [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
       [null,null,null,null,null,"AI",null,null,null,null,null,"AI",null,null,null,null,null,null,null],
-      [null,null,null,null,null,null,"gss8TeMy9miWFbSMf",null,null,null,"gss8TeMy9miWFbSMf",null,null,null,null,null,null,null,null],
-      [null,null,null,null,null,null,null,"gss8TeMy9miWFbSMf",null,"gss8TeMy9miWFbSMf",null,null,null,null,null,null,null,null,null],
-      [null,null,null,null,null,null,null,null,"gss8TeMy9miWFbSMf",null,null,null,null,null,null,null,null,null,null],
-      [null,null,null,null,null,null,null,"gss8TeMy9miWFbSMf","AI","gss8TeMy9miWFbSMf",null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,"ME",null,null,null,"ME",null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,"ME",null,"ME",null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,"ME",null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,"ME","AI","ME",null,null,null,null,null,null,null,null,null],
       [null,null,null,null,null,null,"AI",null,"AI",null,"AI",null,null,null,null,null,null,null,null],
       [null,null,null,null,null,null,null,"AI","AI",null,null,null,null,null,null,null,null,null,null],
       [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
@@ -481,7 +481,7 @@ describe('Gomoku engine', function () {
       [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
     ]
 
-    let board = createEngineState("AI", "AI", "gss8TeMy9miWFbSMf", boardValues)
+    let board = createEngineState("ME", "AI", boardValues)
     assert.isDefined(board.getBestMove())
   })
 
@@ -494,7 +494,7 @@ describe('Gomoku engine', function () {
 // VM3602:1 [null,null,null,null,null,null,null,"AI",null,null,null,null,null,null,null,null,null,null,null]
 // VM3602:1 [null,null,null,null,null,null,"AI",null,null,null,null,null,null,null,null,null,null,null,null]
 
-  // TODO: no good moves
+  // TODO: no way of winning :'(
 
   // it("a normal game", function () {
   //   let boardValues = JSON.parse(JSON.stringify(blankValues))
