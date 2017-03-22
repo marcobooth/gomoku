@@ -270,9 +270,7 @@ export class Board {
       let threatsHere = newCellThreats.getIn([finderIndex, row, col])
 
       for ([threatIndex, player] of threatsHere.entrySeq()) {
-        if (logging) console.log(`threat at ${threatIndex}:`, newThreats[threatIndex])
         if (player !== this.player) {
-          if (logging) console.log("deleting")
           newCellThreats = Board.removeFromCellThreats(threatIndex,
               newThreats[threatIndex], newCellThreats)
 
@@ -369,7 +367,6 @@ export class Board {
               for (let threatIndex of currentThreats.keys()) {
                 // don't join it if it's already been joined
                 // NOTE: joinedThreats has larger scope
-                if (logging) console.log("threatIndex:", threatIndex)
                 if (joinedThreats[threatIndex]) continue nextCell
 
                 // check to see if we should join that threat
@@ -377,8 +374,6 @@ export class Board {
                     .concat(threat.skipped).concat(skipped)
                 let overlap = _.reduce(potentialLocations, (total, loc) => {
                   let path = [finderIndex, loc.row, loc.col, threatIndex]
-                  if (logging) console.log("path:", path)
-                  if (logging) console.log("newCellThreats.getIn(path),", newCellThreats.getIn(path))
                   if (newCellThreats.getIn(path) !== undefined) {
                     total += 1
                   }
@@ -387,15 +382,10 @@ export class Board {
                 }, 0)
 
                 let existing = newThreats[threatIndex]
-                if (logging) console.log(`threat.span=${threat.span}, overlap=${overlap}`)
                 let toExtend = threat.span + skipped.length - overlap
-                if (logging) console.log(`existing.span=${existing.span}, toExtend=${toExtend}`)
                 if (existing.span + toExtend <= 5) {
                   joinedThreats[threatIndex] = true
 
-                  if (logging) console.log("merging:")
-                  if (logging) console.log("existing:", existing)
-                  if (logging) console.log("threat:", threat)
                   newCellThreats = Board.mergeThreats(existing, threat,
                       newValues, newCellThreats, threatIndex, skipped)
                   newThreats[threatIndex] = threat
@@ -495,9 +485,6 @@ export class Board {
       }
     }
 
-    if (logging) console.log("newThreats[5]:", newThreats[5])
-    if (logging) console.log("newCellThreats.getIn([1, 9]).toJS():", newCellThreats.getIn([1, 9]).toJS())
-    if (logging) console.log("end of move")
     return new Board(!this.player, this.toStringMap, newValues, newInPlay,
         newThreats, newCellThreats, winningThreat)
   }
@@ -530,15 +517,12 @@ export class Board {
           cellMoves[row] = {}
         }
 
-        if (logging && row === 9 && col === 9) console.log("threat at 9,9:", threat)
         cellMoves[row][col] += Math.abs(threat.score)
       }
 
       _.each(threat.skipped, addToScore)
       _.each(threat.expansions, addToScore)
     })
-
-    if (logging) console.log("cellMoves w/ scores:", cellMoves)
 
     let moves = []
     _.each(cellMoves, (colValues, row) => {
@@ -556,8 +540,6 @@ export class Board {
     let sorted = moves.sort((first, second) => {
       return second.score - first.score
     })
-
-    if (logging) console.log("sorted moves:", sorted)
 
     return sorted
   }
@@ -588,10 +570,7 @@ export class Board {
 
     // console.log("    ".repeat(GLOBAL_DEPTH - depth), `moves count: ${moves.length}`)
     for (let move of moves) {
-      if (depth === GLOBAL_DEPTH && move.row === 5 && move.col === 9) {
-        logging = true
-      }
-      if (logging) console.log("    ".repeat(GLOBAL_DEPTH - depth), `MOVE for ${this.player}:`, move)
+      // console.log("    ".repeat(GLOBAL_DEPTH - depth), `MOVE for ${this.player}:`, move)
 
       let child = {
         value: this.move(move).alphabeta(depth - 1, alpha, beta).value,
