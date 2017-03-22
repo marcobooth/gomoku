@@ -628,7 +628,7 @@ export class Board {
 logging = false
 var GLOBAL_DEPTH = 3
 
-export function createEngineState(maximizingColor, minimixingColor,
+export function createEngineState(nextPlayer, maximizingColor, minimixingColor,
     colorValues) {
   // convert colorValues to something we can feed into the move function
   let colorMoves = {
@@ -657,7 +657,7 @@ export function createEngineState(maximizingColor, minimixingColor,
 
   // figure out who went first
   if (colorMoves[playerColors[0]].length < colorMoves[playerColors[1]].length ||
-      playerColors[0] !== maximizingColor) {
+      playerColors[0] !== nextPlayer) {
     playerColors.reverse()
   }
 
@@ -665,7 +665,7 @@ export function createEngineState(maximizingColor, minimixingColor,
     true: maximizingColor,
     false: minimixingColor,
   }
-  let board = new Board(playerColors[0] === maximizingColor, toStringMap)
+  let board = new Board(playerColors[0] === nextPlayer, toStringMap)
 
   // recreate board move by move
   let count = 0

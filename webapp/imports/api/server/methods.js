@@ -56,7 +56,6 @@ Meteor.methods({
         }
       })
 
-      console.log(game.currentPlayer)
       Meteor.users.update(game.currentPlayer, { $inc: { won: 1 } })
 
       Meteor.users.update(otherPlayer, { $inc: { lost: 1 } })

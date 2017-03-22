@@ -23,7 +23,7 @@ class Game extends Component {
           console.log("our turn")
         } else if (game.currentPlayer === "AI" &&
             (userId === game.p1 || userId === game.p2)) {
-          let state = createEngineState("AI", userId, game.board)
+          let state = createEngineState("AI", "AI", userId, game.board)
 
           let start = new Date().getTime()
           let { row, col } = state.getBestMove()

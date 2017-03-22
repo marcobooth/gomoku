@@ -436,10 +436,10 @@ describe('Gomoku engine', function () {
     boardValues[4][6] = "black"
     boardValues[4][7] = "black"
 
-    board = createEngineState("white", "black", boardValues)
+    board = createEngineState("white", "white", "black", boardValues)
     assert.deepEqual(board.getBestMove(), { row: 4, col: 8 })
 
-    board = createEngineState("black", "white", boardValues)
+    board = createEngineState("black", "black", "white", boardValues)
     assert.deepEqual(board.getInPlayCells(), {
       0: {
         1: true,
@@ -481,7 +481,7 @@ describe('Gomoku engine', function () {
       [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
     ]
 
-    let board = createEngineState("ME", "AI", boardValues)
+    let board = createEngineState("ME", "ME", "AI", boardValues)
     assert.isDefined(board.getBestMove())
   })
 
