@@ -21,11 +21,12 @@ class Home extends Component {
   }
 
   openLoginMenu() {
-    return 1
+    event.preventDefault()
+    $('#login-sign-in-link').click()
   }
 
-  renderButtons() {
-    if (! Meteor.user()) {
+  renderButtons(loggedInUser) {
+    if (! loggedInUser) {
       return <div className="ui huge primary button" onClick={this.openLoginMenu.bind(this)}>Signup / Login</div>
     }
     return (
@@ -82,7 +83,7 @@ class Home extends Component {
           </h1>
           <h2>We really hope you lose. Honestly, it would help us a lot in the correction.</h2>
           <div className="buttons">
-            { this.renderButtons() }
+            { this.renderButtons(this.props.loggedInUser) }
           </div>
         </div>
 
@@ -135,6 +136,7 @@ export default createContainer({
     }).fetch()
 
     return {
+      loggedInUser: Meteor.user(),
       loadingData: !startedSub.ready() || !creatingSub.ready(),
       startedGames,
       joinableGames,
