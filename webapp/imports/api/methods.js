@@ -60,8 +60,11 @@ Meteor.methods({
     let playerToChange
     if (userId === game.p1) {
       playerToChange = "p1Colour"
-    } else {
+    } else if (userId === game.p2) {
       playerToChange = "p2Colour"
+    } else {
+      console.log("This should not have been called")
+      return
     }
 
     Games.update(gameId, { $set: { [playerToChange] : colour }});

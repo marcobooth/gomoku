@@ -9,8 +9,11 @@ function playerMoved(game) {
   Games.update(game._id, {
     $set: {
       currentPlayer: game.currentPlayer === game.p1 ? game.p2 : game.p1,
+    },
+    $inc: {
+      movesTaken: 1
     }
-  });
+  })
 }
 
 function playerWon(game) {
@@ -20,9 +23,25 @@ function playerWon(game) {
     }
   })
 
-  Meteor.users.update(game.currentPlayer, {
+  let winningPlayer
+  let losingPlayer
+  if (game.currentPlayer === game.p1) {
+    winningPlayer = game.p1
+    losingPlayer = game.p2
+  } else {
+    winningPlayer = game.p2
+    losingPlayer = game.p1
+  }
+
+  Meteor.users.update(winningPlayer, {
     $inc: {
       won: 1
+    }
+  })
+
+  Meteor.users.update(losingPlayer, {
+    $inc: {
+      lost: 1
     }
   })
 }
@@ -60,7 +79,7 @@ Meteor.methods({
     })
 
     if (!state) {
-      return new Meteor.Errir("invalid-move")
+      return new Meteor.Error("invalid-move")
     }
 
     setBoard(gameId, state.getStringBoard())

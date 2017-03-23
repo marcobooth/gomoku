@@ -38,6 +38,7 @@ export default class Board extends Component {
     return (
       <div className="center">
         { this.props.spectatorMode === true ? this.renderSpectatorBox() : this.renderCurrentTurn(this.props.readonly)}
+        { "Moves taken: " + this.props.game.movesTaken }
       </div>
     )
   }

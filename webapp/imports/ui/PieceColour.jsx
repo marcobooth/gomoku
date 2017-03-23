@@ -15,15 +15,24 @@ export default class PieceColour extends Component {
 
   render() {
 
-    if (!this.props.currentUser) {
+    let {currentUser, game} = this.props
+
+    if (!currentUser || !(game.p1 === currentUser._id || game.p2 === currentUser._id)) {
       return <div></div>
+    }
+
+    let currentPlayerColour
+    if (currentUser._id === game.p1) {
+      currentPlayerColour = game["p1Colour"]
+    } else if (currentUser._id === game.p2) {
+      currentPlayerColour = game["p2Colour"]
     }
 
     return (
       <div className="center">
-        Change piece colour to &nbsp;
+        Change piece colour:&nbsp;
         <div className="ui inline dropdown">
-          <div className="text"></div>
+          <div className="text">{currentPlayerColour.charAt(0).toUpperCase() + currentPlayerColour.slice(1)}</div>
           <i className="dropdown icon"></i>
           <div className="menu">
             <div onClick={this.handlePieceColourChange.bind(this, "red")} className="item" style={{color: 'red'}}>Red</div>

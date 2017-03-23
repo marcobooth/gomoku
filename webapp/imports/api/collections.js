@@ -45,6 +45,10 @@ Games.attachSchema(new SimpleSchema({
   status: {
     type: String
   },
+  movesTaken: {
+    type: Number,
+    defaultValue: 0
+  },
   winner: {
     type: String,
     optional: true
