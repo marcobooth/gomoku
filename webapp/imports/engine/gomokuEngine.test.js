@@ -485,15 +485,67 @@ describe('Gomoku engine', function () {
     assert.isDefined(board.getBestMove())
   })
 
-  // TODO:
-  // 6 before, 7 after => should block 4-in-a-row
-//   [null,null,null,null,null,null,null,null,null,null,"gss8TeMy9miWFbSMf",null,null,null,null,null,null,null,null]
-// VM3602:1 [null,null,null,null,null,null,null,null,null,"gss8TeMy9miWFbSMf",null,null,null,null,null,null,null,null,null]
-// VM3602:1 [null,null,null,null,null,null,null,null,"gss8TeMy9miWFbSMf","AI",null,null,null,null,null,null,null,null,null]
-// VM3602:1 [null,null,null,null,null,null,null,"gss8TeMy9miWFbSMf","AI",null,null,null,null,null,null,null,null,null,null]
-// VM3602:1 [null,null,null,null,null,null,null,"AI",null,null,null,null,null,null,null,null,null,null,null]
-// VM3602:1 [null,null,null,null,null,null,"AI",null,null,null,null,null,null,null,null,null,null,null,null]
+  it("before and after string board should match", function () {
+    let boardValues = [
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,"ME",null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,"ME","AI",null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,"AI",null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+    ]
 
+    // AI goes first and is maximizing player
+    let state = createEngineState("AI", "AI", "ME", boardValues)
+    assert.deepEqual(state.getStringBoard(), boardValues)
+
+    // I go first but AI is maximizing player
+    state = createEngineState("ME", "AI", "ME", boardValues)
+    assert.deepEqual(state.getValues())
+
+    console.log(state.getStringBoard().slice(8, 11))
+    assert.deepEqual(state.getStringBoard(), boardValues)
+  })
+
+  // TODO:
+  it("shouldn't let me win", function () {
+    let boardValues = [
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,"ME",null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,"ME","AI",null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,"AI",null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+    ]
+
+    let state = createEngineState("ME", "ME", "AI", boardValues)
+  })
   // TODO: no way of winning :'(
 
   // it("a normal game", function () {

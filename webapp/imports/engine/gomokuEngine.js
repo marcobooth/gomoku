@@ -52,8 +52,8 @@ _.times(BOARD_SIZE, () => {
 // TODO: take into account skipped
 var playedExtensions = {
   2: { 0: .5, 1: 1, 2: 4 },
-  3: { 0: 15, 1: 20, 2: 60 },
-  4: { 0: 90, 1: 100, 2: 1000000 },
+  3: { 0: 15, 1: 20, 2: 400 },
+  4: { 0: 600, 1: 1000, 2: 1000000 },
   5: { 0: Number.POSITIVE_INFINITY },
 }
 
@@ -612,7 +612,7 @@ export class Board {
   getStringBoard() {
     return _.map(this.values, (row) => {
       return _.map(row, (value) => {
-        return this.toStringMap[value]
+        return this.toStringMap[value] || null
       })
     })
   }
