@@ -548,84 +548,124 @@ describe('Gomoku engine', function () {
   })
   // TODO: no way of winning :'(
 
-  // it("a normal game", function () {
-  //   let boardValues = JSON.parse(JSON.stringify(blankValues))
-  //   boardValues[8][9] = "white"
-  //   boardValues[9][8] = "black"
-  //   boardValues[9][9] = "white"
-  //   boardValues[10][9] = "black"
-  //   boardValues[10][8] = "white"
-  //   boardValues[11][10] = "black"
-  //
-  //   board = createEngineState("white", boardValues)
-  //
-  //   assert.deepEqual(_.omit(board.getThreats()[0], "score"), {
-  //     player: true,
-  //     finderIndex: '0',
-  //     played: [ { row: 8, col: 9 }, { row: 9, col: 9 } ],
-  //     skipped: [],
-  //     expansions: [ { row: 7, col: 9 } ],
-  //     span: 2,
-  //   })
-  //   assert.deepEqual(_.omit(board.getThreats()[1], "score"), {
-  //     player: false,
-  //     finderIndex: '2',
-  //     played: [ { row: 9, col: 8 }, { row: 10, col: 9 }, { row: 11, col: 10 } ],
-  //     skipped: [],
-  //     expansions: [ { row: 8, col: 7 }, { row: 12, col: 11 } ],
-  //     span: 3,
-  //   })
-  //   assert.deepEqual(_.omit(board.getThreats()[2], "score"), {
-  //     player: true,
-  //     finderIndex: '3',
-  //     played: [ { row: 10, col: 8 }, { row: 9, col: 9 } ],
-  //     skipped: [],
-  //     expansions: [ { row: 11, col: 7 }, { row: 8, col: 10 } ],
-  //     span: 2,
-  //   })
-  //
-  //   // continue the game for a single move...
-  //   board = board.move({ row: 12, col: 11 }) // white
-  //   assert.deepEqual(_.omit(board.getThreats()[1], "score"), {
-  //     player: false,
-  //     finderIndex: '2',
-  //     played: [ { row: 9, col: 8 }, { row: 10, col: 9 }, { row: 11, col: 10 } ],
-  //     skipped: [],
-  //     expansions: [ { row: 8, col: 7 } ],
-  //     span: 3,
-  //   })
-  //
-  //   boardValues[12][11] = "white"
-  //   boardValues[10][10] = "black"
-  //   boardValues[11][7] = "white"
-  //
-  //   board = createEngineState("black", boardValues)
-  //   // assert.deepEqual(board.getBestMove(), { row: 8, col: 10 })
-  //
-  //   boardValues[8][10] = "black"
-  //   boardValues[8][7] = "white"
-  //   board = createEngineState("black", boardValues)
-  //   // assert.deepEqual(board.getBestMove(), { row: 9, col: 10 })
-  //
-  //   boardValues[9][10] = "black"
-  //   boardValues[12][6] = "white"
-  //
-  //   board = createEngineState("black", boardValues)
-  //   assert.equal(board.getWinningThreat().played, undefined)
-  //   let bestMove = board.getBestMove()
-  //   console.log("board.getBestMove():", board.getBestMove());
-  //   assert.deepEqual(bestMove, { row: 9, col: 10 })
-  //
-  //   // NOTE: black can win with { row: 7, col: 10 } or { row: 12, col: 10 }
-  //   // play winning move and make sure it figures out we've won
-  //   boardValues[7][10] = "black"
-  //   board = createEngineState("white", boardValues)
-  //   assert.deepEqual(board.getWinningThreat().played, [
-  //     { row: 7, col: 10 },
-  //     { row: 8, col: 10 },
-  //     { row: 9, col: 10 },
-  //     { row: 10, col: 10 },
-  //     { row: 11, col: 10 },
-  //   ])
-  // })
+  it("a game Teo won", function () {
+    // TODO: finish this test
+
+    // let gameObject = {
+    //   "_id" : "XQzPrX8Hb4nKiZw6d",
+    //   "board" : [
+    //       [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+    //       [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+    //       [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+    //       [null,null,null,null,null,null,"AI",null,null,null,null,null,"AI",null,null,null,null,null,null],
+    //       [null,null,null,null,null,null,null,"ME",null,"ME",null,"ME",null,null,null,null,null,null,null],
+    //       [null,null,null,null,null,null,null,null,"ME",null,"ME",null,null,null,null,null,null,null,null],
+    //       [null,null,null,null,null,null,null,null,null,"ME",null,null,null,null,null,null,null,null,null],
+    //       [null,null,null,null,null,null,"ME",null,"ME","AI","ME",null,null,null,null,null,null,null,null],
+    //       [null,null,null,null,null,null,null,"AI",null,"AI",null,"AI",null,null,null,null,null,null,null],
+    //       [null,null,null,null,null,null,null,null,"AI","AI","AI",null,null,null,null,null,null,null,null],
+    //       [null,null,null,null,null,null,null,null,null,"AI",null,null,null,null,null,null,null,null,null],
+    //       [null,null,null,null,null,null,null,null,"AI","ME",null,null,null,null,null,null,null,null,null],
+    //       [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+    //       [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+    //       [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+    //       [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+    //       [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+    //       [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+    //       [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+    //   ],
+    //   "currentPlayer" : "AI",
+    //   "p1" : "ME",
+    //   "p1Username" : "mokolodi1",
+    //   "status" : "started",
+    //   "p2" : "AI",
+    //   "p2Username" : "AI",
+    //   "p1Colour" : "red",
+    //   "p2Colour" : "blue",
+    //   "movesTaken" : 21
+    // }
+  })
+
+  it("a normal game", function () {
+    let boardValues = JSON.parse(JSON.stringify(blankValues))
+    boardValues[8][9] = "white"
+    boardValues[9][8] = "black"
+    boardValues[9][9] = "white"
+    boardValues[10][9] = "black"
+    boardValues[10][8] = "white"
+    boardValues[11][10] = "black"
+
+    board = createEngineState("white", "black", boardValues)
+    assert.equal(board.getThreats().length, 3)
+    assert.deepEqual(_.omit(board.getThreats()[0], "score"), {
+      player: false,
+      finderIndex: '2',
+      played: [ { row: 9, col: 8 }, { row: 10, col: 9 }, { row: 11, col: 10 } ],
+      skipped: [],
+      expansions: [ { row: 8, col: 7 }, { row: 12, col: 11 } ],
+      span: 3,
+    })
+    assert.deepEqual(_.omit(board.getThreats()[1], "score"), {
+      player: true,
+      finderIndex: '0',
+      played: [ { row: 8, col: 9 }, { row: 9, col: 9 } ],
+      skipped: [],
+      expansions: [ { row: 7, col: 9 } ],
+      span: 2,
+    })
+    assert.deepEqual(_.omit(board.getThreats()[2], "score"), {
+      player: true,
+      finderIndex: '3',
+      played: [ { row: 10, col: 8 }, { row: 9, col: 9 } ],
+      skipped: [],
+      expansions: [ { row: 11, col: 7 }, { row: 8, col: 10 } ],
+      span: 2,
+    })
+
+    // continue the game for a single move...
+    board = board.move({ row: 12, col: 11 }) // white
+    assert.deepEqual(_.omit(board.getThreats()[0], "score"), {
+      player: false,
+      finderIndex: '2',
+      played: [
+        { row: 9, col: 8 },
+        { row: 10, col: 9 },
+        { row: 11, col: 10 },
+        { row: 12, col: 11 },
+      ],
+      skipped: [],
+      expansions: [ { row: 8, col: 7 }, { row: 13, col: 12 } ],
+      span: 4,
+    })
+
+    boardValues[12][11] = "white"
+    boardValues[10][10] = "black"
+    boardValues[11][7] = "white"
+
+    board = createEngineState("black", "white", boardValues)
+    // assert.deepEqual(board.getBestMove(), { row: 8, col: 10 })
+
+    boardValues[8][10] = "black"
+    boardValues[8][7] = "white"
+    board = createEngineState("black", "white", boardValues)
+    // assert.deepEqual(board.getBestMove(), { row: 9, col: 10 })
+
+    boardValues[9][10] = "black"
+    boardValues[12][6] = "white"
+
+    board = createEngineState("black", "white", boardValues)
+    assert.equal(board.getWinningThreat().played, undefined)
+
+    // NOTE: black can win with { row: 7, col: 10 } or { row: 12, col: 10 }
+    // play winning move and make sure it figures out we've won
+    boardValues[7][10] = "black"
+    board = createEngineState("white", "black", boardValues)
+    assert.deepEqual(board.getWinningThreat().played, [
+      { row: 7, col: 10 },
+      { row: 8, col: 10 },
+      { row: 9, col: 10 },
+      { row: 10, col: 10 },
+      { row: 11, col: 10 },
+    ])
+  })
 })

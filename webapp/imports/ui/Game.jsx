@@ -26,9 +26,12 @@ class Game extends Component {
           let state = createEngineState("AI", "AI", userId, game.board)
 
           let start = new Date().getTime()
-          let { row, col } = state.getBestMove()
+          let bestMove = state.getBestMove()
           let end = new Date().getTime()
 
+          console.assert(bestMove, "Couldn't find a best move!!!")
+
+          let { row, col } = bestMove
           console.log(`took ${end - start}ms to generate best move: ` +
               `(${row}, ${col})`)
           Meteor.call('games.handleMove', game._id, row, col);

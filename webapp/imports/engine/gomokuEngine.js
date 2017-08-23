@@ -260,7 +260,7 @@ export class Board {
     newValues[row] = this.values[row].slice()
     let newThreats = this.threats.slice();
     let newCellThreats = this.cellThreats
-    let winningThreat
+    let winningThreat = this.winningThreat
 
     // put the piece down
     newValues[row][col] = this.player
@@ -615,6 +615,24 @@ export class Board {
         return this.toStringMap[value] || null
       })
     })
+  }
+
+  toString() {
+    let singleCharMap = {
+      true: this.toStringMap[true].substring(0, 1),
+      false: this.toStringMap[false].substring(0, 1),
+    }
+
+    let board = _.reduce(this.values, (memo, rowValues) => {
+      return memo + _.map(rowValues, (value) => {
+        return singleCharMap[value] || "."
+      }).join(" ") + "\n"
+    }, "");
+
+    return `next move will be by ${this.toStringMap[this.player]}\n` +
+        `${singleCharMap[true]} = ${this.toStringMap[true]}\n` +
+        `${singleCharMap[false]} = ${this.toStringMap[false]}\n` +
+        board
   }
 
   // getters for testing

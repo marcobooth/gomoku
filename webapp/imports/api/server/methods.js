@@ -5,10 +5,6 @@ const { exec } = require('child_process');
 import { ensureLoggedIn } from '../../utilities/ensureLoggedIn.js'
 import { createEngineState } from "../../engine/gomokuEngine"
 
-function playerMoved(game) {
-
-}
-
 Meteor.methods({
   'games.handleMove'(gameId, rowIndex, pointIndex) {
     check(gameId, String);
@@ -69,27 +65,5 @@ Meteor.methods({
         }
       });
     }
-
-    // // if it's vs. AI, figure out the best move and then move there
-    // game = Games.findOne(game._id)
-    // if (game.currentPlayer === "AI") {
-    //   let start = new Date().getTime()
-    //   let bestMove = state.getBestMove()
-    //   let end = new Date().getTime()
-    //
-    //   console.log(`took ${end - start}ms to generate best move: ` +
-    //       `(${bestMove.row}, ${bestMove.col})`)
-    //
-    //   state = state.move(bestMove)
-    //
-    //   setBoard(gameId, state.getStringBoard())
-    //
-    //   if (state.hasWinner()) {
-    //     playerWon(game)
-    //     return
-    //   }
-    //
-    //   playerMoved(game)
-    // }
   }
 })
