@@ -75,6 +75,24 @@ class Home extends Component {
       return <div><button className="ui loading button"></button>Loading...</div>
     }
 
+    let loadMoreWatchable
+    if (this.props.watchableGames.length < this.props.watchableLimit.curValue) {
+      loadMoreWatchable = <div className="center"><a onClick={this.props.loadMoreWatchableGames.bind(this)}>Show more...</a></div>
+    }
+
+    let loadMoreMyGames
+    if (this.props.myGames.length < this.props.myGamesLimit.curValue) {
+      loadMoreMyGames = <div className="center"><a onClick={this.props.loadMoreMyGames.bind(this)}>Show more...</a></div>
+    }
+
+    let loadMoreJoinableGames
+    if (this.props.joinableGames.length < this.props.creatingLimit.curValue) {
+      loadMoreJoinableGames = <div className="center"><a onClick={this.props.loadMoreCreatingGames.bind(this)}>Show more...</a></div>
+    }
+
+    console.log("length", this.props.joinableGames.length)
+    console.log("limit", this.props.creatingLimit.curValue)
+
     return (
       <div>
         <div id="mainHeader" className="ui inverted vertical masthead center aligned segment">
@@ -89,15 +107,20 @@ class Home extends Component {
 
         <div className="ui container findMoreGames">
           <div className="ui grid">
-            <div className="eight wide column">
-              <h2 className="center">Watch a Game</h2>
-              { this.renderGames(this.props.startedGames, true) }
-              <a onClick={this.props.loadMoreStartedGames.bind(this)}>Show more...</a>
+            <div className="five wide column">
+              <h2 className="center">Your Games</h2>
+              { this.renderGames(this.props.myGames, true) }
+              {loadMoreWatchable}
             </div>
-            <div className="eight wide column">
+            <div className="five wide column">
+              <h2 className="center">Watch a Game</h2>
+              { this.renderGames(this.props.watchableGames, true) }
+              {loadMoreMyGames}
+            </div>
+            <div className="five wide column">
               <h2 className="center">Join a Game</h2>
               { this.renderGames(this.props.joinableGames, false) }
-              <a onClick={this.props.loadMoreStartedGames.bind(this)}>Show more...</a>
+              {loadMoreJoinableGames}
             </div>
           </div>
 
@@ -112,23 +135,39 @@ class Home extends Component {
 export default createContainer({
   getInitialState() {
     return {
-      startedLimit: new ReactiveVar(5),
+      watchableLimit: new ReactiveVar(5),
+      myGamesLimit: new ReactiveVar(5),
       creatingLimit: new ReactiveVar(5)
     }
   },
   getMeteorData(props, state) {
-    const { startedLimit, creatingLimit } = state
+    let loggedInUser = Meteor.user() ? Meteor.user()._id : null
 
-    let startedSub =
-        Meteor.subscribe("listGames", "started", startedLimit.get())
-    let startedGames = Games.find({
-      status: 'started'
+    const { watchableLimit, myGamesLimit, creatingLimit } = state
+    let watchableSub =
+        Meteor.subscribe("watchableGames", watchableLimit.get())
+    let watchableGames = Games.find({
+      status: 'started',
+      p1: { $ne: loggedInUser },
+      p2: { $ne: loggedInUser },
     }, {
-      limit: startedLimit.get()
+      limit: watchableLimit.get()
+    }).fetch()
+
+    let myGamesSub =
+        Meteor.subscribe("myGames", myGamesLimit.get())
+    let myGames = Games.find({
+      status: 'started',
+      $or: [
+        { p1: loggedInUser },
+        { p2: loggedInUser },
+      ],
+    }, {
+      limit: myGamesLimit.get()
     }).fetch()
 
     let creatingSub =
-        Meteor.subscribe("listGames", "creating", creatingLimit.get())
+        Meteor.subscribe("joinableGames", creatingLimit.get())
     let joinableGames = Games.find({
       status: 'creating'
     }, {
@@ -136,11 +175,16 @@ export default createContainer({
     }).fetch()
 
     return {
-      loggedInUser: Meteor.user(),
-      loadingData: !startedSub.ready() || !creatingSub.ready(),
-      startedGames,
+      watchableLimit,
+      myGamesLimit,
+      creatingLimit,
+      loggedInUser,
+      loadingData: !watchableSub.ready() || !myGamesSub.ready() || !creatingSub.ready(),
       joinableGames,
-      loadMoreStartedGames() { startedLimit.set(startedLimit.get() + 5) },
+      myGames,
+      watchableGames,
+      loadMoreWatchableGames() { watchableLimit.set(watchableLimit.get() + 5) },
+      loadMoreMyGames() { myGamesLimit.set(myGamesLimit.get() + 5) },
       loadMoreCreatingGames() { creatingLimit.set(creatingLimit.get() + 5) }
     }
   }

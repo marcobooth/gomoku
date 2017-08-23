@@ -11,12 +11,13 @@ Meteor.publish('game', function (gameId) {
   return Games.find(gameId)
 })
 
-Meteor.publish('listGames', function (status, limit) {
-  check(status, String)
+Meteor.publish('watchableGames', function (limit) {
   check(limit, Number)
 
   return Games.find({
-    status
+    status: 'started',
+    p1: { $ne: this.userId },
+    p2: { $ne: this.userId },
   }, {
     fields: {
       status: true, p1: true, p2: true, p1Username: true, p2Username: true
@@ -24,6 +25,38 @@ Meteor.publish('listGames', function (status, limit) {
     limit
   })
 })
+
+Meteor.publish('myGames', function (limit) {
+  check(limit, Number)
+
+  return Games.find({
+    status: 'started',
+    $or: [
+      { p1: this.userId },
+      { p2: this.userId },
+    ],
+  }, {
+    fields: {
+      status: true, p1: true, p2: true, p1Username: true, p2Username: true
+    },
+    limit
+  })
+})
+
+Meteor.publish('joinableGames', function (limit) {
+  check(limit, Number)
+
+  return Games.find({
+    status: 'creating'
+  }, {
+    fields: {
+      status: true, p1: true, p2: true, p1Username: true, p2Username: true
+    },
+    limit
+  })
+})
+
+
 
 Meteor.publish('messages', function (gameId) {
   check(gameId, String);
