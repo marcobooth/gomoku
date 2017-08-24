@@ -53,10 +53,7 @@ Meteor.methods({
       })
 
       Meteor.users.update(game.currentPlayer, { $inc: { won: 1 } })
-
       Meteor.users.update(otherPlayer, { $inc: { lost: 1 } })
-
-      return
     } else {
       Games.update(game._id, {
         $set: {

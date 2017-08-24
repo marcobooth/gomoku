@@ -37,6 +37,11 @@ _.times(threatFinders.length, (finderIndex) => {
 })
 const defaultCellThreats = Immutable.fromJS(jsCellThreats)
 
+const defaultStringMap = {
+  true: "white",
+  false: "black",
+}
+
 export const blankValues = []
 _.times(BOARD_SIZE, () => {
   let row = Array(BOARD_SIZE)
@@ -50,17 +55,24 @@ _.times(BOARD_SIZE, () => {
 // should be referenced as such:
 // playedExtensions[played.length][expansions.length]
 // TODO: take into account skipped
-var playedExtensions = {
-  2: { 0: .5, 1: 1, 2: 4 },
-  3: { 0: 15, 1: 20, 2: 400 },
-  4: { 0: 600, 1: 1000, 2: 1000000 },
-  5: { 0: Number.POSITIVE_INFINITY },
+const playedExtensions = {
+  2: { 0: 0, 1: 1, 2: 4 },
+  3: { 0: 0, 1: 20, 2: 300 },
+  4: { 0: 0, 1: 1000, 2: 1000000 },
+  5: {
+    0: Number.POSITIVE_INFINITY,
+    1: Number.POSITIVE_INFINITY,
+    2: Number.POSITIVE_INFINITY,
+  },
 }
 
 export class Board {
   // NOTE: player === true means that the player is the maximizing player
-  constructor(player = true, toStringMap, values, inPlayCells = defaultInPlay,
-        threats = [], cellThreats = defaultCellThreats, winningThreat) {
+  constructor(player = true, toStringMap = defaultStringMap, values,
+        inPlayCells = defaultInPlay,
+        threats = [],
+        cellThreats = defaultCellThreats,
+        winningThreat) {
     if (values) {
       this.values = values
     } else {
@@ -324,10 +336,9 @@ export class Board {
       }
     }
 
-    // TODO: remove any captured pieces, figure out if we need to remove any
-    // threats due to removal
-
     // figure out if we need to add/join any threats for the current player
+    // and whether we should remove any two-length threats for the opposition
+    // This is truly crazy stuff here. I'm so sorry to anyone reading it.
     for (finderIndex in threatFinders) {
       let stepCell = threatFinders[finderIndex]
 
@@ -351,8 +362,9 @@ export class Board {
 
           nextCell:
           for (i = 0; (i < 5) && (threat.span + skipped.length < 5); i++) {
-            // clever, eh? http://stackoverflow.com/a/3618366
-            stepCell(current, deltas[firstBit ^ secondBit])
+            // What does that carret do? http://stackoverflow.com/a/3618366
+            let delta = deltas[firstBit ^ secondBit]
+            stepCell(current, delta)
 
             // check to see if we're still on the board
             if (Board.outsideBoard(current)) break
@@ -408,20 +420,40 @@ export class Board {
               skipped.push(_.clone(current))
               potentialSpan++
             } else {
-              // it's the other player's piece -- time to quit this direction
-              // and check if this will disrupt any of their threats
+              // It's the other player's piece -- time to quit this direction
+              // and check if this will disrupt any of their threats.
+              // If it's the first piece we're looking at in this direction
+              // then it's possible we should remove it if the other player's
+              // threat is exactly two long.
               let threatsPath = [finderIndex, current.row, current.col]
               let threatsHere = newCellThreats.getIn(threatsPath)
 
               threatsHere.keySeq().forEach(threatIndex => {
-                let current = newThreats[threatIndex]
-                updated = Board.updateCanExpand(current, newValues)
+                let currentThreat = newThreats[threatIndex]
+
+                // check to see if we should remove the other player's pieces
+                if (currentThreat.span === 2) {
+                  var afterThreat = _.clone(current)
+                  stepCell(afterThreat, delta)
+                  stepCell(afterThreat, delta)
+
+                  if (!Board.outsideBoard(afterThreat) &&
+                      this.values[afterThreat.row][afterThreat.col] ===
+                          this.player) {
+                    // They've captured a threat! Time to take it off the board
+
+                    // go on to the next threa
+                    return
+                  }
+                }
+
+                updated = Board.updateCanExpand(currentThreat, newValues)
 
                 if (updated) {
                   newThreats[threatIndex] = updated
                 } else {
                   newCellThreats = Board.removeFromCellThreats(threatIndex,
-                      current, newCellThreats)
+                      currentThreat, newCellThreats)
                   delete newThreats[threatIndex]
                 }
               });
@@ -618,6 +650,7 @@ export class Board {
   }
 
   toString() {
+    console.log("this:", this);
     let singleCharMap = {
       true: this.toStringMap[true].substring(0, 1),
       false: this.toStringMap[false].substring(0, 1),
@@ -627,8 +660,9 @@ export class Board {
       return memo + _.map(rowValues, (value) => {
         return singleCharMap[value] || "."
       }).join(" ") + "\n"
-    }, "");
+    }, "")
 
+    // might have next move off
     return `next move will be by ${this.toStringMap[this.player]}\n` +
         `${singleCharMap[true]} = ${this.toStringMap[true]}\n` +
         `${singleCharMap[false]} = ${this.toStringMap[false]}\n` +

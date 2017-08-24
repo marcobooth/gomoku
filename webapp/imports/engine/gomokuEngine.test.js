@@ -57,6 +57,7 @@ describe('Gomoku engine', function () {
     })
 
     // check cellThreats
+    console.log("board.toString():", board.toString());
     let rowSeven = board.getCellThreats().getIn([1, 7])
     assert.deepEqual(rowSeven.get(0).toJS(), {})
     assert.deepEqual(rowSeven.get(1).toJS(), {})
@@ -667,5 +668,21 @@ describe('Gomoku engine', function () {
       { row: 10, col: 10 },
       { row: 11, col: 10 },
     ])
+  })
+
+  it("capturing pieces", function () {
+    let board = new Board()
+        .move({ row: 8, col: 8 }).move({ row: 8, col: 9 })
+        .move({ row: 8, col: 7 })
+    console.log("board:", board);
+    // assert.equal(board.getThreats())
+
+    board = board.move({ row: 8, col: 6 })
+    console.log("board:", board)
+
+    assert.equal(board.values[8][8], null)
+    assert.equal(board.values[8][7], null)
+
+    // assert.equal(board.cellThreats)
   })
 })
