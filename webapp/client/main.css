@@ -34,6 +34,10 @@
 .spaceHeader {
   margin-top: 50px;
 }
+.boldText {
+  font-size: 40px;
+  font-weight: bold;
+}
 
 
 /* board */
@@ -43,6 +47,11 @@
   position: relative;
   text-align: center;
   width: 50%;
+}
+.hover:hover {
+    cursor: pointer;
+    cursor: hand;
+    background-color: black;
 }
 .boardSquare:after {
   content: "";
