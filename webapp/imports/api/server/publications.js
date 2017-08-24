@@ -19,7 +19,7 @@ Meteor.publish('listGames', function (status, limit) {
     status
   }, {
     fields: {
-      status: true, p1: true, p2: true, p1Username: true, p2Username: true, winner: true, winnerMoves: true
+      status: true, p1: true, p2: true, p1Username: true, p2Username: true, winner: true
     },
     limit
   })

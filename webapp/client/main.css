@@ -48,6 +48,11 @@
   text-align: center;
   width: 50%;
 }
+.hover:hover {
+    cursor: pointer;
+    cursor: hand;
+    background-color: black;
+}
 .boardSquare:after {
   content: "";
   display: block;

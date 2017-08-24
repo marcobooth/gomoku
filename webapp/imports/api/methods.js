@@ -55,7 +55,7 @@ Meteor.methods({
     check(colour, String)
 
     ensureLoggedIn(this.userId)
-    const game = Games.findOne(gameId);
+    const game = Games.findOne(gameId)
 
     let playerToChange
     if (userId === game.p1) {
@@ -67,7 +67,7 @@ Meteor.methods({
       return
     }
 
-    Games.update(gameId, { $set: { [playerToChange] : colour }});
+    Games.update(gameId, { $set: { [playerToChange] : colour }})
   },
   'messages.insert'(gameId, text) {
     check(gameId, String);

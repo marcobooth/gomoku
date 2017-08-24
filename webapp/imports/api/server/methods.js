@@ -16,10 +16,16 @@ function playerMoved(game) {
   })
 }
 
-function playerWon(game, winningThreat) {
+function playerWon(game, winningThreat, userGaveUp) {
   let winningPlayer
   let losingPlayer
-  if (game.currentPlayer === game.p1) {
+  if (winningThreat === null && userGaveUp === game.p1) {
+    winningPlayer = game.p2
+    losingPlayer = game.p1
+  } else if (winningThreat === null && userGaveUp === game.p2) {
+    winningPlayer = game.p1
+    losingPlayer = game.p2
+  } else if (game.currentPlayer === game.p1) {
     winningPlayer = game.p1
     losingPlayer = game.p2
   } else {
@@ -27,9 +33,12 @@ function playerWon(game, winningThreat) {
     losingPlayer = game.p1
   }
 
-  let winningMoves = winningThreat.played.map(function(threat) {
-      return [threat["row"], threat["col"]]
-  })
+  let winningMoves
+  if (winningThreat !== null) {
+    winningMoves = winningThreat.played.map(function(threat) {
+        return [threat["row"], threat["col"]]
+    })
+  }
 
   Games.update(game._id, {
     $set: {
@@ -91,7 +100,7 @@ Meteor.methods({
     setBoard(gameId, state.getStringBoard())
 
     if (state.hasWinner()) {
-      playerWon(game, state.getWinningThreat())
+      playerWon(game, state.getWinningThreat(), null)
       return
     }
 
@@ -113,5 +122,12 @@ Meteor.methods({
 
       playerMoved(game)
     }
+  },
+  'games.giveUp'(gameId, userId) {
+    check(gameId, String)
+    check(userId, String)
+
+    let game = Games.findOne(gameId)
+    playerWon(game, null, userId)
   }
 })

@@ -28,16 +28,18 @@ export default class Board extends Component {
         {row.map((cell, pointIndex) => {
 
           let background = "white"
+          let hover
           if (cell.winningMove === true) {
             background = "lightblue"
-          }
-          else if (cell.color === this.props.game.p1) {
+          } else if (cell.color === this.props.game.p1) {
             background = this.props.game.p1Colour
           } else if (cell.color === this.props.game.p2) {
             background = this.props.game.p2Colour
+          } else if (Meteor.user() && Meteor.user()._id === this.props.game.currentPlayer) {
+            hover = "hover"
           }
 
-          return <div className="boardSquare" key={pointIndex}>
+          return <div className={"boardSquare " + hover} key={pointIndex}>
             <div className="content"
                  style={{ background }}
                  onClick={this.handleGameMove.bind(this, rowIndex, pointIndex)}>
