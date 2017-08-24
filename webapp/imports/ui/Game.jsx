@@ -33,20 +33,36 @@ class Game extends Component {
       readonly = game.status === "creating" || game.status === "winner" || (currentUser._id != game.currentPlayer)
     }
 
+
+    let gameOver
+    if (game.status === "winner") {
+      if (Meteor.user()._id === game.winner) {
+        gameOver = <div className="boldText">You won!</div>
+      } else if (Meteor.user()._id === game.p1 || Meteor.user()._id === game.p2) {
+        gameOver = <div className="boldText">You lost!</div>
+      } else {
+        gameOver = <div className="boldText">Game Over!</div>
+      }
+    }
+
     return (
       <div className="ui container spaceHeader">
         <div className="ui very relaxed stackable grid">
-          <div className="eight wide column">
-            <Board game={this.props.game} readonly={readonly} />
+          <div className="centered row">
+            {gameOver}
           </div>
-          <div className="eight wide column">
-            <h2 className="center">Game Information</h2>
-            <GameInfo game={this.props.game} spectatorMode={spectatorMode} readonly={readonly} currentUser={this.props.currentUser} />
-            <PieceColour game={this.props.game} currentUser={this.props.currentUser} />
-            <GameMessages />
+          <div className="row">
+            <div className="eight wide column">
+              <Board game={this.props.game} readonly={readonly} />
+            </div>
+            <div className="eight wide column">
+              <h2 className="center">Game Information</h2>
+              <GameInfo game={this.props.game} spectatorMode={spectatorMode} readonly={readonly} currentUser={this.props.currentUser} />
+              <PieceColour game={this.props.game} currentUser={this.props.currentUser} />
+              <GameMessages />
+            </div>
           </div>
         </div>
-
       </div>
     );
   }

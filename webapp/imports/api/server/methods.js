@@ -16,13 +16,7 @@ function playerMoved(game) {
   })
 }
 
-function playerWon(game) {
-  Games.update(game._id, {
-    $set: {
-      status: "winner"
-    }
-  })
-
+function playerWon(game, winningThreat) {
   let winningPlayer
   let losingPlayer
   if (game.currentPlayer === game.p1) {
@@ -32,6 +26,18 @@ function playerWon(game) {
     winningPlayer = game.p2
     losingPlayer = game.p1
   }
+
+  let winningMoves = winningThreat.played.map(function(threat) {
+      return [threat["row"], threat["col"]]
+  })
+
+  Games.update(game._id, {
+    $set: {
+      status: "winner",
+      winner: winningPlayer,
+      winningMoves
+    }
+  })
 
   Meteor.users.update(winningPlayer, {
     $inc: {
@@ -85,7 +91,7 @@ Meteor.methods({
     setBoard(gameId, state.getStringBoard())
 
     if (state.hasWinner()) {
-      playerWon(game)
+      playerWon(game, state.getWinningThreat())
       return
     }
 

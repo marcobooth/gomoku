@@ -53,6 +53,10 @@ Games.attachSchema(new SimpleSchema({
     type: String,
     optional: true
   },
+  winningMoves: {
+    type: [[Number]],
+    optional: true
+  }
 }))
 
 export const Messages = new Mongo.Collection('messages');
