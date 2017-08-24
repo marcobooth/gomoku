@@ -6,10 +6,9 @@ import { ensureLoggedIn } from '../../utilities/ensureLoggedIn.js'
 import { createEngineState } from "../../engine/gomokuEngine"
 
 Meteor.methods({
-  'games.handleMove'(gameId, rowIndex, pointIndex) {
+  'games.handleMove'(gameId, row, col) {
     check(gameId, String);
-    check(rowIndex, Number);
-    check(pointIndex, Number);
+    check([ row, col ], [Number]);
 
     let userId = Meteor.userId()
     ensureLoggedIn(userId)
@@ -24,17 +23,15 @@ Meteor.methods({
 
     // TODO: check status of game
 
-    if (game.board[rowIndex][pointIndex]) {
+    if (game.board[row][col]) {
       throw new Meteor.Error("cell-taken")
     }
 
     let otherPlayer = game.currentPlayer === game.p1 ? game.p2 : game.p1
-    let state = createEngineState(otherPlayer, game.currentPlayer,
+
+    let state = createEngineState(game.currentPlayer, game.currentPlayer,
         otherPlayer, game.board)
-    state = state.move({
-      row: rowIndex,
-      col: pointIndex
-    })
+    state = state.move({ row, col })
 
     if (!state) {
       return new Meteor.Error("invalid-move")

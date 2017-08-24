@@ -442,6 +442,7 @@ export class Board {
                           this.player) {
                     // They've captured a threat! Time to take it off the board
 
+                    console.log("captured a threat")
                     // go on to the next threa
                     return
                   }
@@ -705,12 +706,12 @@ export function createEngineState(nextPlayer, maximizingColor, minimixingColor,
     }
   }
 
-  let playerColors = Object.keys(colorMoves)
-
-  // figure out who went first
-  if (colorMoves[playerColors[0]].length < colorMoves[playerColors[1]].length ||
-      playerColors[0] !== nextPlayer) {
-    playerColors.reverse()
+  // first in playerColors went first
+  let playerColors
+  if (colorMoves[maximizingColor].length < colorMoves[minimixingColor].length) {
+    playerColors = [ minimixingColor, maximizingColor ]
+  } else {
+    playerColors = [ maximizingColor, minimixingColor ]
   }
 
   let toStringMap = {
