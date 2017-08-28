@@ -57,7 +57,6 @@ describe('Gomoku engine', function () {
     })
 
     // check cellThreats
-    console.log("board.toString():", board.toString());
     let rowSeven = board.getCellThreats().getIn([1, 7])
     assert.deepEqual(rowSeven.get(0).toJS(), {})
     assert.deepEqual(rowSeven.get(1).toJS(), {})
@@ -263,15 +262,16 @@ describe('Gomoku engine', function () {
 
     let col = 4
     board = board.move({ row: 5, col }).move({ row: 7, col })
-                .move({ row: 6, col })
+                .move({ row: 6, col }).move({ row: 12, col: 0 })
+                .move({ row: 4, col })
     assert.equal(board.getThreats().length, 1)
     assert.deepEqual(_.omit(board.getThreats()[0], "score"), {
       player: true,
       finderIndex: "0",
-      played: [ { row: 5, col }, { row: 6, col } ],
+      played: [ { row: 4, col }, { row: 5, col }, { row: 6, col } ],
       skipped: [],
-      expansions: [ { row: 4, col } ],
-      span: 2,
+      expansions: [ { row: 3, col } ],
+      span: 3,
     })
 
     // block the true player from expanding
@@ -437,10 +437,10 @@ describe('Gomoku engine', function () {
     boardValues[4][6] = "black"
     boardValues[4][7] = "black"
 
-    board = createEngineState("white", "white", "black", boardValues)
+    board = createEngineState("white", "black", boardValues)
     assert.deepEqual(board.getBestMove(), { row: 4, col: 8 })
 
-    board = createEngineState("black", "black", "white", boardValues)
+    board = createEngineState("black", "white", boardValues)
     assert.deepEqual(board.getInPlayCells(), {
       0: {
         1: true,
@@ -459,32 +459,33 @@ describe('Gomoku engine', function () {
     assert.deepEqual(board.getBestMove(), { row: 4, col: 8 })
   })
 
-  it("doesn't break on bug 1", function () {
-    let boardValues = [
-      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-      [null,null,null,null,null,"AI",null,null,null,null,null,"AI",null,null,null,null,null,null,null],
-      [null,null,null,null,null,null,"ME",null,null,null,"ME",null,null,null,null,null,null,null,null],
-      [null,null,null,null,null,null,null,"ME",null,"ME",null,null,null,null,null,null,null,null,null],
-      [null,null,null,null,null,null,null,null,"ME",null,null,null,null,null,null,null,null,null,null],
-      [null,null,null,null,null,null,null,"ME","AI","ME",null,null,null,null,null,null,null,null,null],
-      [null,null,null,null,null,null,"AI",null,"AI",null,"AI",null,null,null,null,null,null,null,null],
-      [null,null,null,null,null,null,null,"AI","AI",null,null,null,null,null,null,null,null,null,null],
-      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-    ]
-
-    let board = createEngineState("ME", "ME", "AI", boardValues)
-    assert.isDefined(board.getBestMove())
-  })
+  // TODO
+  // it("doesn't break on bug 1", function () {
+  //   let boardValues = [
+  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+  //     [null,null,null,null,null,"AI",null,null,null,null,null,"AI",null,null,null,null,null,null,null],
+  //     [null,null,null,null,null,null,"ME",null,null,null,"ME",null,null,null,null,null,null,null,null],
+  //     [null,null,null,null,null,null,null,"ME",null,"ME",null,null,null,null,null,null,null,null,null],
+  //     [null,null,null,null,null,null,null,null,"ME",null,null,null,null,null,null,null,null,null,null],
+  //     [null,null,null,null,null,null,null,"ME","AI","ME",null,null,null,null,null,null,null,null,null],
+  //     [null,null,null,null,null,null,"AI",null,"AI",null,"AI",null,null,null,null,null,null,null,null],
+  //     [null,null,null,null,null,null,null,"AI","AI",null,null,null,null,null,null,null,null,null,null],
+  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+  //   ]
+  //
+  //   let board = createEngineState("ME", "AI", boardValues)
+  //   assert.isDefined(board.getBestMove())
+  // })
 
   it("before and after string board should match", function () {
     let boardValues = [
@@ -510,14 +511,7 @@ describe('Gomoku engine', function () {
     ]
 
     // AI goes first and is maximizing player
-    let state = createEngineState("AI", "AI", "ME", boardValues)
-    assert.deepEqual(state.getStringBoard(), boardValues)
-
-    // I go first but AI is maximizing player
-    state = createEngineState("ME", "AI", "ME", boardValues)
-    assert.deepEqual(state.getValues())
-
-    console.log(state.getStringBoard().slice(8, 11))
+    let state = createEngineState("AI", "ME", boardValues)
     assert.deepEqual(state.getStringBoard(), boardValues)
   })
 
@@ -545,7 +539,7 @@ describe('Gomoku engine', function () {
       [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
     ]
 
-    let state = createEngineState("ME", "ME", "AI", boardValues)
+    let state = createEngineState("ME", "AI", boardValues)
   })
   // TODO: no way of winning :'(
 
@@ -670,19 +664,147 @@ describe('Gomoku engine', function () {
     ])
   })
 
-  it("capturing pieces", function () {
-    let board = new Board()
-        .move({ row: 8, col: 8 }).move({ row: 8, col: 9 })
-        .move({ row: 8, col: 7 })
-    console.log("board:", board);
-    // assert.equal(board.getThreats())
+  it("simple capturing pieces", function () {
+    let row = 8
 
-    board = board.move({ row: 8, col: 6 })
-    console.log("board:", board)
+    let board = new Board()
+        .move({ row, col: 8 }).move({ row, col: 9 })
+        .move({ row, col: 7 })
+    // console.log("board:", board);
+
+    assert.deepEqual(_.omit(board.getThreats()[0], "score"), {
+      player: true,
+      finderIndex: "1",
+      played:[
+        { row, col: 7 },
+        { row, col: 8 }
+      ],
+      skipped:[],
+      expansions:[ { row, col: 6 } ],
+      span: 2,
+    })
+
+    board = board.move({ row, col: 6 })
+    // console.log("board:", board)
 
     assert.equal(board.values[8][8], null)
     assert.equal(board.values[8][7], null)
+    assert.equal(board.threats.length, 2)
+    assert.equal(board.threats[0], undefined)
 
-    // assert.equal(board.cellThreats)
+    assert.deepEqual(_.omit(board.threats[1], "score"), {
+      player: false,
+      finderIndex: "1",
+      played:[ { row, col: 6 }, { row, col: 9 } ],
+      skipped:[ { row, col: 7 }, { row, col: 8 } ],
+      expansions:[ { row, col: 5 }, { row, col: 10 } ],
+      span: 4,
+    })
+
+    assert.deepEqual(board.cellThreats.toJS()[1][8], [
+      {},{},{},{},{},{},
+      {"1":false}, {"1":false}, {"1":false}, {"1":false},
+      {},{},{},{},{},{},{},{},{},
+    ])
   })
+
+  it("more difficult capturing pieces", function () {
+    let row = 8
+
+    let board = new Board()
+        .move({ row, col: 8 }).move({ row: 7, col: 7 })
+        .move({ row, col: 7 }).move({ row: 7, col: 8 })
+        .move({ row: 0, col: 0 }).move({ row: 9, col: 7 })
+        .move({ row: 8, col: 0 }).move({ row: 9, col: 8 })
+        .move({ row: 0, col: 8 }).move({ row, col: 9 })
+        .move({ row: 18, col: 0 })
+
+    console.log("board:", board);
+    console.log("board.toString():", board.toString());
+
+    // next move will be by black ...
+    // w . . . . . . . w . . . . . . . . . .
+    // . . . . . . . . . . . . . . . . . . .
+    // . . . . . . . . . . . . . . . . . . .
+    // . . . . . . . . . . . . . . . . . . .
+    // . . . . . . . . . . . . . . . . . . .
+    // . . . . . . . . . . . . . . . . . . .
+    // . . . . . . . . . . . . . . . . . . .
+    // . . . . . . . b b . . . . . . . . . .
+    // w . . . . . . w w b . . . . . . . . .
+    // . . . . . . . b b . . . . . . . . . .
+    // . . . . . . . . . . . . . . . . . . .
+    // . . . . . . . . . . . . . . . . . . .
+    // . . . . . . . . . . . . . . . . . . .
+    // . . . . . . . . . . . . . . . . . . .
+    // . . . . . . . . . . . . . . . . . . .
+    // . . . . . . . . . . . . . . . . . . .
+    // . . . . . . . . . . . . . . . . . . .
+    // . . . . . . . . . . . . . . . . . . .
+    // w . . . . . . . . . . . . . . . . . .
+
+    assert.equal(board.threats.length, 5)
+    assert.deepEqual(_.omit(board.getThreats()[0], "score"), {
+      player: true,
+      finderIndex: "1",
+      played:[
+        { row, col: 7 },
+        { row, col: 8 }
+      ],
+      skipped:[],
+      expansions:[ { row, col: 6 } ],
+      span: 2,
+    })
+
+    // move to capture the pieces
+    board = board.move({ row, col: 6 })
+    console.log("board.toString():", board.toString());
+    console.log("board:", board);
+
+    assert.equal(board.values[8][8], null)
+    assert.equal(board.values[8][7], null)
+    assert.equal(board.threats.length, 10)
+    assert.equal(board.threats[0], undefined)
+
+    // assert.deepEqual(_.omit(board.threats[1], "score"), {
+    //   player: false,
+    //   finderIndex: "1",
+    //   played:[ { row, col: 6 }, { row, col: 9 } ],
+    //   skipped:[ { row, col: 7 }, { row, col: 8 } ],
+    //   expansions:[ { row, col: 5 }, { row, col: 10 } ],
+    //   span: 4,
+    // })
+    //
+    // assert.deepEqual(board.cellThreats.toJS()[1][8], [
+    //   {},{},{},{},{},{},
+    //   {"1":false}, {"1":false}, {"1":false}, {"1":false},
+    //   {},{},{},{},{},{},{},{},{},
+    // ])
+
+    // TODO: add threats that could be formed through the removed squares
+  })
+
+  // TODO: merging threats that are too long overall
+  // TODO:
+
+  // next move will be by black ...
+  // w . . . . . . . w . . . . . . . . . .
+  // . . . . . . . . . . . . . . . . . . .
+  // . . . . . . . . . . . . . . . . . . .
+  // . . . . . . . . . . . . . . . . . . .
+  // . . . . . . . b . . . . . . . . . . .
+  // . . . . . . . . b . . . . . . . . . .
+  // . . . . . . . . . . . . . . . . . . .
+  // . . . . . . . b b . . . . . . . . . .
+  // w . . . . . . w w b . . . . . . . . .
+  // . . . . . . . b b . . . . . . . . . .
+  // . . . . . . . . b . . . . . . . . . .
+  // . . . . . . . b . . . . . . . . . . .
+  // . . . . . . . . . . . . . . . . . . .
+  // . . . . . . . . . . . . . . . . . . .
+  // . . . . . . . . . . . . . . . . . . .
+  // . . . . . . . . . . . . . . . . . . .
+  // . . . . . . . . . . . . . . . . . . .
+  // . . . . . . . . . . . . . . . . . . .
+  // w . . . . . . . . . . . . . . . . . .
 })

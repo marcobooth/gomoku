@@ -263,6 +263,17 @@ export class Board {
     return row < 0 || row >= BOARD_SIZE || col < 0 || col >= BOARD_SIZE;
   }
 
+  static connectThreatsOver(player, { row, col }, newVales, threats,
+      cellThreats) {
+    // TODO: here
+    _.each(threatFinders, (finder) => {
+      // go up to 3 away and see what we find
+      
+    })
+
+    return cellThreats
+  }
+
   move({ row, col }) {
     // if there's already a piece there, it's an invalid move
     if (this.values[row][col] !== null) return undefined
@@ -440,10 +451,24 @@ export class Board {
                   if (!Board.outsideBoard(afterThreat) &&
                       this.values[afterThreat.row][afterThreat.col] ===
                           this.player) {
+                    // TODO: HERE
                     // They've captured a threat! Time to take it off the board
 
-                    console.log("captured a threat")
-                    // go on to the next threa
+                    _.each(currentThreat.played, (location) => {
+                      newValues[location.row][location.col] = null
+                    })
+                    newCellThreats = Board.removeFromCellThreats(threatIndex,
+                        currentThreat, newCellThreats)
+                    delete newThreats[threatIndex]
+
+                    // connect any threats that might span the newly
+                    // removed pieces
+                    _.each(currentThreat.played, (location) => {
+                      newCellThreats = Board.connectThreatsOver(player,
+                          location, newValues, newThreats, newCellThreats)
+                    })
+
+                    // go on to the next threat
                     return
                   }
                 }
@@ -651,7 +676,6 @@ export class Board {
   }
 
   toString() {
-    console.log("this:", this);
     let singleCharMap = {
       true: this.toStringMap[true].substring(0, 1),
       false: this.toStringMap[false].substring(0, 1),
@@ -681,12 +705,11 @@ export class Board {
 logging = false
 var GLOBAL_DEPTH = 3
 
-export function createEngineState(nextPlayer, maximizingColor, minimixingColor,
-    colorValues) {
+export function createEngineState(nextPlayer, otherPlayer, colorValues) {
   // convert colorValues to something we can feed into the move function
-  let colorMoves = {
-    [ minimixingColor ]: [],
-    [ maximizingColor ]: [],
+  let playerMoves = {
+    [ otherPlayer ]: [],
+    [ nextPlayer ]: [],
   }
 
   for (let row in colorValues) {
@@ -694,11 +717,11 @@ export function createEngineState(nextPlayer, maximizingColor, minimixingColor,
       let value = colorValues[row][col]
 
       if (value) {
-        if (!colorMoves[value]) {
-          colorMoves[value] = []
+        if (!playerMoves[value]) {
+          playerMoves[value] = []
         }
 
-        colorMoves[value].push({
+        playerMoves[value].push({
           row: parseInt(row),
           col: parseInt(col)
         })
@@ -706,27 +729,29 @@ export function createEngineState(nextPlayer, maximizingColor, minimixingColor,
     }
   }
 
-  // first in playerColors went first
-  let playerColors
-  if (colorMoves[maximizingColor].length < colorMoves[minimixingColor].length) {
-    playerColors = [ minimixingColor, maximizingColor ]
+  // first in players went first (important below)
+  let players
+  if (playerMoves[nextPlayer].length < playerMoves[otherPlayer].length) {
+    players = [ otherPlayer, nextPlayer ]
+  } else if (playerMoves[nextPlayer].length > playerMoves[otherPlayer].length) {
+    players = [ nextPlayer, otherPlayer ]
   } else {
-    playerColors = [ maximizingColor, minimixingColor ]
+    players = [ otherPlayer, nextPlayer ]
   }
 
   let toStringMap = {
-    true: maximizingColor,
-    false: minimixingColor,
+    true: nextPlayer,
+    false: otherPlayer,
   }
-  let board = new Board(playerColors[0] === nextPlayer, toStringMap)
+  let board = new Board(players[0] === nextPlayer, toStringMap)
 
   // recreate board move by move
   let count = 0
-  for (moveIndex in colorMoves[playerColors[0]]) {
-    board = board.move(colorMoves[playerColors[0]][moveIndex])
+  for (moveIndex in playerMoves[players[0]]) {
+    board = board.move(playerMoves[players[0]][moveIndex])
 
-    if (moveIndex < colorMoves[playerColors[1]].length) {
-      board = board.move(colorMoves[playerColors[1]][moveIndex])
+    if (moveIndex < playerMoves[players[1]].length) {
+      board = board.move(playerMoves[players[1]][moveIndex])
     }
   }
 

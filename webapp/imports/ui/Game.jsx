@@ -13,6 +13,8 @@ import { createEngineState } from "../engine/gomokuEngine"
 class Game extends Component {
 
   componentWillMount() {
+    window.Games = Games
+
     this.engine = Tracker.autorun(() => {
       let game = Games.findOne(FlowRouter.getParam("_id"))
 
@@ -23,6 +25,7 @@ class Game extends Component {
           console.log("our turn")
         } else if (game.currentPlayer === "AI" &&
             (userId === game.p1 || userId === game.p2)) {
+          console.log("AI's turn -- running the engine");
           let state = createEngineState("AI", "AI", userId, game.board)
 
           let start = new Date().getTime()
