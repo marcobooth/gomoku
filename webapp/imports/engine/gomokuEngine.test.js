@@ -670,7 +670,8 @@ describe('Gomoku engine', function () {
     let board = new Board()
         .move({ row, col: 8 }).move({ row, col: 9 })
         .move({ row, col: 7 })
-    // console.log("board:", board);
+    console.log("before board:", board);
+    console.log("board.getThreats():", board.getThreats());
 
     assert.deepEqual(_.omit(board.getThreats()[0], "score"), {
       player: true,
@@ -685,13 +686,16 @@ describe('Gomoku engine', function () {
     })
 
     board = board.move({ row, col: 6 })
-    // console.log("board:", board)
+    console.log("after board:", board)
+    console.log("board.getThreats():", board.getThreats());
+    console.log("board.toString():", board.toString());
 
     assert.equal(board.values[8][8], null)
     assert.equal(board.values[8][7], null)
-    assert.equal(board.threats.length, 2)
     assert.equal(board.threats[0], undefined)
+    assert.equal(board.threats.length, 2)
 
+    console.log("board.threats[1]:", board.threats[1]);
     assert.deepEqual(_.omit(board.threats[1], "score"), {
       player: false,
       finderIndex: "1",
@@ -719,8 +723,8 @@ describe('Gomoku engine', function () {
         .move({ row: 0, col: 8 }).move({ row, col: 9 })
         .move({ row: 18, col: 0 })
 
-    console.log("board:", board);
-    console.log("board.toString():", board.toString());
+    // console.log("board:", board);
+    // console.log("board.toString():", board.toString());
 
     // next move will be by black ...
     // w . . . . . . . w . . . . . . . . . .
@@ -758,8 +762,8 @@ describe('Gomoku engine', function () {
 
     // move to capture the pieces
     board = board.move({ row, col: 6 })
-    console.log("board.toString():", board.toString());
-    console.log("board:", board);
+    // console.log("board.toString():", board.toString());
+    // console.log("board:", board);
 
     assert.equal(board.values[8][8], null)
     assert.equal(board.values[8][7], null)
@@ -807,4 +811,6 @@ describe('Gomoku engine', function () {
   // . . . . . . . . . . . . . . . . . . .
   // . . . . . . . . . . . . . . . . . . .
   // w . . . . . . . . . . . . . . . . . .
+
+  // updateThreatsAround recursion check
 })

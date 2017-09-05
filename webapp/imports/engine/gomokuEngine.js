@@ -263,15 +263,188 @@ export class Board {
     return row < 0 || row >= BOARD_SIZE || col < 0 || col >= BOARD_SIZE;
   }
 
-  static connectThreatsOver(player, { row, col }, newVales, threats,
-      cellThreats) {
-    // TODO: here
-    _.each(threatFinders, (finder) => {
-      // go up to 3 away and see what we find
-      
-    })
+  static updateThreatsAround(player, { row, col }, values, threats,
+      cellThreats, winningThreat) {
+    // figure out if we need to add/join any threats for the current player
+    // and whether we should remove any two-length threats for the opposition
+    // This is truly crazy stuff here. I'm so sorry to anyone reading it.
+    for (finderIndex in threatFinders) {
+      // go backwards and then forwards, adding to the threat in each direction,
+      // and then do the reverse of all that
+      let deltas = [ -1, 1 ]
+      let addThreats = []
+      let joinedThreats = {}
 
-    return cellThreats
+      _.each([ false, true ], (firstBit) => {
+        let threat = Board.newThreat(player, finderIndex, { row, col })
+        let potentialSpan = 1
+
+        // go the other way the second time around
+        for (secondBit of [ false, true ]) {
+          let current = { row, col }
+          let skipped = []
+
+          // What does that carret do? http://stackoverflow.com/a/3618366
+          let delta = deltas[firstBit ^ secondBit]
+
+          nextCell:
+          for (i = 0; (i < 5) && (threat.span + skipped.length < 5); i++) {
+            threatFinders[finderIndex](current, delta)
+
+            // check to see if we're still on the board
+            if (Board.outsideBoard(current)) break
+
+            let value = values[current.row][current.col]
+            if (value === player) {
+              // if the cell we're looking at is part of a threat with
+              // this finder, check to see if this should join that threat.
+              let threatsPath = [finderIndex, current.row, current.col]
+              let currentThreats = cellThreats.getIn(threatsPath)
+
+              for (let threatIndex of currentThreats.keys()) {
+                // don't join it if it's already been joined
+                // NOTE: joinedThreats has larger scope
+                if (joinedThreats[threatIndex]) continue nextCell
+
+                // check to see if we should join that threat
+                let potentialLocations = threat.played
+                    .concat(threat.skipped).concat(skipped)
+                let overlap = _.reduce(potentialLocations, (total, loc) => {
+                  let path = [finderIndex, loc.row, loc.col, threatIndex]
+                  if (cellThreats.getIn(path) !== undefined) {
+                    total += 1
+                  }
+
+                  return total;
+                }, 0)
+
+                let existing = threats[threatIndex]
+                let toExtend = threat.span + skipped.length - overlap
+                if (existing.span + toExtend <= 5) {
+                  joinedThreats[threatIndex] = true
+
+                  cellThreats = Board.mergeThreats(existing, threat,
+                      values, cellThreats, threatIndex, skipped)
+                  threats[threatIndex] = threat
+
+                  if (threat.played.length === 5) {
+                    winningThreat = threat
+                  }
+
+                  return
+                }
+              }
+
+              threat.played.push(_.clone(current))
+              threat.skipped = threat.skipped.concat(skipped)
+              threat.span += 1 + skipped.length
+              skipped = []
+              potentialSpan++
+            } else if (value === null) {
+              // it's an empty spot
+              skipped.push(_.clone(current))
+              potentialSpan++
+            } else {
+              // It's the other player's piece -- time to quit this direction
+              // and check if this will disrupt any of their threats.
+              // If it's the first piece we're looking at in this direction
+              // then it's possible we should remove it if the other player's
+              // threat is exactly two long.
+              let threatsPath = [finderIndex, current.row, current.col]
+              let threatsHere = cellThreats.getIn(threatsPath)
+
+              threatsHere.keySeq().forEach(threatIndex => {
+                let currentThreat = threats[threatIndex]
+
+                // Check to see if we should remove the other player's pieces.
+                // Only do this if the player just moved there to avoid
+                // recursion.
+                if (currentThreat.span === 2 && values[row][col] === player) {
+                  var afterThreat = _.clone(current)
+                  threatFinders[finderIndex](afterThreat, delta)
+                  threatFinders[finderIndex](afterThreat, delta)
+
+                  if (!Board.outsideBoard(afterThreat) &&
+                      values[afterThreat.row][afterThreat.col] === player) {
+                    // They've captured a threat! Time to take it off the board
+
+                    _.each(currentThreat.played, (location) => {
+                      values[location.row][location.col] = null
+                    })
+                    cellThreats = Board.removeFromCellThreats(threatIndex,
+                        currentThreat, cellThreats)
+                    delete threats[threatIndex]
+
+                    // connect any threats that might span the newly
+                    // removed pieces
+                    _.each(currentThreat.played, (location) => {
+                      // TODO: fix winningThreat
+                      ({ cellThreats, winningThreat } =
+                          Board.updateThreatsAround(player, location, values,
+                              threats, cellThreats))
+                    })
+
+                    // go on to the next threat
+                    return
+                  }
+                }
+
+                updated = Board.updateCanExpand(currentThreat, values)
+
+                if (updated) {
+                  threats[threatIndex] = updated
+                } else {
+                  cellThreats = Board.removeFromCellThreats(threatIndex,
+                      currentThreat, cellThreats)
+                  delete threats[threatIndex]
+                }
+              });
+
+              break
+            }
+          }
+        }
+
+        if (threat.played.length <= 1 || potentialSpan < 5) return
+
+        // make sure it's "new" - has a cell with no threats that've been
+        // joined
+        let noThreatsCell = false
+        let locations = threat.played.concat(threat.skipped)
+
+        for (index in locations) {
+          let location = locations[index]
+          let path = [finderIndex, location.row, location.col]
+          let threatIndexes = Object.keys(cellThreats.getIn(path).toJS())
+          let filteredIndexes = _.filter(threatIndexes, index => {
+            return !joinedThreats[index]
+          })
+
+          if (filteredIndexes.length === 0) {
+            noThreatsCell = true
+            break
+          }
+        }
+        if (!noThreatsCell) return
+
+        // sort the played array of the threats (useful later on)
+        threat.played.sort(Board.compareLocations)
+
+        addThreats.push(threat)
+      })
+
+      // if the two threats are the same remove the second one
+      if (addThreats.length > 1 &&
+          _.isEqual(addThreats[0].played, addThreats[1].played)) {
+        addThreats = addThreats.slice(0, 1)
+      }
+
+      _.each(addThreats, (threat) => {
+        cellThreats = Board.addThreat(threats, cellThreats, threat, values)
+      })
+    }
+
+    return { cellThreats, winningThreat }
   }
 
   move({ row, col }) {
@@ -307,9 +480,8 @@ export class Board {
 
           // find the first opposition piece
           let current = { row, col }
-          let stepCell = threatFinders[finderIndex]
           do {
-            stepCell(current, delta)
+            threatFinders[finderIndex](current, delta)
           } while (newValues[current.row][current.col] === null)
 
           // check to see if it's already in another threat
@@ -320,7 +492,7 @@ export class Board {
           let newThreat = Board.newThreat(!this.player, finderIndex,
               _.clone(current))
           for (var i = 0; i < 4; i++) {
-            stepCell(current, delta)
+            threatFinders[finderIndex](current, delta)
 
             if (Board.outsideBoard(current)) break
 
@@ -347,187 +519,10 @@ export class Board {
       }
     }
 
-    // figure out if we need to add/join any threats for the current player
-    // and whether we should remove any two-length threats for the opposition
-    // This is truly crazy stuff here. I'm so sorry to anyone reading it.
-    for (finderIndex in threatFinders) {
-      let stepCell = threatFinders[finderIndex]
-
-      // go backwards and then forwards, adding to the threat in each direction,
-      // and then do the reverse of all that
-      let deltas = [ -1, 1 ]
-      let addThreats = []
-
-      // keep track of which threats have been joined and updated
-      let joinedThreats = {}
-      let updatedThreats = {}
-
-      _.each([ false, true ], (firstBit) => {
-        let threat = Board.newThreat(this.player, finderIndex, { row, col })
-        let potentialSpan = 1
-
-        // go the other way the second time around
-        for (secondBit of [ false, true ]) {
-          let current = { row, col }
-          let skipped = []
-
-          nextCell:
-          for (i = 0; (i < 5) && (threat.span + skipped.length < 5); i++) {
-            // What does that carret do? http://stackoverflow.com/a/3618366
-            let delta = deltas[firstBit ^ secondBit]
-            stepCell(current, delta)
-
-            // check to see if we're still on the board
-            if (Board.outsideBoard(current)) break
-
-            let value = newValues[current.row][current.col]
-            if (value === this.player) {
-              // if the cell we're looking at is part of a threat with
-              // this finder, check to see if this should join that threat.
-              let threatsPath = [finderIndex, current.row, current.col]
-              let currentThreats = newCellThreats.getIn(threatsPath)
-
-              for (let threatIndex of currentThreats.keys()) {
-                // don't join it if it's already been joined
-                // NOTE: joinedThreats has larger scope
-                if (joinedThreats[threatIndex]) continue nextCell
-
-                // check to see if we should join that threat
-                let potentialLocations = threat.played
-                    .concat(threat.skipped).concat(skipped)
-                let overlap = _.reduce(potentialLocations, (total, loc) => {
-                  let path = [finderIndex, loc.row, loc.col, threatIndex]
-                  if (newCellThreats.getIn(path) !== undefined) {
-                    total += 1
-                  }
-
-                  return total;
-                }, 0)
-
-                let existing = newThreats[threatIndex]
-                let toExtend = threat.span + skipped.length - overlap
-                if (existing.span + toExtend <= 5) {
-                  joinedThreats[threatIndex] = true
-
-                  newCellThreats = Board.mergeThreats(existing, threat,
-                      newValues, newCellThreats, threatIndex, skipped)
-                  newThreats[threatIndex] = threat
-
-                  if (threat.played.length === 5) {
-                    winningThreat = threat
-                  }
-
-                  return
-                }
-              }
-
-              threat.played.push(_.clone(current))
-              threat.skipped = threat.skipped.concat(skipped)
-              threat.span += 1 + skipped.length
-              skipped = []
-              potentialSpan++
-            } else if (value === null) {
-              // it's an empty spot
-              skipped.push(_.clone(current))
-              potentialSpan++
-            } else {
-              // It's the other player's piece -- time to quit this direction
-              // and check if this will disrupt any of their threats.
-              // If it's the first piece we're looking at in this direction
-              // then it's possible we should remove it if the other player's
-              // threat is exactly two long.
-              let threatsPath = [finderIndex, current.row, current.col]
-              let threatsHere = newCellThreats.getIn(threatsPath)
-
-              threatsHere.keySeq().forEach(threatIndex => {
-                let currentThreat = newThreats[threatIndex]
-
-                // check to see if we should remove the other player's pieces
-                if (currentThreat.span === 2) {
-                  var afterThreat = _.clone(current)
-                  stepCell(afterThreat, delta)
-                  stepCell(afterThreat, delta)
-
-                  if (!Board.outsideBoard(afterThreat) &&
-                      this.values[afterThreat.row][afterThreat.col] ===
-                          this.player) {
-                    // TODO: HERE
-                    // They've captured a threat! Time to take it off the board
-
-                    _.each(currentThreat.played, (location) => {
-                      newValues[location.row][location.col] = null
-                    })
-                    newCellThreats = Board.removeFromCellThreats(threatIndex,
-                        currentThreat, newCellThreats)
-                    delete newThreats[threatIndex]
-
-                    // connect any threats that might span the newly
-                    // removed pieces
-                    _.each(currentThreat.played, (location) => {
-                      newCellThreats = Board.connectThreatsOver(player,
-                          location, newValues, newThreats, newCellThreats)
-                    })
-
-                    // go on to the next threat
-                    return
-                  }
-                }
-
-                updated = Board.updateCanExpand(currentThreat, newValues)
-
-                if (updated) {
-                  newThreats[threatIndex] = updated
-                } else {
-                  newCellThreats = Board.removeFromCellThreats(threatIndex,
-                      currentThreat, newCellThreats)
-                  delete newThreats[threatIndex]
-                }
-              });
-
-              break
-            }
-          }
-        }
-
-        if (threat.played.length <= 1 || potentialSpan < 5) return
-
-        // make sure it's "new" - has a cell with no threats that've been
-        // joined
-        let noThreatsCell = false
-        let locations = threat.played.concat(threat.skipped)
-
-        for (index in locations) {
-          let location = locations[index]
-          let path = [finderIndex, location.row, location.col]
-          let threatIndexes = Object.keys(newCellThreats.getIn(path).toJS())
-          let filteredIndexes = _.filter(threatIndexes, index => {
-            return !joinedThreats[index]
-          })
-
-          if (filteredIndexes.length === 0) {
-            noThreatsCell = true
-            break
-          }
-        }
-        if (!noThreatsCell) return
-
-        // sort the played array of the threats (useful later on)
-        threat.played.sort(Board.compareLocations)
-
-        addThreats.push(threat)
-      })
-
-      // if the two threats are the same remove the second one
-      if (addThreats.length > 1 &&
-          _.isEqual(addThreats[0].played, addThreats[1].played)) {
-        addThreats = addThreats.slice(0, 1)
-      }
-
-      _.each(addThreats, (threat) => {
-        newCellThreats = Board.addThreat(newThreats, newCellThreats, threat,
-            newValues)
-      })
-    }
+    let newInfo = Board.updateThreatsAround(this.player, { row, col },
+        newValues, newThreats, newCellThreats, winningThreat)
+    newCellThreats = newInfo.cellThreats
+    winningThreat = newInfo.winningThreat
 
     // update in play cells
     let newInPlay = this.inPlayCells.deleteIn([row, col])
