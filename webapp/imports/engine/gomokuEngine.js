@@ -87,13 +87,13 @@ export class Board {
     this.toStringMap = toStringMap
   }
 
-  static newThreat(player, finderIndex, location) {
+  static newThreat(player, finderIndex) {
     return {
       player,
       finderIndex,
 
       // locations where the player has already played
-      played: [ location ],
+      played: [],
 
       // locations that need to be "filled in" to complete the 5-in-a-row
       skipped: [],
@@ -102,7 +102,7 @@ export class Board {
       expansions: [],
 
       // the size of the threat based on just what's been played
-      span: 1,
+      span: 0,
     }
   }
 
@@ -173,13 +173,10 @@ export class Board {
         return skipped.row !== location.row || skipped.col !== location.col
       })
     })
+    newThreat.skipped = newThreat.skipped.concat(oldSkipped)
 
     _.each(oldThreat.played, (location) => {
       newThreat.played.push(location)
-    })
-
-    _.each(oldSkipped, (location) => {
-      newThreat.skipped.push(location)
     })
 
     // add non-duplicate values from justSkipped
@@ -276,13 +273,21 @@ export class Board {
       let joinedThreats = {}
 
       _.each([ false, true ], (firstBit) => {
-        let threat = Board.newThreat(player, finderIndex, { row, col })
+        let threat = Board.newThreat(player, finderIndex)
+        if (values[row][col] !== null) {
+          threat.played.push({ row, col })
+          threat.span++
+        }
+
         let potentialSpan = 1
 
         // go the other way the second time around
         for (secondBit of [ false, true ]) {
           let current = { row, col }
           let skipped = []
+          if (values[row][col] === null && secondBit === false) {
+            skipped = [{ row, col }]
+          }
 
           // What does that carret do? http://stackoverflow.com/a/3618366
           let delta = deltas[firstBit ^ secondBit]
@@ -298,8 +303,9 @@ export class Board {
             if (value === player) {
               // if the cell we're looking at is part of a threat with
               // this finder, check to see if this should join that threat.
-              let threatsPath = [finderIndex, current.row, current.col]
-              let currentThreats = cellThreats.getIn(threatsPath)
+              let currentThreats = cellThreats.getIn([
+                finderIndex, current.row, current.col
+              ])
 
               for (let threatIndex of currentThreats.keys()) {
                 // don't join it if it's already been joined
@@ -489,8 +495,10 @@ export class Board {
           if (newCellThreats.getIn(path).size) continue
 
           // continue the threat from there
-          let newThreat = Board.newThreat(!this.player, finderIndex,
-              _.clone(current))
+          let newThreat = Board.newThreat(!this.player, finderIndex)
+          newThreat.played.push(_.clone(current))
+          newThreat.span++
+
           for (var i = 0; i < 4; i++) {
             threatFinders[finderIndex](current, delta)
 
@@ -670,23 +678,29 @@ export class Board {
     })
   }
 
-  toString() {
-    let singleCharMap = {
-      true: this.toStringMap[true].substring(0, 1),
-      false: this.toStringMap[false].substring(0, 1),
-    }
-
-    let board = _.reduce(this.values, (memo, rowValues) => {
+  static boardValuesToString(boardValues, singleCharMap) {
+    return _.reduce(boardValues, (memo, rowValues) => {
       return memo + _.map(rowValues, (value) => {
         return singleCharMap[value] || "."
       }).join(" ") + "\n"
     }, "")
+  }
+
+  singleCharMap() {
+    return {
+      true: this.toStringMap[true].substring(0, 1),
+      false: this.toStringMap[false].substring(0, 1),
+    }
+  }
+
+  toString() {
+    let singleCharMap = this.singleCharMap()
 
     // might have next move off
     return `next move will be by ${this.toStringMap[this.player]}\n` +
         `${singleCharMap[true]} = ${this.toStringMap[true]}\n` +
         `${singleCharMap[false]} = ${this.toStringMap[false]}\n` +
-        board
+        Board.boardValuesToString(this.board, singleCharMap)
   }
 
   // getters for testing
