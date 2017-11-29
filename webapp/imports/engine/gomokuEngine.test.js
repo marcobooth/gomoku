@@ -8,6 +8,8 @@ Im = Immutable
 
 var { assert } = chai
 
+LOG = false
+
 describe('Gomoku engine', function () {
   it("doesn't accept invalid moves", function () {
     let board = new Board()
@@ -706,7 +708,134 @@ describe('Gomoku engine', function () {
     ])
   })
 
-  // it("more difficult capturing pieces", function () {
+  it("more difficult capturing pieces", function () {
+    let row = 8
+
+    let board = new Board()
+        .move({ row, col: 8 }).move({ row: 7, col: 7 })
+        .move({ row, col: 7 }).move({ row: 7, col: 8 })
+        .move({ row: 0, col: 0 }).move({ row: 9, col: 7 })
+        .move({ row: 8, col: 0 }).move({ row: 9, col: 8 })
+        .move({ row: 0, col: 8 }).move({ row, col: 9 })
+        .move({ row: 18, col: 0 })
+    // next move will be by black ...
+    //   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8
+    // 0 w . . . . . . . w . . . . . . . . . .
+    // 1 . . . . . . . . . . . . . . . . . . .
+    // 2 . . . . . . . . . . . . . . . . . . .
+    // 3 . . . . . . . . . . . . . . . . . . .
+    // 4 . . . . . . . . . . . . . . . . . . .
+    // 5 . . . . . . . . . . . . . . . . . . .
+    // 6 . . . . . . . . . . . . . . . . . . .
+    // 7 . . . . . . . b b . . . . . . . . . .
+    // 8 w . . . . . . w w b . . . . . . . . .
+    // 9 . . . . . . . b b . . . . . . . . . .
+    // 0 . . . . . . . . . . . . . . . . . . .
+    // 1 . . . . . . . . . . . . . . . . . . .
+    // 2 . . . . . . . . . . . . . . . . . . .
+    // 3 . . . . . . . . . . . . . . . . . . .
+    // 4 . . . . . . . . . . . . . . . . . . .
+    // 5 . . . . . . . . . . . . . . . . . . .
+    // 6 . . . . . . . . . . . . . . . . . . .
+    // 7 . . . . . . . . . . . . . . . . . . .
+    // 8 w . . . . . . . . . . . . . . . . . .
+
+    assert.equal(board.threats.length, 5)
+    assert.deepEqual(_.omit(board.getThreats()[0], "score"), {
+      player: true,
+      finderIndex: "1",
+      played:[ { row, col: 7 }, { row, col: 8 } ],
+      skipped:[],
+      expansions:[ { row, col: 6 } ],
+      span: 2,
+    })
+
+    // move to capture the pieces
+    board = board.move({ row, col: 6 })
+    // next move will be by white ...
+    //   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8
+    // 0 w . . . . . . . w . . . . . . . . . .
+    // 1 . . . . . . . . . . . . . . . . . . .
+    // 2 . . . . . . . . . . . . . . . . . . .
+    // 3 . . . . . . . . . . . . . . . . . . .
+    // 4 . . . . . . . . . . . . . . . . . . .
+    // 5 . . . . . . . . . . . . . . . . . . .
+    // 6 . . . . . . . . . . . . . . . . . . .
+    // 7 . . . . . . . b b . . . . . . . . . .
+    // 8 w . . . . . b . . b . . . . . . . . .
+    // 9 . . . . . . . b b . . . . . . . . . .
+    // 0 . . . . . . . . . . . . . . . . . . .
+    // 1 . . . . . . . . . . . . . . . . . . .
+    // 2 . . . . . . . . . . . . . . . . . . .
+    // 3 . . . . . . . . . . . . . . . . . . .
+    // 4 . . . . . . . . . . . . . . . . . . .
+    // 5 . . . . . . . . . . . . . . . . . . .
+    // 6 . . . . . . . . . . . . . . . . . . .
+    // 7 . . . . . . . . . . . . . . . . . . .
+    // 8 w . . . . . . . . . . . . . . . . . .
+
+    assert.equal(board.values[8][8], null)
+    assert.equal(board.values[8][7], null)
+
+    assert.equal(board.threats.length, 10)
+    assert.equal(board.threats[0], undefined)
+    assert.deepEqual(_.omit(board.threats[1], "score"), {
+      player: false, finderIndex: "1", span: 2,
+      played: [ { row: 7, col: 7 }, { row: 7, col: 8 } ],
+      skipped: [],
+      expansions: [ { row: 7, col: 6 }, { row: 7, col: 9 } ]
+    })
+    assert.deepEqual(_.omit(board.threats[2], "score"), {
+      player: false, finderIndex: "1", span: 2,
+      played: [ { row: 9, col: 7 }, { row: 9, col: 8 } ],
+      skipped: [],
+      expansions: [ { row: 9, col: 6 }, { row:9, col: 9 } ]
+    })
+    assert.deepEqual(_.omit(board.threats[3], "score"), {
+      player: false, finderIndex: "2", span: 2,
+      played: [ { row: 7, col: 8 }, { row: 8, col: 9 } ],
+      skipped: [],
+      expansions: [ { row: 6, col: 7 }, { row: 9, col: 10 } ]
+    })
+    assert.deepEqual(_.omit(board.threats[4], "score"), {
+      player: false, finderIndex: "3", span: 2,
+      played: [ { row: 9, col: 8 }, { row: 8, col: 9 } ],
+      skipped: [],
+      expansions: [ { row: 10, col: 7 }, { row: 7, col: 10 } ]
+    })
+    assert.deepEqual(_.omit(board.threats[5], "score"), {
+      player: false, finderIndex: "0", span: 3,
+      played: [ { row: 7, col: 7 }, { row: 9, col: 7 } ],
+      skipped: [{ row: 8, col: 7 } ],
+      expansions: [ { row: 6, col: 7 }, { row: 10, col: 7 } ]
+    })
+    assert.deepEqual(_.omit(board.threats[6], "score"), {
+      player: false, finderIndex: "1", span: 4,
+      played: [ { row: 8, col: 6 }, { row: 8, col: 9 } ],
+      skipped: [{ row: 8, col: 7}, { row: 8, col: 8 } ],
+      expansions: [ { row: 8, col: 5 }, { row: 8, col: 10 } ]
+    })
+    assert.deepEqual(_.omit(board.threats[7], "score"), {
+      player: false, finderIndex: "0", span: 3,
+      played: [ { row: 7, col: 8 }, { row: 9, col: 8 } ],
+      skipped: [{ row: 8, col: 8 } ],
+      expansions: [ { row: 6, col: 8 }, { row: 10, col: 8 } ]
+    })
+    assert.deepEqual(_.omit(board.threats[8], "score"), {
+      player: false, finderIndex: "3", span: 2,
+      played: [ { row: 8, col: 6 }, { row: 7, col: 7 } ],
+      skipped: [],
+      expansions: [ { row: 9, col: 5 }, { row: 6, col: 8 } ]
+    })
+    assert.deepEqual(_.omit(board.threats[9], "score"), {
+      player: false, finderIndex: "2", span: 2,
+      played: [ { row: 8, col: 6 }, { row: 9, col: 7 } ],
+      skipped: [],
+      expansions: [ { row: 7, col: 5 }, { row: 10, col: 8 } ]
+    })
+  })
+
+  // it("very difficult capturing pieces", function () {
   //   let row = 8
   //
   //   let board = new Board()
@@ -716,70 +845,37 @@ describe('Gomoku engine', function () {
   //       .move({ row: 8, col: 0 }).move({ row: 9, col: 8 })
   //       .move({ row: 0, col: 8 }).move({ row, col: 9 })
   //       .move({ row: 18, col: 0 })
-  //
-  //   // console.log("board:", board);
-  //   // console.log("board.toString():", board.toString());
-  //
   //   // next move will be by black ...
-  //   // w . . . . . . . w . . . . . . . . . .
-  //   // . . . . . . . . . . . . . . . . . . .
-  //   // . . . . . . . . . . . . . . . . . . .
-  //   // . . . . . . . . . . . . . . . . . . .
-  //   // . . . . . . . . . . . . . . . . . . .
-  //   // . . . . . . . . . . . . . . . . . . .
-  //   // . . . . . . . . . . . . . . . . . . .
-  //   // . . . . . . . b b . . . . . . . . . .
-  //   // w . . . . . . w w b . . . . . . . . .
-  //   // . . . . . . . b b . . . . . . . . . .
-  //   // . . . . . . . . . . . . . . . . . . .
-  //   // . . . . . . . . . . . . . . . . . . .
-  //   // . . . . . . . . . . . . . . . . . . .
-  //   // . . . . . . . . . . . . . . . . . . .
-  //   // . . . . . . . . . . . . . . . . . . .
-  //   // . . . . . . . . . . . . . . . . . . .
-  //   // . . . . . . . . . . . . . . . . . . .
-  //   // . . . . . . . . . . . . . . . . . . .
-  //   // w . . . . . . . . . . . . . . . . . .
+  //   //   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8
+  //   // 0 w . . . . . . . w . . . . . . . . . .
+  //   // 1 . . . . . . . . . . . . . . . . . . .
+  //   // 2 . . . . . . . . . . . . . . . . . . .
+  //   // 3 . . . . . . . . . . . . . . . . . . .
+  //   // 4 . . . . . . . . . . . . . . . . . . .
+  //   // 5 . . . . . . . . . . . . . . . . . . .
+  //   // 6 . . . . . . . . . . . . . . . . . . .
+  //   // 7 . . . . . . . b b . . . . . . . . . .
+  //   // 8 w . . . . . . w w b . . . . . . . . .
+  //   // 9 . . . . . . . b b . . . . . . . . . .
+  //   // 0 . . . . . . . . . . . . . . . . . . .
+  //   // 1 . . . . . . . . . . . . . . . . . . .
+  //   // 2 . . . . . . . . . . . . . . . . . . .
+  //   // 3 . . . . . . . . . . . . . . . . . . .
+  //   // 4 . . . . . . . . . . . . . . . . . . .
+  //   // 5 . . . . . . . . . . . . . . . . . . .
+  //   // 6 . . . . . . . . . . . . . . . . . . .
+  //   // 7 . . . . . . . . . . . . . . . . . . .
+  //   // 8 w . . . . . . . . . . . . . . . . . .
   //
   //   assert.equal(board.threats.length, 5)
   //   assert.deepEqual(_.omit(board.getThreats()[0], "score"), {
   //     player: true,
   //     finderIndex: "1",
-  //     played:[
-  //       { row, col: 7 },
-  //       { row, col: 8 }
-  //     ],
+  //     played:[ { row, col: 7 }, { row, col: 8 } ],
   //     skipped:[],
   //     expansions:[ { row, col: 6 } ],
   //     span: 2,
   //   })
-  //
-  //   // move to capture the pieces
-  //   board = board.move({ row, col: 6 })
-  //   // console.log("board.toString():", board.toString());
-  //   // console.log("board:", board);
-  //
-  //   assert.equal(board.values[8][8], null)
-  //   assert.equal(board.values[8][7], null)
-  //   assert.equal(board.threats.length, 10)
-  //   assert.equal(board.threats[0], undefined)
-  //
-  //   // assert.deepEqual(_.omit(board.threats[1], "score"), {
-  //   //   player: false,
-  //   //   finderIndex: "1",
-  //   //   played:[ { row, col: 6 }, { row, col: 9 } ],
-  //   //   skipped:[ { row, col: 7 }, { row, col: 8 } ],
-  //   //   expansions:[ { row, col: 5 }, { row, col: 10 } ],
-  //   //   span: 4,
-  //   // })
-  //   //
-  //   // assert.deepEqual(board.cellThreats.toJS()[1][8], [
-  //   //   {},{},{},{},{},{},
-  //   //   {"1":false}, {"1":false}, {"1":false}, {"1":false},
-  //   //   {},{},{},{},{},{},{},{},{},
-  //   // ])
-  //
-  //   // TODO: add threats that could be formed through the removed squares
   // })
 
   // TODO: merging threats that are too long overall
@@ -807,4 +903,6 @@ describe('Gomoku engine', function () {
   // w . . . . . . . . . . . . . . . . . .
 
   // updateThreatsAround recursion check
+
+  // remove threats that are no longer a thing/remove that single square from it
 })

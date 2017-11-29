@@ -175,10 +175,6 @@ export class Board {
     })
     newThreat.skipped = newThreat.skipped.concat(oldSkipped)
 
-    _.each(oldThreat.played, (location) => {
-      newThreat.played.push(location)
-    })
-
     // add non-duplicate values from justSkipped
     _.each(justSkipped, (location) => {
       for (threatLoc of newThreat.skipped) {
@@ -190,8 +186,17 @@ export class Board {
       newThreat.skipped.push(location)
     })
 
+    // add new played, remove duplicates (bandaid #1)
+    let newPlayed = newThreat.played.concat(oldThreat.played)
+    newPlayed.sort(Board.compareLocations)
+    newPlayed = _.filter(newPlayed, (location, index) => {
+      if (index === 0) return true
+
+      return Board.compareLocations(newPlayed[index - 1], location) !== 0
+    })
+    newThreat.played = newPlayed
+
     // recalculate span
-    newThreat.played.sort(Board.compareLocations)
     let first = newThreat.played[0]
     let last = newThreat.played[newThreat.played.length - 1]
     let rowDiff = Math.abs(first.row - last.row)
@@ -700,7 +705,7 @@ export class Board {
     return `next move will be by ${this.toStringMap[this.player]}\n` +
         `${singleCharMap[true]} = ${this.toStringMap[true]}\n` +
         `${singleCharMap[false]} = ${this.toStringMap[false]}\n` +
-        Board.boardValuesToString(this.board, singleCharMap)
+        Board.boardValuesToString(this.values, singleCharMap)
   }
 
   // getters for testing
