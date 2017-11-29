@@ -10,6 +10,36 @@ export const BOARD_SIZE = 19
 const defaultInPlay = new Immutable.Map()
 
 
+// Utilities
+function printCellThreats(cellThreats) {
+  console.log("cell threats:");
+  cellThreats.entrySeq().forEach(([finderKey, values]) => {
+    console.log(` finderKey: ${finderKey}`)
+
+    values.entrySeq().forEach(([rowIndex, rowValues]) => {
+      let lineString = `  ${rowIndex < 10 ? " " : ""}${rowIndex}: [`
+
+      rowValues.entrySeq().forEach(([colIndex, colValues]) => {
+        let mapString = JSON.stringify(colValues.toJS())
+            .replace(/["{}]/g, "")
+            .replace(/true/g, "t")
+            .replace(/false/g, "f")
+
+        if (mapString === "") {
+          mapString = "|";
+        } else {
+          mapString = `${colIndex}: ` + mapString
+        }
+
+        lineString += `${mapString.padEnd(8)}`
+      })
+
+      console.log(lineString + " ]")
+    });
+  });
+}
+
+
 // define in which ways threats can be found
 // NOTE: step functions modify the passed object
 const threatFinders = [
@@ -493,10 +523,19 @@ export class Board {
           let current = { row, col }
           do {
             threatFinders[finderIndex](current, delta)
-          } while (newValues[current.row][current.col] === null)
+          } while (!Board.outsideBoard(current) &&
+              newValues[current.row][current.col] === null)
+
+          if (Board.outsideBoard(current)) continue;
 
           // check to see if it's already in another threat
           let path = [finderIndex, current.row, current.col]
+          if (!newCellThreats.getIn(path)) {
+            console.log("Found where it crashes!");
+            console.log("current:", current);
+            console.log("finderIndex:", finderIndex);
+            printCellThreats(newCellThreats)
+          }
           if (newCellThreats.getIn(path).size) continue
 
           // continue the threat from there
@@ -577,18 +616,25 @@ export class Board {
       })
     })
 
-    _.each(this.threats, (threat) => {
+    console.log("cellMoves:", cellMoves);
+
+    _.each(this.threats, (threat, threatIndex) => {
+      console.log("threatIndex:", threatIndex);
+      console.log("_.pick(threat, 'score', 'skipped', 'expansions'):", _.pick(threat, 'score', 'skipped', 'expansions'));
       let addToScore = ({ row, col }) => {
         if (!cellMoves[row]) {
           cellMoves[row] = {}
         }
 
         cellMoves[row][col] += Math.abs(threat.score)
+        console.log(`cellMoves[${row}][${col}]:`, cellMoves[row][col]);
       }
 
       _.each(threat.skipped, addToScore)
       _.each(threat.expansions, addToScore)
     })
+
+    console.log("cellMoves:", cellMoves);
 
     let moves = []
     _.each(cellMoves, (colValues, row) => {
@@ -636,7 +682,10 @@ export class Board {
 
     // console.log("    ".repeat(GLOBAL_DEPTH - depth), `moves count: ${moves.length}`)
     for (let move of moves) {
-      // console.log("    ".repeat(GLOBAL_DEPTH - depth), `MOVE for ${this.player}:`, move)
+      console.log("    ".repeat(GLOBAL_DEPTH - depth), `MOVE for ${this.player}:`, move)
+      if (move.score === 300 && move.row === 9 && move.col === 7) {
+        console.log("this.toString():", this.toString());
+      }
 
       let child = {
         value: this.move(move).alphabeta(depth - 1, alpha, beta).value,
