@@ -616,25 +616,25 @@ export class Board {
       })
     })
 
-    console.log("cellMoves:", cellMoves);
+    // console.log("cellMoves before:", cellMoves);
 
     _.each(this.threats, (threat, threatIndex) => {
-      console.log("threatIndex:", threatIndex);
-      console.log("_.pick(threat, 'score', 'skipped', 'expansions'):", _.pick(threat, 'score', 'skipped', 'expansions'));
+      // console.log("threatIndex:", threatIndex);
+      // console.log("_.pick(threat, 'score', 'skipped', 'expansions'):", _.pick(threat, 'score', 'skipped', 'expansions'));
       let addToScore = ({ row, col }) => {
         if (!cellMoves[row]) {
           cellMoves[row] = {}
         }
 
         cellMoves[row][col] += Math.abs(threat.score)
-        console.log(`cellMoves[${row}][${col}]:`, cellMoves[row][col]);
+        // console.log(`cellMoves[${row}][${col}]:`, cellMoves[row][col]);
       }
 
       _.each(threat.skipped, addToScore)
       _.each(threat.expansions, addToScore)
     })
 
-    console.log("cellMoves:", cellMoves);
+    // console.log("cellMoves after:", cellMoves);
 
     let moves = []
     _.each(cellMoves, (colValues, row) => {
@@ -682,10 +682,13 @@ export class Board {
 
     // console.log("    ".repeat(GLOBAL_DEPTH - depth), `moves count: ${moves.length}`)
     for (let move of moves) {
-      console.log("    ".repeat(GLOBAL_DEPTH - depth), `MOVE for ${this.player}:`, move)
-      if (move.score === 300 && move.row === 9 && move.col === 7) {
+      if (depth >= 3) {
+        console.log("    ".repeat(GLOBAL_DEPTH - depth), `MOVE for ${this.player}:`, move)
         console.log("this.toString():", this.toString());
       }
+      // if (move.score === 300 && move.row === 9 && move.col === 7) {
+      //   console.log("this.toString():", this.toString());
+      // }
 
       let child = {
         value: this.move(move).alphabeta(depth - 1, alpha, beta).value,
@@ -733,11 +736,15 @@ export class Board {
   }
 
   static boardValuesToString(boardValues, singleCharMap) {
-    return _.reduce(boardValues, (memo, rowValues) => {
-      return memo + _.map(rowValues, (value) => {
-        return singleCharMap[value] || "."
-      }).join(" ") + "\n"
-    }, "")
+    return "    " + [...Array(19).keys()]
+        .map(number => String(number).slice(-1))
+        .join(" ") + "\n" +
+      _.reduce(boardValues, (memo, rowValues, rowIndex) => {
+        return memo + `${String(rowIndex).padStart(2)}: ` +
+            _.map(rowValues, (value) => {
+              return singleCharMap[value] || "."
+            }).join(" ") + "\n"
+      }, "")
   }
 
   singleCharMap() {
