@@ -86,13 +86,13 @@ _.times(BOARD_SIZE, () => {
 // playedExtensions[played.length][expansions.length]
 // TODO: take into account skipped
 const playedExtensions = {
-  2: { 0: 0, 1: 1, 2: 4 },
-  3: { 0: 0, 1: 20, 2: 300 },
-  4: { 0: 0, 1: 1000, 2: 1000000 },
+  2: { 0: 0, 1: 5, 2: 8 },
+  3: { 0: 0, 1: 20, 2: 30 },
+  4: { 0: 0, 1: 50, 2: 10000 },
   5: {
-    0: Number.POSITIVE_INFINITY,
-    1: Number.POSITIVE_INFINITY,
-    2: Number.POSITIVE_INFINITY,
+    0: 100000000,
+    1: 100000000,
+    2: 100000000,
   },
 }
 
@@ -410,6 +410,9 @@ export class Board {
                     // They've captured a threat! Time to take it off the board
 
                     _.each(currentThreat.played, (location) => {
+                      // don't corrupt the board in other branches by creating
+                      // a copy of the row before modifying it
+                      values[location.row] = values[location.row].slice();
                       values[location.row][location.col] = null
                     })
                     cellThreats = Board.removeFromCellThreats(threatIndex,
@@ -495,7 +498,7 @@ export class Board {
     // create new values for everything, reusing as much memory as possible
     let newValues = this.values.slice();
     newValues[row] = this.values[row].slice()
-    let newThreats = this.threats.slice();
+    let newThreats = this.threats.slice()
     let newCellThreats = this.cellThreats
     let winningThreat = this.winningThreat
 
@@ -682,13 +685,7 @@ export class Board {
 
     // console.log("    ".repeat(GLOBAL_DEPTH - depth), `moves count: ${moves.length}`)
     for (let move of moves) {
-      if (depth >= 3) {
-        console.log("    ".repeat(GLOBAL_DEPTH - depth), `MOVE for ${this.player}:`, move)
-        console.log("this.toString():", this.toString());
-      }
-      // if (move.score === 300 && move.row === 9 && move.col === 7) {
-      //   console.log("this.toString():", this.toString());
-      // }
+      // console.log("    ".repeat(GLOBAL_DEPTH - depth), `MOVE for ${this.player}:`, move)
 
       let child = {
         value: this.move(move).alphabeta(depth - 1, alpha, beta).value,
