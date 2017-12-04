@@ -462,7 +462,6 @@ describe('Gomoku engine', function () {
   })
 
   it("doesn't change board to check for best move", function () {
-    // TODO XXX this needs to take less than 500 ms
     this.timeout(5000)
 
     let boardValues = [
@@ -575,369 +574,598 @@ describe('Gomoku engine', function () {
       [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
     ]
 
-    let state = createEngineState("ME", "AI", boardValues)
+    let state = createEngineState("AI", "ME", boardValues)
     let bestMove = state.getBestMove()
     assert.deepEqual(bestMove, { row: 1, col: 5 })
   })
 
-  // it("a game Teo won", function () {
-  //   // TODO: finish this test
-  //
-  //   // let gameObject = {
-  //   //   "_id" : "XQzPrX8Hb4nKiZw6d",
-  //   //   "board" : [
-  //   //       [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //   //       [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //   //       [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //   //       [null,null,null,null,null,null,"AI",null,null,null,null,null,"AI",null,null,null,null,null,null],
-  //   //       [null,null,null,null,null,null,null,"ME",null,"ME",null,"ME",null,null,null,null,null,null,null],
-  //   //       [null,null,null,null,null,null,null,null,"ME",null,"ME",null,null,null,null,null,null,null,null],
-  //   //       [null,null,null,null,null,null,null,null,null,"ME",null,null,null,null,null,null,null,null,null],
-  //   //       [null,null,null,null,null,null,"ME",null,"ME","AI","ME",null,null,null,null,null,null,null,null],
-  //   //       [null,null,null,null,null,null,null,"AI",null,"AI",null,"AI",null,null,null,null,null,null,null],
-  //   //       [null,null,null,null,null,null,null,null,"AI","AI","AI",null,null,null,null,null,null,null,null],
-  //   //       [null,null,null,null,null,null,null,null,null,"AI",null,null,null,null,null,null,null,null,null],
-  //   //       [null,null,null,null,null,null,null,null,"AI","ME",null,null,null,null,null,null,null,null,null],
-  //   //       [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //   //       [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //   //       [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //   //       [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //   //       [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //   //       [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //   //       [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //   //   ],
-  //   //   "currentPlayer" : "AI",
-  //   //   "p1" : "ME",
-  //   //   "p1Username" : "mokolodi1",
-  //   //   "status" : "started",
-  //   //   "p2" : "AI",
-  //   //   "p2Username" : "AI",
-  //   //   "p1Colour" : "red",
-  //   //   "p2Colour" : "blue",
-  //   //   "movesTaken" : 21
-  //   // }
-  // })
-  //
-  // it("a normal game", function () {
-  //   let boardValues = JSON.parse(JSON.stringify(blankValues))
-  //   boardValues[8][9] = "white"
-  //   boardValues[9][8] = "black"
-  //   boardValues[9][9] = "white"
-  //   boardValues[10][9] = "black"
-  //   boardValues[10][8] = "white"
-  //   boardValues[11][10] = "black"
-  //
-  //   board = createEngineState("white", "black", boardValues)
-  //   assert.equal(board.getThreats().length, 3)
-  //   assert.deepEqual(_.omit(board.getThreats()[0], "score"), {
-  //     player: false,
-  //     finderIndex: '2',
-  //     played: [ { row: 9, col: 8 }, { row: 10, col: 9 }, { row: 11, col: 10 } ],
-  //     skipped: [],
-  //     expansions: [ { row: 8, col: 7 }, { row: 12, col: 11 } ],
-  //     span: 3,
-  //   })
-  //   assert.deepEqual(_.omit(board.getThreats()[1], "score"), {
-  //     player: true,
-  //     finderIndex: '0',
-  //     played: [ { row: 8, col: 9 }, { row: 9, col: 9 } ],
-  //     skipped: [],
-  //     expansions: [ { row: 7, col: 9 } ],
-  //     span: 2,
-  //   })
-  //   assert.deepEqual(_.omit(board.getThreats()[2], "score"), {
-  //     player: true,
-  //     finderIndex: '3',
-  //     played: [ { row: 10, col: 8 }, { row: 9, col: 9 } ],
-  //     skipped: [],
-  //     expansions: [ { row: 11, col: 7 }, { row: 8, col: 10 } ],
-  //     span: 2,
-  //   })
-  //
-  //   // continue the game for a single move...
-  //   board = board.move({ row: 12, col: 11 }) // white
-  //   assert.deepEqual(_.omit(board.getThreats()[0], "score"), {
-  //     player: false,
-  //     finderIndex: '2',
-  //     played: [
-  //       { row: 9, col: 8 },
-  //       { row: 10, col: 9 },
-  //       { row: 11, col: 10 },
-  //       { row: 12, col: 11 },
-  //     ],
-  //     skipped: [],
-  //     expansions: [ { row: 8, col: 7 }, { row: 13, col: 12 } ],
-  //     span: 4,
-  //   })
-  //
-  //   boardValues[12][11] = "white"
-  //   boardValues[10][10] = "black"
-  //   boardValues[11][7] = "white"
-  //
-  //   board = createEngineState("black", "white", boardValues)
-  //   // assert.deepEqual(board.getBestMove(), { row: 8, col: 10 })
-  //
-  //   boardValues[8][10] = "black"
-  //   boardValues[8][7] = "white"
-  //   board = createEngineState("black", "white", boardValues)
-  //   // assert.deepEqual(board.getBestMove(), { row: 9, col: 10 })
-  //
-  //   boardValues[9][10] = "black"
-  //   boardValues[12][6] = "white"
-  //
-  //   board = createEngineState("black", "white", boardValues)
-  //   assert.equal(board.getWinningThreat().played, undefined)
-  //
-  //   // NOTE: black can win with { row: 7, col: 10 } or { row: 12, col: 10 }
-  //   // play winning move and make sure it figures out we've won
-  //   boardValues[7][10] = "black"
-  //   board = createEngineState("white", "black", boardValues)
-  //   assert.deepEqual(board.getWinningThreat().played, [
-  //     { row: 7, col: 10 },
-  //     { row: 8, col: 10 },
-  //     { row: 9, col: 10 },
-  //     { row: 10, col: 10 },
-  //     { row: 11, col: 10 },
-  //   ])
-  // })
-  //
-  // it("simple capturing pieces", function () {
-  //   let row = 8
-  //
-  //   let board = new Board()
-  //       .move({ row, col: 8 }).move({ row, col: 9 })
-  //       .move({ row, col: 7 })
-  //
-  //   assert.deepEqual(_.omit(board.getThreats()[0], "score"), {
-  //     player: true,
-  //     finderIndex: "1",
-  //     played:[
-  //       { row, col: 7 },
-  //       { row, col: 8 }
-  //     ],
-  //     skipped:[],
-  //     expansions:[ { row, col: 6 } ],
-  //     span: 2,
-  //   })
-  //
-  //   board = board.move({ row, col: 6 })
-  //
-  //   assert.equal(board.values[8][8], null)
-  //   assert.equal(board.values[8][7], null)
-  //   assert.equal(board.threats[0], undefined)
-  //   assert.equal(board.threats.length, 2)
-  //
-  //   assert.deepEqual(_.omit(board.threats[1], "score"), {
-  //     player: false,
-  //     finderIndex: "1",
-  //     played:[ { row, col: 6 }, { row, col: 9 } ],
-  //     skipped:[ { row, col: 7 }, { row, col: 8 } ],
-  //     expansions:[ { row, col: 5 }, { row, col: 10 } ],
-  //     span: 4,
-  //   })
-  //
-  //   assert.deepEqual(board.cellThreats.toJS()[1][8], [
-  //     {},{},{},{},{},{},
-  //     {"1":false}, {"1":false}, {"1":false}, {"1":false},
-  //     {},{},{},{},{},{},{},{},{},
-  //   ])
-  // })
-  //
-  // it("more difficult capturing pieces", function () {
-  //   let row = 8
-  //
-  //   let board = new Board()
-  //       .move({ row, col: 8 }).move({ row: 7, col: 7 })
-  //       .move({ row, col: 7 }).move({ row: 7, col: 8 })
-  //       .move({ row: 0, col: 0 }).move({ row: 9, col: 7 })
-  //       .move({ row: 8, col: 0 }).move({ row: 9, col: 8 })
-  //       .move({ row: 0, col: 8 }).move({ row, col: 9 })
-  //       .move({ row: 18, col: 0 })
-  //   // next move will be by black ...
-  //   //   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8
-  //   // 0 w . . . . . . . w . . . . . . . . . .
-  //   // 1 . . . . . . . . . . . . . . . . . . .
-  //   // 2 . . . . . . . . . . . . . . . . . . .
-  //   // 3 . . . . . . . . . . . . . . . . . . .
-  //   // 4 . . . . . . . . . . . . . . . . . . .
-  //   // 5 . . . . . . . . . . . . . . . . . . .
-  //   // 6 . . . . . . . . . . . . . . . . . . .
-  //   // 7 . . . . . . . b b . . . . . . . . . .
-  //   // 8 w . . . . . . w w b . . . . . . . . .
-  //   // 9 . . . . . . . b b . . . . . . . . . .
-  //   // 0 . . . . . . . . . . . . . . . . . . .
-  //   // 1 . . . . . . . . . . . . . . . . . . .
-  //   // 2 . . . . . . . . . . . . . . . . . . .
-  //   // 3 . . . . . . . . . . . . . . . . . . .
-  //   // 4 . . . . . . . . . . . . . . . . . . .
-  //   // 5 . . . . . . . . . . . . . . . . . . .
-  //   // 6 . . . . . . . . . . . . . . . . . . .
-  //   // 7 . . . . . . . . . . . . . . . . . . .
-  //   // 8 w . . . . . . . . . . . . . . . . . .
-  //
-  //   assert.equal(board.threats.length, 5)
-  //   assert.deepEqual(_.omit(board.getThreats()[0], "score"), {
-  //     player: true,
-  //     finderIndex: "1",
-  //     played:[ { row, col: 7 }, { row, col: 8 } ],
-  //     skipped:[],
-  //     expansions:[ { row, col: 6 } ],
-  //     span: 2,
-  //   })
-  //
-  //   // move to capture the pieces
-  //   board = board.move({ row, col: 6 })
-  //   // next move will be by white ...
-  //   //   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8
-  //   // 0 w . . . . . . . w . . . . . . . . . .
-  //   // 1 . . . . . . . . . . . . . . . . . . .
-  //   // 2 . . . . . . . . . . . . . . . . . . .
-  //   // 3 . . . . . . . . . . . . . . . . . . .
-  //   // 4 . . . . . . . . . . . . . . . . . . .
-  //   // 5 . . . . . . . . . . . . . . . . . . .
-  //   // 6 . . . . . . . . . . . . . . . . . . .
-  //   // 7 . . . . . . . b b . . . . . . . . . .
-  //   // 8 w . . . . . b . . b . . . . . . . . .
-  //   // 9 . . . . . . . b b . . . . . . . . . .
-  //   // 0 . . . . . . . . . . . . . . . . . . .
-  //   // 1 . . . . . . . . . . . . . . . . . . .
-  //   // 2 . . . . . . . . . . . . . . . . . . .
-  //   // 3 . . . . . . . . . . . . . . . . . . .
-  //   // 4 . . . . . . . . . . . . . . . . . . .
-  //   // 5 . . . . . . . . . . . . . . . . . . .
-  //   // 6 . . . . . . . . . . . . . . . . . . .
-  //   // 7 . . . . . . . . . . . . . . . . . . .
-  //   // 8 w . . . . . . . . . . . . . . . . . .
-  //
-  //   assert.equal(board.values[8][8], null)
-  //   assert.equal(board.values[8][7], null)
-  //
-  //   assert.equal(board.threats.length, 10)
-  //   assert.equal(board.threats[0], undefined)
-  //   assert.deepEqual(_.omit(board.threats[1], "score"), {
-  //     player: false, finderIndex: "1", span: 2,
-  //     played: [ { row: 7, col: 7 }, { row: 7, col: 8 } ],
-  //     skipped: [],
-  //     expansions: [ { row: 7, col: 6 }, { row: 7, col: 9 } ]
-  //   })
-  //   assert.deepEqual(_.omit(board.threats[2], "score"), {
-  //     player: false, finderIndex: "1", span: 2,
-  //     played: [ { row: 9, col: 7 }, { row: 9, col: 8 } ],
-  //     skipped: [],
-  //     expansions: [ { row: 9, col: 6 }, { row:9, col: 9 } ]
-  //   })
-  //   assert.deepEqual(_.omit(board.threats[3], "score"), {
-  //     player: false, finderIndex: "2", span: 2,
-  //     played: [ { row: 7, col: 8 }, { row: 8, col: 9 } ],
-  //     skipped: [],
-  //     expansions: [ { row: 6, col: 7 }, { row: 9, col: 10 } ]
-  //   })
-  //   assert.deepEqual(_.omit(board.threats[4], "score"), {
-  //     player: false, finderIndex: "3", span: 2,
-  //     played: [ { row: 9, col: 8 }, { row: 8, col: 9 } ],
-  //     skipped: [],
-  //     expansions: [ { row: 10, col: 7 }, { row: 7, col: 10 } ]
-  //   })
-  //   assert.deepEqual(_.omit(board.threats[5], "score"), {
-  //     player: false, finderIndex: "0", span: 3,
-  //     played: [ { row: 7, col: 7 }, { row: 9, col: 7 } ],
-  //     skipped: [{ row: 8, col: 7 } ],
-  //     expansions: [ { row: 6, col: 7 }, { row: 10, col: 7 } ]
-  //   })
-  //   assert.deepEqual(_.omit(board.threats[6], "score"), {
-  //     player: false, finderIndex: "1", span: 4,
-  //     played: [ { row: 8, col: 6 }, { row: 8, col: 9 } ],
-  //     skipped: [{ row: 8, col: 7}, { row: 8, col: 8 } ],
-  //     expansions: [ { row: 8, col: 5 }, { row: 8, col: 10 } ]
-  //   })
-  //   assert.deepEqual(_.omit(board.threats[7], "score"), {
-  //     player: false, finderIndex: "0", span: 3,
-  //     played: [ { row: 7, col: 8 }, { row: 9, col: 8 } ],
-  //     skipped: [{ row: 8, col: 8 } ],
-  //     expansions: [ { row: 6, col: 8 }, { row: 10, col: 8 } ]
-  //   })
-  //   assert.deepEqual(_.omit(board.threats[8], "score"), {
-  //     player: false, finderIndex: "3", span: 2,
-  //     played: [ { row: 8, col: 6 }, { row: 7, col: 7 } ],
-  //     skipped: [],
-  //     expansions: [ { row: 9, col: 5 }, { row: 6, col: 8 } ]
-  //   })
-  //   assert.deepEqual(_.omit(board.threats[9], "score"), {
-  //     player: false, finderIndex: "2", span: 2,
-  //     played: [ { row: 8, col: 6 }, { row: 9, col: 7 } ],
-  //     skipped: [],
-  //     expansions: [ { row: 7, col: 5 }, { row: 10, col: 8 } ]
-  //   })
-  // })
+  it("a normal game", function () {
+    this.timeout(4000)
 
-  // it("very difficult capturing pieces", function () {
-  //   let row = 8
-  //
-  //   let board = new Board()
-  //       .move({ row, col: 8 }).move({ row: 7, col: 7 })
-  //       .move({ row, col: 7 }).move({ row: 7, col: 8 })
-  //       .move({ row: 0, col: 0 }).move({ row: 9, col: 7 })
-  //       .move({ row: 8, col: 0 }).move({ row: 9, col: 8 })
-  //       .move({ row: 0, col: 8 }).move({ row, col: 9 })
-  //       .move({ row: 18, col: 0 })
-  //   // next move will be by black ...
-  //   //   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8
-  //   // 0 w . . . . . . . w . . . . . . . . . .
-  //   // 1 . . . . . . . . . . . . . . . . . . .
-  //   // 2 . . . . . . . . . . . . . . . . . . .
-  //   // 3 . . . . . . . . . . . . . . . . . . .
-  //   // 4 . . . . . . . . . . . . . . . . . . .
-  //   // 5 . . . . . . . . . . . . . . . . . . .
-  //   // 6 . . . . . . . . . . . . . . . . . . .
-  //   // 7 . . . . . . . b b . . . . . . . . . .
-  //   // 8 w . . . . . . w w b . . . . . . . . .
-  //   // 9 . . . . . . . b b . . . . . . . . . .
-  //   // 0 . . . . . . . . . . . . . . . . . . .
-  //   // 1 . . . . . . . . . . . . . . . . . . .
-  //   // 2 . . . . . . . . . . . . . . . . . . .
-  //   // 3 . . . . . . . . . . . . . . . . . . .
-  //   // 4 . . . . . . . . . . . . . . . . . . .
-  //   // 5 . . . . . . . . . . . . . . . . . . .
-  //   // 6 . . . . . . . . . . . . . . . . . . .
-  //   // 7 . . . . . . . . . . . . . . . . . . .
-  //   // 8 w . . . . . . . . . . . . . . . . . .
-  //
-  //   assert.equal(board.threats.length, 5)
-  //   assert.deepEqual(_.omit(board.getThreats()[0], "score"), {
-  //     player: true,
-  //     finderIndex: "1",
-  //     played:[ { row, col: 7 }, { row, col: 8 } ],
-  //     skipped:[],
-  //     expansions:[ { row, col: 6 } ],
-  //     span: 2,
-  //   })
-  // })
+    let boardValues = JSON.parse(JSON.stringify(blankValues))
+    boardValues[8][9] = "white"
+    boardValues[9][8] = "black"
+    boardValues[9][9] = "white"
+    boardValues[10][9] = "black"
+    boardValues[10][8] = "white"
+    boardValues[11][10] = "black"
 
-  // TODO: merging threats that are too long overall
-  // TODO:
+    board = createEngineState("white", "black", boardValues)
+    assert.equal(board.getThreats().length, 3)
+    assert.deepEqual(_.omit(board.getThreats()[0], "score"), {
+      player: true,
+      finderIndex: '0',
+      played: [ { row: 8, col: 9 }, { row: 9, col: 9 } ],
+      skipped: [],
+      expansions: [ { row: 7, col: 9 } ],
+      span: 2,
+    })
+    assert.deepEqual(_.omit(board.getThreats()[1], "score"), {
+      player: true,
+      finderIndex: '3',
+      played: [ { row: 10, col: 8 }, { row: 9, col: 9 } ],
+      skipped: [],
+      expansions: [ { row: 11, col: 7 }, { row: 8, col: 10 } ],
+      span: 2,
+    })
+    assert.deepEqual(_.omit(board.getThreats()[2], "score"), {
+      player: false,
+      finderIndex: '2',
+      played: [ { row: 9, col: 8 }, { row: 10, col: 9 }, { row: 11, col: 10 } ],
+      skipped: [],
+      expansions: [ { row: 8, col: 7 }, { row: 12, col: 11 } ],
+      span: 3,
+    })
 
-  // next move will be by black ...
-  // w . . . . . . . w . . . . . . . . . .
-  // . . . . . . . . . . . . . . . . . . .
-  // . . . . . . . . . . . . . . . . . . .
-  // . . . . . . . . . . . . . . . . . . .
-  // . . . . . . . b . . . . . . . . . . .
-  // . . . . . . . . b . . . . . . . . . .
-  // . . . . . . . . . . . . . . . . . . .
-  // . . . . . . . b b . . . . . . . . . .
-  // w . . . . . . w w b . . . . . . . . .
-  // . . . . . . . b b . . . . . . . . . .
-  // . . . . . . . . b . . . . . . . . . .
-  // . . . . . . . b . . . . . . . . . . .
-  // . . . . . . . . . . . . . . . . . . .
-  // . . . . . . . . . . . . . . . . . . .
-  // . . . . . . . . . . . . . . . . . . .
-  // . . . . . . . . . . . . . . . . . . .
-  // . . . . . . . . . . . . . . . . . . .
-  // . . . . . . . . . . . . . . . . . . .
-  // w . . . . . . . . . . . . . . . . . .
+    // continue the game for a single move...
+    board = board.move({ row: 12, col: 11 }) // white
+    assert.deepEqual(_.omit(board.getThreats()[2], "score"), {
+      player: false,
+      finderIndex: '2',
+      played: [
+        { row: 9, col: 8 },
+        { row: 10, col: 9 },
+        { row: 11, col: 10 },
+      ],
+      skipped: [],
+      expansions: [ { row: 8, col: 7 } ],
+      span: 3,
+    })
+
+    boardValues[12][11] = "white"
+    boardValues[10][10] = "black"
+    boardValues[11][7] = "white"
+
+    board = createEngineState("black", "white", boardValues)
+    assert.deepEqual(board.getBestMove(), { row: 7, col: 9 })
+
+    boardValues[8][10] = "black"
+    boardValues[8][7] = "white"
+    board = createEngineState("black", "white", boardValues)
+    assert.deepEqual(board.getBestMove(), { row: 9, col: 10 })
+
+    boardValues[9][10] = "black"
+    boardValues[12][6] = "white"
+
+    board = createEngineState("black", "white", boardValues)
+    assert.equal(board.getWinningThreat().played, undefined)
+
+    // NOTE: black can win with { row: 7, col: 10 } or { row: 12, col: 10 }
+    // play winning move and make sure it figures out we've won
+    boardValues[7][10] = "black"
+    board = createEngineState("white", "black", boardValues)
+    assert.deepEqual(board.getWinningThreat().played, [
+      { row: 7, col: 10 },
+      { row: 8, col: 10 },
+      { row: 9, col: 10 },
+      { row: 10, col: 10 },
+      { row: 11, col: 10 },
+    ])
+  })
+
+  it("simple capturing pieces", function () {
+    let row = 8
+
+    let board = new Board()
+        .move({ row, col: 8 }).move({ row, col: 9 })
+        .move({ row, col: 7 })
+
+    assert.deepEqual(_.omit(board.getThreats()[0], "score"), {
+      player: true,
+      finderIndex: "1",
+      played:[
+        { row, col: 7 },
+        { row, col: 8 }
+      ],
+      skipped:[],
+      expansions:[ { row, col: 6 } ],
+      span: 2,
+    })
+
+    board = board.move({ row, col: 6 })
+
+    assert.equal(board.values[8][8], null)
+    assert.equal(board.values[8][7], null)
+    assert.equal(board.threats[0], undefined)
+    assert.equal(board.threats.length, 2)
+
+    assert.deepEqual(_.omit(board.threats[1], "score"), {
+      player: false,
+      finderIndex: "1",
+      played:[ { row, col: 6 }, { row, col: 9 } ],
+      skipped:[ { row, col: 7 }, { row, col: 8 } ],
+      expansions:[ { row, col: 5 }, { row, col: 10 } ],
+      span: 4,
+    })
+
+    assert.deepEqual(board.cellThreats.toJS()[1][8], [
+      {},{},{},{},{},{},
+      {"1":false}, {"1":false}, {"1":false}, {"1":false},
+      {},{},{},{},{},{},{},{},{}
+    ])
+  })
+
+  it("more difficult capturing pieces", function () {
+    let row = 8
+
+    let board = new Board()
+        .move({ row, col: 8 }).move({ row: 7, col: 7 })
+        .move({ row, col: 7 }).move({ row: 7, col: 8 })
+        .move({ row: 0, col: 0 }).move({ row: 9, col: 7 })
+        .move({ row: 8, col: 0 }).move({ row: 9, col: 8 })
+        .move({ row: 0, col: 8 }).move({ row, col: 9 })
+        .move({ row: 18, col: 0 })
+    // next move will be by black ...
+    //   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8
+    // 0 w . . . . . . . w . . . . . . . . . .
+    // 1 . . . . . . . . . . . . . . . . . . .
+    // 2 . . . . . . . . . . . . . . . . . . .
+    // 3 . . . . . . . . . . . . . . . . . . .
+    // 4 . . . . . . . . . . . . . . . . . . .
+    // 5 . . . . . . . . . . . . . . . . . . .
+    // 6 . . . . . . . . . . . . . . . . . . .
+    // 7 . . . . . . . b b . . . . . . . . . .
+    // 8 w . . . . . . w w b . . . . . . . . .
+    // 9 . . . . . . . b b . . . . . . . . . .
+    // 0 . . . . . . . . . . . . . . . . . . .
+    // 1 . . . . . . . . . . . . . . . . . . .
+    // 2 . . . . . . . . . . . . . . . . . . .
+    // 3 . . . . . . . . . . . . . . . . . . .
+    // 4 . . . . . . . . . . . . . . . . . . .
+    // 5 . . . . . . . . . . . . . . . . . . .
+    // 6 . . . . . . . . . . . . . . . . . . .
+    // 7 . . . . . . . . . . . . . . . . . . .
+    // 8 w . . . . . . . . . . . . . . . . . .
+
+    assert.equal(board.threats.length, 5)
+    assert.deepEqual(_.omit(board.getThreats()[0], "score"), {
+      player: true,
+      finderIndex: "1",
+      played:[ { row, col: 7 }, { row, col: 8 } ],
+      skipped:[],
+      expansions:[ { row, col: 6 } ],
+      span: 2,
+    })
+
+    // move to capture the pieces
+    board = board.move({ row, col: 6 })
+    // next move will be by white ...
+    //   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8
+    // 0 w . . . . . . . w . . . . . . . . . .
+    // 1 . . . . . . . . . . . . . . . . . . .
+    // 2 . . . . . . . . . . . . . . . . . . .
+    // 3 . . . . . . . . . . . . . . . . . . .
+    // 4 . . . . . . . . . . . . . . . . . . .
+    // 5 . . . . . . . . . . . . . . . . . . .
+    // 6 . . . . . . . . . . . . . . . . . . .
+    // 7 . . . . . . . b b . . . . . . . . . .
+    // 8 w . . . . . b . . b . . . . . . . . .
+    // 9 . . . . . . . b b . . . . . . . . . .
+    // 0 . . . . . . . . . . . . . . . . . . .
+    // 1 . . . . . . . . . . . . . . . . . . .
+    // 2 . . . . . . . . . . . . . . . . . . .
+    // 3 . . . . . . . . . . . . . . . . . . .
+    // 4 . . . . . . . . . . . . . . . . . . .
+    // 5 . . . . . . . . . . . . . . . . . . .
+    // 6 . . . . . . . . . . . . . . . . . . .
+    // 7 . . . . . . . . . . . . . . . . . . .
+    // 8 w . . . . . . . . . . . . . . . . . .
+
+    assert.equal(board.values[8][8], null)
+    assert.equal(board.values[8][7], null)
+
+    assert.equal(board.threats.length, 10)
+    assert.equal(board.threats[0], undefined)
+    assert.deepEqual(_.omit(board.threats[1], "score"), {
+      player: false, finderIndex: "1", span: 2,
+      played: [ { row: 7, col: 7 }, { row: 7, col: 8 } ],
+      skipped: [],
+      expansions: [ { row: 7, col: 6 }, { row: 7, col: 9 } ]
+    })
+    assert.deepEqual(_.omit(board.threats[2], "score"), {
+      player: false, finderIndex: "1", span: 2,
+      played: [ { row: 9, col: 7 }, { row: 9, col: 8 } ],
+      skipped: [],
+      expansions: [ { row: 9, col: 6 }, { row:9, col: 9 } ]
+    })
+    assert.deepEqual(_.omit(board.threats[3], "score"), {
+      player: false, finderIndex: "2", span: 2,
+      played: [ { row: 7, col: 8 }, { row: 8, col: 9 } ],
+      skipped: [],
+      expansions: [ { row: 6, col: 7 }, { row: 9, col: 10 } ]
+    })
+    assert.deepEqual(_.omit(board.threats[4], "score"), {
+      player: false, finderIndex: "3", span: 2,
+      played: [ { row: 9, col: 8 }, { row: 8, col: 9 } ],
+      skipped: [],
+      expansions: [ { row: 10, col: 7 }, { row: 7, col: 10 } ]
+    })
+    assert.deepEqual(_.omit(board.threats[5], "score"), {
+      player: false, finderIndex: "0", span: 3,
+      played: [ { row: 7, col: 7 }, { row: 9, col: 7 } ],
+      skipped: [{ row: 8, col: 7 } ],
+      expansions: [ { row: 6, col: 7 }, { row: 10, col: 7 } ]
+    })
+    assert.deepEqual(_.omit(board.threats[6], "score"), {
+      player: false, finderIndex: "1", span: 4,
+      played: [ { row: 8, col: 6 }, { row: 8, col: 9 } ],
+      skipped: [{ row: 8, col: 7}, { row: 8, col: 8 } ],
+      expansions: [ { row: 8, col: 5 }, { row: 8, col: 10 } ]
+    })
+    assert.deepEqual(_.omit(board.threats[7], "score"), {
+      player: false, finderIndex: "0", span: 3,
+      played: [ { row: 7, col: 8 }, { row: 9, col: 8 } ],
+      skipped: [{ row: 8, col: 8 } ],
+      expansions: [ { row: 6, col: 8 }, { row: 10, col: 8 } ]
+    })
+    assert.deepEqual(_.omit(board.threats[8], "score"), {
+      player: false, finderIndex: "3", span: 2,
+      played: [ { row: 8, col: 6 }, { row: 7, col: 7 } ],
+      skipped: [],
+      expansions: [ { row: 9, col: 5 }, { row: 6, col: 8 } ]
+    })
+    assert.deepEqual(_.omit(board.threats[9], "score"), {
+      player: false, finderIndex: "2", span: 2,
+      played: [ { row: 8, col: 6 }, { row: 9, col: 7 } ],
+      skipped: [],
+      expansions: [ { row: 7, col: 5 }, { row: 10, col: 8 } ]
+    })
+  })
+
+  it("very difficult capturing pieces", function () {
+    let row = 8
+
+    let board = new Board()
+        .move({ row, col: 8 }).move({ row: 7, col: 7 })
+        .move({ row, col: 7 }).move({ row: 7, col: 8 })
+        .move({ row: 0, col: 0 }).move({ row: 9, col: 7 })
+        .move({ row: 8, col: 0 }).move({ row: 9, col: 8 })
+        .move({ row: 0, col: 8 }).move({ row, col: 9 })
+        .move({ row: 18, col: 0 })
+    // next move will be by black ...
+    //   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8
+    // 0 w . . . . . . . w . . . . . . . . . .
+    // 1 . . . . . . . . . . . . . . . . . . .
+    // 2 . . . . . . . . . . . . . . . . . . .
+    // 3 . . . . . . . . . . . . . . . . . . .
+    // 4 . . . . . . . . . . . . . . . . . . .
+    // 5 . . . . . . . . . . . . . . . . . . .
+    // 6 . . . . . . . . . . . . . . . . . . .
+    // 7 . . . . . . . b b . . . . . . . . . .
+    // 8 w . . . . . . w w b . . . . . . . . .
+    // 9 . . . . . . . b b . . . . . . . . . .
+    // 0 . . . . . . . . . . . . . . . . . . .
+    // 1 . . . . . . . . . . . . . . . . . . .
+    // 2 . . . . . . . . . . . . . . . . . . .
+    // 3 . . . . . . . . . . . . . . . . . . .
+    // 4 . . . . . . . . . . . . . . . . . . .
+    // 5 . . . . . . . . . . . . . . . . . . .
+    // 6 . . . . . . . . . . . . . . . . . . .
+    // 7 . . . . . . . . . . . . . . . . . . .
+    // 8 w . . . . . . . . . . . . . . . . . .
+
+    assert.equal(board.threats.length, 5)
+    assert.deepEqual(_.omit(board.getThreats()[0], "score"), {
+      player: true,
+      finderIndex: "1",
+      played:[ { row, col: 7 }, { row, col: 8 } ],
+      skipped:[],
+      expansions:[ { row, col: 6 } ],
+      span: 2,
+    })
+  })
+
+  it("more difficult capturing pieces", function () {
+    this.timeout(5000)
+
+    // next move will be by black ...
+    let boardValues = [
+      ["WH",null,null,null,null,null,null,null,"WH",null,null,null,null,null,null,"WH",null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,"BL",null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,"BL",null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,"BL","BL",null,null,null,null,null,null,null,null,null,null],
+      ["WH",null,null,null,null,null,null,"WH","WH","BL",null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,"BL","BL",null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,"BL",null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,"BL",null,null,"BL",null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,"WH",null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,"WH",null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      ["WH",null,null,null,null,null,null,"WH",null,null,null,null,null,null,null,null,null,null,null],
+    ]
+
+    // ensure everything is kosher with the threats generated
+    let state = createEngineState("BL", "WH", boardValues)
+    assert.equal(state.toString(), "next move will be by BL\n" +
+      "B = BL\n" +
+      "W = WH\n" +
+      "    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8\n" +
+      " 0: W . . . . . . . W . . . . . . W . . .\n" +
+      " 1: . . . . . . . . . . . . . . . . . . .\n" +
+      " 2: . . . . . . . . . . . . . . . . . . .\n" +
+      " 3: . . . . . . . . . . . . . . . . . . .\n" +
+      " 4: . . . . . . . B . . . . . . . . . . .\n" +
+      " 5: . . . . . . . . B . . . . . . . . . .\n" +
+      " 6: . . . . . . . . . . . . . . . . . . .\n" +
+      " 7: . . . . . . . B B . . . . . . . . . .\n" +
+      " 8: W . . . . . . W W B . . . . . . . . .\n" +
+      " 9: . . . . . . . B B . . . . . . . . . .\n" +
+      "10: . . . . . . . . B . . . . . . . . . .\n" +
+      "11: . . . . . . . B . . B . . . . . . . .\n" +
+      "12: . . . . . . . . . . . . . . . . . . .\n" +
+      "13: . . . . . . . . . . . . . . . . . . .\n" +
+      "14: . . . . . . . . . . . . . . . . . . .\n" +
+      "15: . . . . . . . . . . . . . . . . . . .\n" +
+      "16: . . . . W . . . . . . . . . . . . . .\n" +
+      "17: . . W . . . . . . . . . . . . . . . .\n" +
+      "18: W . . . . . . W . . . . . . . . . . .\n")
+    let threats = _.map(state.getThreats(), threat => _.omit(threat, "score"));
+    assert.deepEqual(threats, [
+      {
+        player: true,
+        finderIndex: '2',
+        played: [ { row: 4, col: 7 }, { row: 5, col: 8 } ],
+        skipped: [],
+        expansions: [ { row: 3, col: 6 }, { row: 6, col: 9 } ],
+        span: 2,
+      },
+      {
+        player: true,
+        finderIndex: '0',
+        played: [ { row: 4, col: 7 }, { row: 7, col: 7 } ],
+        skipped: [ { row: 6, col: 7 }, { row: 5, col: 7 } ],
+        expansions: [ { row: 3, col: 7 } ],
+        span: 4,
+      },
+      {
+        player: true,
+        finderIndex: '0',
+        played: [ { row: 5, col: 8 }, { row: 7, col: 8 } ],
+        skipped: [ { row: 6, col: 8 } ],
+        expansions: [ { row: 4, col: 8 } ],
+        span: 3,
+      },
+      {
+        player: true,
+        finderIndex: '1',
+        played: [ { row: 7, col: 7 }, { row: 7, col: 8 } ],
+        skipped: [],
+        expansions: [ { row: 7, col: 6 }, { row: 7, col: 9 } ],
+        span: 2,
+      },
+      {
+        player: false,
+        finderIndex: '1',
+        played: [ { row: 8, col: 7 }, { row: 8, col: 8 } ],
+        skipped: [],
+        expansions: [ { row: 8, col: 6 } ],
+        span: 2,
+      },
+      {
+        player: true,
+        finderIndex: '2',
+        played: [ { row: 7, col: 8 }, { row: 8, col: 9 } ],
+        skipped: [],
+        expansions: [ { row: 6, col: 7 }, { row: 9, col: 10 } ],
+        span: 2,
+      },
+      {
+        player: true,
+        finderIndex: '1',
+        played: [ { row: 9, col: 7 }, { row: 9, col: 8 } ],
+        skipped: [],
+        expansions: [ { row: 9, col: 6 }, { row: 9, col: 9 } ],
+        span: 2,
+      },
+      {
+        player: true,
+        finderIndex: '3',
+        played: [ { row: 9, col: 8 }, { row: 8, col: 9 } ],
+        skipped: [],
+        expansions: [ { row: 10, col: 7 }, { row: 7, col: 10 } ],
+        span: 2,
+      },
+      {
+        player: true,
+        finderIndex: '0',
+        played: [ { row: 9, col: 8 }, { row: 10, col: 8 } ],
+        skipped: [],
+        expansions: [ { row: 11, col: 8 } ],
+        span: 2,
+      },
+      {
+        player: true,
+        finderIndex: '2',
+        played: [ { row: 9, col: 7 }, { row: 10, col: 8 } ],
+        skipped: [],
+        expansions: [ { row: 8, col: 6 }, { row: 11, col: 9 } ],
+        span: 2,
+      },
+      {
+        player: true,
+        finderIndex: '0',
+        played: [ { row: 9, col: 7 }, { row: 11, col: 7 } ],
+        skipped: [ { row: 10, col: 7 } ],
+        expansions: [ { row: 12, col: 7 } ],
+        span: 3,
+      },
+      {
+        player: true,
+        finderIndex: '3',
+        played: [ { row: 11, col: 7 }, { row: 10, col: 8 } ],
+        skipped: [],
+        expansions: [ { row: 12, col: 6 }, { row: 9, col: 9 } ],
+        span: 2,
+      },
+      {
+        player: true,
+        finderIndex: '1',
+        played: [ { row: 11, col: 7 }, { row: 11, col: 10 } ],
+        skipped: [ { row: 11, col: 9 }, { row: 11, col: 8 } ],
+        expansions: [ { row: 11, col: 6 }, { row: 11, col: 11 } ],
+        span: 4,
+      },
+      {
+        player: true,
+        finderIndex: '2',
+        played: [ { row: 9, col: 8 }, { row: 11, col: 10 } ],
+        skipped: [ { row: 10, col: 9 } ],
+        expansions: [ { row: 12, col: 11 } ],
+        span: 3,
+      },
+    ])
+    assert.deepEqual(state.getCellThreats().toJS(), [
+      [
+        [ {},{},{},{},{},{},{},{          },{          },{          },{          },{},{},{},{},{},{},{},{} ],
+        [ {},{},{},{},{},{},{},{          },{          },{          },{          },{},{},{},{},{},{},{},{} ],
+        [ {},{},{},{},{},{},{},{          },{          },{          },{          },{},{},{},{},{},{},{},{} ],
+        [ {},{},{},{},{},{},{},{          },{          },{          },{          },{},{},{},{},{},{},{},{} ],
+        [ {},{},{},{},{},{},{},{  1: true },{          },{          },{          },{},{},{},{},{},{},{},{} ],
+        [ {},{},{},{},{},{},{},{  1: true },{  2: true },{          },{          },{},{},{},{},{},{},{},{} ],
+        [ {},{},{},{},{},{},{},{  1: true },{  2: true },{          },{          },{},{},{},{},{},{},{},{} ],
+        [ {},{},{},{},{},{},{},{  1: true },{  2: true },{          },{          },{},{},{},{},{},{},{},{} ],
+        [ {},{},{},{},{},{},{},{          },{          },{          },{          },{},{},{},{},{},{},{},{} ],
+        [ {},{},{},{},{},{},{},{ 10: true },{  8: true },{          },{          },{},{},{},{},{},{},{},{} ],
+        [ {},{},{},{},{},{},{},{ 10: true },{  8: true },{          },{          },{},{},{},{},{},{},{},{} ],
+        [ {},{},{},{},{},{},{},{ 10: true },{          },{          },{          },{},{},{},{},{},{},{},{} ],
+        [ {},{},{},{},{},{},{},{          },{          },{          },{          },{},{},{},{},{},{},{},{} ],
+        [ {},{},{},{},{},{},{},{          },{          },{          },{          },{},{},{},{},{},{},{},{} ],
+        [ {},{},{},{},{},{},{},{          },{          },{          },{          },{},{},{},{},{},{},{},{} ],
+        [ {},{},{},{},{},{},{},{          },{          },{          },{          },{},{},{},{},{},{},{},{} ],
+        [ {},{},{},{},{},{},{},{          },{          },{          },{          },{},{},{},{},{},{},{},{} ],
+        [ {},{},{},{},{},{},{},{          },{          },{          },{          },{},{},{},{},{},{},{},{} ],
+        [ {},{},{},{},{},{},{},{          },{          },{          },{          },{},{},{},{},{},{},{},{} ],
+      ],
+      [
+        [ {},{},{},{},{},{},{},{          },{          },{          },{          },{},{},{},{},{},{},{},{} ],
+        [ {},{},{},{},{},{},{},{          },{          },{          },{          },{},{},{},{},{},{},{},{} ],
+        [ {},{},{},{},{},{},{},{          },{          },{          },{          },{},{},{},{},{},{},{},{} ],
+        [ {},{},{},{},{},{},{},{          },{          },{          },{          },{},{},{},{},{},{},{},{} ],
+        [ {},{},{},{},{},{},{},{          },{          },{          },{          },{},{},{},{},{},{},{},{} ],
+        [ {},{},{},{},{},{},{},{          },{          },{          },{          },{},{},{},{},{},{},{},{} ],
+        [ {},{},{},{},{},{},{},{          },{          },{          },{          },{},{},{},{},{},{},{},{} ],
+        [ {},{},{},{},{},{},{},{  3: true },{  3: true },{          },{          },{},{},{},{},{},{},{},{} ],
+        [ {},{},{},{},{},{},{},{ 4: false },{ 4: false },{          },{          },{},{},{},{},{},{},{},{} ],
+        [ {},{},{},{},{},{},{},{  6: true },{  6: true },{          },{          },{},{},{},{},{},{},{},{} ],
+        [ {},{},{},{},{},{},{},{          },{          },{          },{          },{},{},{},{},{},{},{},{} ],
+        [ {},{},{},{},{},{},{},{ 12: true },{ 12: true },{ 12: true },{ 12: true },{},{},{},{},{},{},{},{} ],
+        [ {},{},{},{},{},{},{},{          },{          },{          },{          },{},{},{},{},{},{},{},{} ],
+        [ {},{},{},{},{},{},{},{          },{          },{          },{          },{},{},{},{},{},{},{},{} ],
+        [ {},{},{},{},{},{},{},{          },{          },{          },{          },{},{},{},{},{},{},{},{} ],
+        [ {},{},{},{},{},{},{},{          },{          },{          },{          },{},{},{},{},{},{},{},{} ],
+        [ {},{},{},{},{},{},{},{          },{          },{          },{          },{},{},{},{},{},{},{},{} ],
+        [ {},{},{},{},{},{},{},{          },{          },{          },{          },{},{},{},{},{},{},{},{} ],
+        [ {},{},{},{},{},{},{},{          },{          },{          },{          },{},{},{},{},{},{},{},{} ],
+      ],
+      [
+        [ {},{},{},{},{},{},{},{          },{          },{          },{          },{},{},{},{},{},{},{},{} ],
+        [ {},{},{},{},{},{},{},{          },{          },{          },{          },{},{},{},{},{},{},{},{} ],
+        [ {},{},{},{},{},{},{},{          },{          },{          },{          },{},{},{},{},{},{},{},{} ],
+        [ {},{},{},{},{},{},{},{          },{          },{          },{          },{},{},{},{},{},{},{},{} ],
+        [ {},{},{},{},{},{},{},{  0: true },{          },{          },{          },{},{},{},{},{},{},{},{} ],
+        [ {},{},{},{},{},{},{},{          },{  0: true },{          },{          },{},{},{},{},{},{},{},{} ],
+        [ {},{},{},{},{},{},{},{          },{          },{          },{          },{},{},{},{},{},{},{},{} ],
+        [ {},{},{},{},{},{},{},{          },{  5: true },{          },{          },{},{},{},{},{},{},{},{} ],
+        [ {},{},{},{},{},{},{},{          },{          },{  5: true },{          },{},{},{},{},{},{},{},{} ],
+        [ {},{},{},{},{},{},{},{  9: true },{ 13: true },{          },{          },{},{},{},{},{},{},{},{} ],
+        [ {},{},{},{},{},{},{},{          },{  9: true },{ 13: true },{          },{},{},{},{},{},{},{},{} ],
+        [ {},{},{},{},{},{},{},{          },{          },{          },{ 13: true },{},{},{},{},{},{},{},{} ],
+        [ {},{},{},{},{},{},{},{          },{          },{          },{          },{},{},{},{},{},{},{},{} ],
+        [ {},{},{},{},{},{},{},{          },{          },{          },{          },{},{},{},{},{},{},{},{} ],
+        [ {},{},{},{},{},{},{},{          },{          },{          },{          },{},{},{},{},{},{},{},{} ],
+        [ {},{},{},{},{},{},{},{          },{          },{          },{          },{},{},{},{},{},{},{},{} ],
+        [ {},{},{},{},{},{},{},{          },{          },{          },{          },{},{},{},{},{},{},{},{} ],
+        [ {},{},{},{},{},{},{},{          },{          },{          },{          },{},{},{},{},{},{},{},{} ],
+        [ {},{},{},{},{},{},{},{          },{          },{          },{          },{},{},{},{},{},{},{},{} ],
+      ],
+      [
+        [ {},{},{},{},{},{},{},{          },{          },{          },{          },{},{},{},{},{},{},{},{} ],
+        [ {},{},{},{},{},{},{},{          },{          },{          },{          },{},{},{},{},{},{},{},{} ],
+        [ {},{},{},{},{},{},{},{          },{          },{          },{          },{},{},{},{},{},{},{},{} ],
+        [ {},{},{},{},{},{},{},{          },{          },{          },{          },{},{},{},{},{},{},{},{} ],
+        [ {},{},{},{},{},{},{},{          },{          },{          },{          },{},{},{},{},{},{},{},{} ],
+        [ {},{},{},{},{},{},{},{          },{          },{          },{          },{},{},{},{},{},{},{},{} ],
+        [ {},{},{},{},{},{},{},{          },{          },{          },{          },{},{},{},{},{},{},{},{} ],
+        [ {},{},{},{},{},{},{},{          },{          },{          },{          },{},{},{},{},{},{},{},{} ],
+        [ {},{},{},{},{},{},{},{          },{          },{  7: true },{          },{},{},{},{},{},{},{},{} ],
+        [ {},{},{},{},{},{},{},{          },{  7: true },{          },{          },{},{},{},{},{},{},{},{} ],
+        [ {},{},{},{},{},{},{},{          },{ 11: true },{          },{          },{},{},{},{},{},{},{},{} ],
+        [ {},{},{},{},{},{},{},{ 11: true },{          },{          },{          },{},{},{},{},{},{},{},{} ],
+        [ {},{},{},{},{},{},{},{          },{          },{          },{          },{},{},{},{},{},{},{},{} ],
+        [ {},{},{},{},{},{},{},{          },{          },{          },{          },{},{},{},{},{},{},{},{} ],
+        [ {},{},{},{},{},{},{},{          },{          },{          },{          },{},{},{},{},{},{},{},{} ],
+        [ {},{},{},{},{},{},{},{          },{          },{          },{          },{},{},{},{},{},{},{},{} ],
+        [ {},{},{},{},{},{},{},{          },{          },{          },{          },{},{},{},{},{},{},{},{} ],
+        [ {},{},{},{},{},{},{},{          },{          },{          },{          },{},{},{},{},{},{},{},{} ],
+        [ {},{},{},{},{},{},{},{          },{          },{          },{          },{},{},{},{},{},{},{},{} ],
+      ],
+    ])
+    let t = true
+    assert.deepEqual(state.getInPlayCells(), {
+       0: { 1:t,                               7:t,      9:t,           14:t,       16:t  },
+       1: { 0:t, 1:t,                          7:t, 8:t, 9:t,           14:t, 15:t, 16:t  },
+       3: {                               6:t, 7:t, 8:t  },
+       4: {                               6:t,      8:t, 9:t  },
+       5: {                               6:t, 7:t, 9:t  },
+       6: {                               6:t, 7:t, 8:t, 9:t  },
+       7: { 0:t, 1:t,                     6:t,           9:t, 10:t  },
+       8: {      1:t,                     6:t,                10:t  },
+       9: { 0:t, 1:t,                     6:t,           9:t, 10:t  },
+      10: {                               6:t, 7:t,      9:t, 10:t, 11:t  },
+      11: {                               6:t,      8:t, 9:t,       11:t  },
+      12: {                               6:t, 7:t, 8:t, 9:t, 10:t, 11:t  },
+      15: {                3:t, 4:t, 5:t  },
+      16: {      1:t, 2:t, 3:t,      5:t  },
+      17: { 0:t, 1:t,      3:t, 4:t, 5:t, 6:t, 7:t, 8:t  },
+      18: {      1:t, 2:t, 3:t,           6:t,      8:t  },
+    })
+
+    // TODO: time this and make sure it's less than 500 ms
+    let bestMove = state.getBestMove()
+    console.log("state.toString():", state.toString());
+    console.log("bestMove:", bestMove);
+    assert.deepEqual(bestMove, { row: 7, col: 10 })
+
+    let capturedState = state.move({ row: 8, col: 6 })
+    // console.log("capturedState.toString():", capturedState.toString());
+
+
+    // TODO: write tests for capturing WH, etc.
+
+    // TODO: create game state from board where pieces have been taken off
+    // the board and make sure all the instance variables match as well
+  });
 
   // updateThreatsAround recursion check
 
   // remove threats that are no longer a thing/remove that single square from it
+
+  // figure out why createEngineState was being weird with the order of the two players
 })

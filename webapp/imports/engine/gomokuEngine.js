@@ -774,53 +774,35 @@ var GLOBAL_DEPTH = 3
 
 export function createEngineState(nextPlayer, otherPlayer, colorValues) {
   // convert colorValues to something we can feed into the move function
-  let playerMoves = {
-    [ otherPlayer ]: [],
-    [ nextPlayer ]: [],
-  }
+  let moves = []
 
   for (let row in colorValues) {
     for (let col in colorValues[row]) {
       let value = colorValues[row][col]
 
       if (value) {
-        if (!playerMoves[value]) {
-          playerMoves[value] = []
-        }
-
-        playerMoves[value].push({
+        moves.push({
           row: parseInt(row),
-          col: parseInt(col)
+          col: parseInt(col),
+          player: nextPlayer === value,
         })
       }
     }
   }
 
-  // first in players went first (important below)
-  let players
-  if (playerMoves[nextPlayer].length < playerMoves[otherPlayer].length) {
-    players = [ otherPlayer, nextPlayer ]
-  } else if (playerMoves[nextPlayer].length > playerMoves[otherPlayer].length) {
-    players = [ nextPlayer, otherPlayer ]
-  } else {
-    players = [ otherPlayer, nextPlayer ]
-  }
-
-  let toStringMap = {
+  let board = new Board(true, {
     true: nextPlayer,
     false: otherPlayer,
-  }
-  let board = new Board(players[0] === nextPlayer, toStringMap)
+  })
 
   // recreate board move by move
-  let count = 0
-  for (moveIndex in playerMoves[players[0]]) {
-    board = board.move(playerMoves[players[0]][moveIndex])
+  _.each(moves, ({ player, row, col }) => {
+    board.player = player
+    board = board.move({ row, col })
+  })
 
-    if (moveIndex < playerMoves[players[1]].length) {
-      board = board.move(playerMoves[players[1]][moveIndex])
-    }
-  }
+  // set the next player
+  board.player = true
 
   return board
 }
