@@ -5,6 +5,8 @@ import Immutable from "immutable"
 
 export const BOARD_SIZE = 19
 
+export var L = {}
+
 // generate some default values
 
 const defaultInPlay = new Immutable.Map()
@@ -215,6 +217,7 @@ export class Board {
 
       newThreat.skipped.push(location)
     })
+    newThreat.skipped.sort(Board.compareLocations)
 
     // add new played, remove duplicates (bandaid #1)
     let newPlayed = newThreat.played.concat(oldThreat.played)
@@ -320,7 +323,9 @@ export class Board {
         for (secondBit of [ false, true ]) {
           let current = { row, col }
           let skipped = []
-          if (values[row][col] === null && secondBit === false) {
+          // if we're going backwards and we we've found something...
+          if (values[row][col] === null && secondBit === true
+              && threat.played.length > 0) {
             skipped = [{ row, col }]
           }
 
@@ -473,6 +478,7 @@ export class Board {
 
         // sort the played array of the threats (useful later on)
         threat.played.sort(Board.compareLocations)
+        threat.skipped.sort(Board.compareLocations)
 
         addThreats.push(threat)
       })
@@ -533,12 +539,6 @@ export class Board {
 
           // check to see if it's already in another threat
           let path = [finderIndex, current.row, current.col]
-          if (!newCellThreats.getIn(path)) {
-            console.log("Found where it crashes!");
-            console.log("current:", current);
-            console.log("finderIndex:", finderIndex);
-            printCellThreats(newCellThreats)
-          }
           if (newCellThreats.getIn(path).size) continue
 
           // continue the threat from there
@@ -769,7 +769,6 @@ export class Board {
   getPlayer() { return this.player }
 }
 
-logging = false
 var GLOBAL_DEPTH = 3
 
 export function createEngineState(nextPlayer, otherPlayer, colorValues) {
