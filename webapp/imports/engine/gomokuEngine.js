@@ -191,6 +191,7 @@ export class Board {
 
   static mergeThreats(oldThreat, newThreat, values, cellThreats, threatIndex,
         justSkipped) {
+    if (L.i) console.log("mergeThreats called");
     // add to cellThreats
     let toAdd = newThreat.played.concat(newThreat.skipped).concat(justSkipped)
     _.each(toAdd, loc => {
@@ -236,7 +237,9 @@ export class Board {
     let colDiff = Math.abs(first.col - last.col)
     newThreat.span = Math.max(rowDiff, colDiff) + 1
 
+    if (L.i) console.log("newThreat right before expansions and score:", newThreat);
     Board.expansionsAndScore(newThreat, values)
+    if (L.i) console.log("newThreat right after expansions and score:", newThreat);
 
     return cellThreats
   }
@@ -300,6 +303,7 @@ export class Board {
 
   static updateThreatsAround(player, { row, col }, values, threats,
       cellThreats, winningThreat) {
+    if (L.g) console.log("update around:", row, col);
     // figure out if we need to add/join any threats for the current player
     // and whether we should remove any two-length threats for the opposition
     // This is truly crazy stuff here. I'm so sorry to anyone reading it.
@@ -320,6 +324,7 @@ export class Board {
         let potentialSpan = 1
 
         // go the other way the second time around
+        otherWay:
         for (secondBit of [ false, true ]) {
           let current = { row, col }
           let skipped = []
@@ -348,9 +353,15 @@ export class Board {
               ])
 
               for (let threatIndex of currentThreats.keys()) {
+                if (L.u) {
+                  L.i = threatIndex === 2;
+                }
+                if (L.i) console.log("here");
+
                 // don't join it if it's already been joined
                 // NOTE: joinedThreats has larger scope
                 if (joinedThreats[threatIndex]) continue nextCell
+                if (L.i) console.log("after continue");
 
                 // check to see if we should join that threat
                 let potentialLocations = threat.played
@@ -369,6 +380,12 @@ export class Board {
                 if (existing.span + toExtend <= 5) {
                   joinedThreats[threatIndex] = true
 
+                  if (L.i) {
+                    console.log("merging");
+                    console.log("existing:", existing);
+                    console.log("threat:", threat);
+                  }
+                  // TODO: why are we merging threats that are empty?
                   cellThreats = Board.mergeThreats(existing, threat,
                       values, cellThreats, threatIndex, skipped)
                   threats[threatIndex] = threat
@@ -377,6 +394,12 @@ export class Board {
                     winningThreat = threat
                   }
 
+                  // we should be continuing down the other way to see if we
+                  // can add to the current threat
+                  if (L.i) {
+                    console.log("continuing!");
+                    continue otherWay
+                  }
                   return
                 }
               }
@@ -428,9 +451,17 @@ export class Board {
                     // removed pieces
                     _.each(currentThreat.played, (location) => {
                       // TODO: fix winningThreat
+                      if (L.g && location.col === 8) {
+                        L.u = true
+                        console.log("before:", threats[2]);
+                      }
                       ({ cellThreats, winningThreat } =
                           Board.updateThreatsAround(player, location, values,
                               threats, cellThreats))
+                      if (L.g && location.col === 8) {
+                        console.log("after:", threats[2]);
+                        L.u = false;
+                      }
                     })
 
                     // go on to the next threat
@@ -453,6 +484,8 @@ export class Board {
             }
           }
         }
+
+        if (L.i) console.log("DOWN HERE");
 
         if (threat.played.length <= 1 || potentialSpan < 5) return
 
