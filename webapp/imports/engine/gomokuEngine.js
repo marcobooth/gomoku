@@ -326,6 +326,7 @@ export class Board {
         // go the other way the second time around
         otherWay:
         for (secondBit of [ false, true ]) {
+          if (L.i) console.log("otherWay here");
           let current = { row, col }
           let skipped = []
           // if we're going backwards and we we've found something...
@@ -337,12 +338,16 @@ export class Board {
           // What does that carret do? http://stackoverflow.com/a/3618366
           let delta = deltas[firstBit ^ secondBit]
 
+          if (L.i) console.log("otherWay here 2");
+
           nextCell:
           for (i = 0; (i < 5) && (threat.span + skipped.length < 5); i++) {
             threatFinders[finderIndex](current, delta)
 
             // check to see if we're still on the board
             if (Board.outsideBoard(current)) break
+
+            if (L.i) console.log("otherWay here 3");
 
             let value = values[current.row][current.col]
             if (value === player) {
@@ -352,7 +357,11 @@ export class Board {
                 finderIndex, current.row, current.col
               ])
 
+              if (L.i) console.log("otherWay here 4");
+
               for (let threatIndex of currentThreats.keys()) {
+                if (L.i) console.log("otherWay here 4.5:", threatIndex);
+                if (L.i) console.log(threats[2]);
                 if (L.u) {
                   L.i = threatIndex === 2;
                 }
@@ -404,11 +413,16 @@ export class Board {
                 }
               }
 
+              if (L.i) console.log("otherWay here 5");
+
+              if (L.u) console.log("pushing played:", current, finderIndex);
               threat.played.push(_.clone(current))
               threat.skipped = threat.skipped.concat(skipped)
               threat.span += 1 + skipped.length
               skipped = []
               potentialSpan++
+
+              if (L.u && current.col === 8) console.log("threat:", threat);
             } else if (value === null) {
               // it's an empty spot
               skipped.push(_.clone(current))
@@ -485,7 +499,7 @@ export class Board {
           }
         }
 
-        if (L.i) console.log("DOWN HERE");
+        if (L.u) console.log("DOWN HERE");
 
         if (threat.played.length <= 1 || potentialSpan < 5) return
 
@@ -507,6 +521,7 @@ export class Board {
             break
           }
         }
+        if (L.u) console.log("noThreatsCell:", noThreatsCell);
         if (!noThreatsCell) return
 
         // sort the played array of the threats (useful later on)
