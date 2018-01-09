@@ -35,7 +35,7 @@ describe('Gomoku engine', function () {
     let board = createEngineState("AI", "ME", boardValues)
     console.log("board:", board);
 
-    let newBoard = board.move(6, 9)
+    let newBoard = board.move({ row: 6, col: 9 })
     console.log("newBoard:", newBoard);
 
 

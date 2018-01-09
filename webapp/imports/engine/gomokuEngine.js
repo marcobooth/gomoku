@@ -109,15 +109,15 @@ export class Threat {
 
       newThreat.skipped.push(location)
     })
-    newThreat.skipped.sort(Board.compareLocations)
+    newThreat.skipped.sort(Board.compareLocs)
 
     // add new played, remove duplicates (bandaid #1)
     let newPlayed = newThreat.played.concat(oldThreat.played)
-    newPlayed.sort(Board.compareLocations)
+    newPlayed.sort(Board.compareLocs)
     newPlayed = _.filter(newPlayed, (location, index) => {
       if (index === 0) return true
 
-      return Board.compareLocations(newPlayed[index - 1], location) !== 0
+      return Board.compareLocs(newPlayed[index - 1], location) !== 0
     })
     newThreat.played = newPlayed
 
@@ -224,31 +224,16 @@ export class Board {
     return cellThreats
   }
 
-  // TODO: HERE
-  searchThreatsAround({ row, col }) {
-    
-  }
-
   // TODO
   static updateThreatsAround(player, { row, col }, values, threats,
       cellThreats, winningThreat) {
-    // figure out if we need to add/join any threats for the current player
-    // and whether we should remove any two-length threats for the opposition
-    // This is truly crazy stuff here. I'm so sorry to anyone reading it.
     for (finderIndex in threatFinders) {
-      // go backwards and then forwards, adding to the threat in each direction,
-      // and then do the reverse of all that
+
       let deltas = [ -1, 1 ]
       let addThreats = []
       let joinedThreats = {}
 
       _.each([ false, true ], (firstBit) => {
-        let threat = Board.newThreat(player, finderIndex)
-        if (values[row][col] !== null) {
-          threat.played.push({ row, col })
-          threat.span++
-        }
-
         let potentialSpan = 1
 
         // go the other way the second time around
@@ -417,8 +402,8 @@ export class Board {
         if (!noThreatsCell) return
 
         // sort the played array of the threats (useful later on)
-        threat.played.sort(Board.compareLocations)
-        threat.skipped.sort(Board.compareLocations)
+        threat.played.sort(Board.compareLocs)
+        threat.skipped.sort(Board.compareLocs)
 
         addThreats.push(threat)
       })
@@ -435,6 +420,78 @@ export class Board {
     }
 
     return { cellThreats, winningThreat }
+  }
+
+  addMergeThreats({ row, col }) {
+    // figure out if we need to add/join any threats for the current player
+    for (finderIndex in threatFinders) {
+      let deltas = [ -1, 1 ]
+      let joinedThrats = {}
+
+      // go backwards and then forwards, adding to the threat in each direction,
+      // and then do the reverse of all that
+      for (firstBit of [ false, true ]) {
+        let threat = new Threat(!player, finderIndex)
+
+        // if the cell has been played, start with that
+        if (this.values.getIn([row, col]) !== null) {
+          threat.played.push({ row, col })
+          threat.span++
+        }
+
+        for (secondBit of [ false, true ]) {
+          let current = { row, col }
+          let potentialSpan = threat.span
+
+          // if cell is blank, going backwards, and we we've found something...
+          if (this.values.getIn([row, col]) === null && secondBit === true
+              && threat.played.length > 0) {
+            potentialSpan++
+          }
+
+          nextCell: for (i = 0; (i < 5) && (potentialSpan < 5); i++) {
+            // ^ is XOR: http://stackoverflow.com/a/3618366
+            threatFinders[finderIndex](current, deltas[firstBit ^ secondBit])
+            if (Board.outsideBoard(current)) break
+
+            let value = this.values.getIn([current.row, current.col])
+            if (value !== player && threat.played.length > 0) {
+              // if the cell we're looking at is part of threats with
+              // this finder, check to see if we should join any of those
+              let currentThreats = cellThreats.getIn([
+                finderIndex, current.row, current.col
+              ])
+
+              for (let threatIndex of currentThreats.keys()) {
+                // don't join it if it's already been joined
+                if (joinedThreats[threatIndex]) continue nextCell
+
+                // does it make sense to join the threat? (pot = potential)
+                let otherThreat = this.threats.get(threatIndex)
+                let potPlayed = threat.played.concat(otherThreat.played)
+                potPlayed.sort(Board.compareLocs)
+                let pSpan = Math.abs(Board.compareLocs(potPlayed[0],
+                    potPlayed[potPlayed.length - 1]))
+
+                if (pSpan < 5) // TODO: HERE
+
+
+              }
+            }
+
+            if (value !== !player && threat.played.length > 0) {
+              potentialSpan++
+            }
+          }
+        }
+      }
+
+
+    }
+  }
+
+  checkCaptures({ row, col }) {
+    // TODO
   }
 
   removeThreat(threatIndex) {
@@ -462,7 +519,7 @@ export class Board {
           // split played into before and after the interfering move
           let sidedMoves = { [ Number(-1) ]: [], 1: [] }
           _.each(threat.played, (play) => {
-            let sign = Math.sign(Board.compareLocations(play, {row, col}))
+            let sign = Math.sign(Board.compareLocs(play, {row, col}))
             sidedMoves[sign].push(play)
           })
           console.log("sidedMoves:", sidedMoves);
@@ -518,8 +575,11 @@ export class Board {
     // check if we need to split any opponent threats
     newBoard.splitThreatsAround({ row, col })
 
+    // remove any captured pieces and update threats around those empty cells
+    newBoard.checkCaptures({ row, col })
+
     // search for new threats for the player that just played
-    newBoard.searchThreatsAround({ row, col })
+    newBoard.addMergeThreats({ row, col })
 
     // update inPlayCells (remove move, add everything around it)
     newBoard.updateInPlayAround({ row, col })
@@ -618,7 +678,7 @@ export class Board {
   // NOTE: order important in addThreat when adding extension information
   // because of the way deltas work with the current implementation of
   // threatFinders
-  static compareLocations(first, second) {
+  static compareLocs(first, second) {
     if (first.col != second.col) return first.col - second.col
     if (first.row != second.row) return first.row - second.row
     return 0
