@@ -17,7 +17,8 @@ describe('Gomoku engine', function () {
       [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
       [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
       [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-      [null,null,null,null,null,null,null,"ME","ME",null,"ME","ME","ME",null,null,null,null,null,null],
+      // [null,null,null,null,null,null,null,"ME","ME",null,"ME","ME","ME",null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,"ME","ME",null,null,null,null,null,null,null,null,null,null],
       [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
       [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
       [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
@@ -33,10 +34,10 @@ describe('Gomoku engine', function () {
     ]
 
     let board = createEngineState("AI", "ME", boardValues)
-    console.log("board:", board);
+    console.log("board.toString():", board.toString());
 
-    let newBoard = board.move({ row: 6, col: 9 })
-    console.log("newBoard:", newBoard);
+    // let newBoard = board.move({ row: 6, col: 9 })
+    // console.log("newBoard.toString():", newBoard.toString());
 
 
 
@@ -46,6 +47,108 @@ describe('Gomoku engine', function () {
 
     assert.equal(true, false)
   })
+
+  // it("make sure joining works 1", function () {
+  //   let boardValues = [
+  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+  //     [null,null,null,null,null,null,"ME","ME",null,null,"ME","ME","ME",null,null,null,null,null,null],
+  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+  //   ]
+  //
+  //   let board = createEngineState("ME", "AI", boardValues)
+  //   console.log("board:", board);
+  //
+  //   let newBoard = board.move({ row: 6, col: 9 })
+  //   console.log("newBoard:", newBoard);
+  //
+  //   // TODO: copy this test, move one col less, flip two and three and duplicate again
+  //
+  //   // TODO: check the threats
+  //
+  //   // TODO: check the result doesn't have orphans
+  //
+  //   assert.equal(true, false)
+  // })
+  //
+  // it("make sure joining works 1", function () {
+  //   let boardValues = [
+  //     [null,"ME",null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+  //     ["AI","ME","ME","AI",null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+  //     [null,"ME",null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+  //   ]
+  //
+  //   let board = createEngineState("AI", "ME", boardValues)
+  //   assert.deepEquals(board.getThreats().toJS(), [
+  //     {
+  //       player: false,
+  //       finderIndex: 0,
+  //       played: [
+  //         { row: 0, col: 1 },
+  //         { row: 1, col: 1 },
+  //         { row: 2, col: 1 },
+  //       ],
+  //       expansions: 1,
+  //       span: 3,
+  //     },
+  //     {
+  //       player: false,
+  //       finderIndex: 1,
+  //       played: [
+  //         { row: 1, col: 1 },
+  //         { row: 1, col: 2 },
+  //       ],
+  //       expansions: 1,
+  //       span: 2,
+  //     },
+  //   ])
+  //
+  //   let newBoard = board.move({ row: 1, col: 3 })
+  //   assert.deepEquals(board.getThreats().toJS(), [
+  //     {
+  //       player: false,
+  //       finderIndex: 0,
+  //       played: [
+  //         { row: 0, col: 1 },
+  //         { row: 2, col: 1 },
+  //       ],
+  //       expansions: 1,
+  //       span: 3,
+  //     },
+  //     // TODO: the AI threat
+  //   ])
+  // })
 
   // it("doesn't accept invalid moves", function () {
   //   let board = new Board()
