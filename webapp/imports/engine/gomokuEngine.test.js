@@ -2,14 +2,44 @@ import _ from "underscore"
 import { chai } from 'meteor/practicalmeteor:chai';
 import Immutable from "immutable"
 
-import { Board, createEngineState, blankValues } from "./gomokuEngine"
+import { createBoardState } from "./gomokuEngine"
 
 Im = Immutable
 
 var { assert } = chai
 
+function jsonifyThreats(threats) {
+  return _.map(threats.toJS(), (threat) => {
+    if (threat === undefined) return undefined
+
+    return _.omit(threat, "score")
+  })
+}
+
+var blankValues = [
+  [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+  [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+  [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+  [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+  [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+  [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+  [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+  [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+  [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+  [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+  [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+  [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+  [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+  [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+  [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+  [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+  [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+  [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+  [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+]
+
 describe('Gomoku engine', function () {
-  it("splitting threats doesn't leave behind orphan threats", function () {
+  it("extremely simple", function () {
     let boardValues = [
       [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
       [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
@@ -17,7 +47,6 @@ describe('Gomoku engine', function () {
       [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
       [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
       [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-      // [null,null,null,null,null,null,null,"ME","ME",null,"ME","ME","ME",null,null,null,null,null,null],
       [null,null,null,null,null,null,null,"ME","ME",null,null,null,null,null,null,null,null,null,null],
       [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
       [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
@@ -33,398 +62,445 @@ describe('Gomoku engine', function () {
       [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
     ]
 
-    let board = createEngineState("AI", "ME", boardValues)
-    console.log("board.toString():", board.toString());
-
-    // let newBoard = board.move({ row: 6, col: 9 })
-    // console.log("newBoard.toString():", newBoard.toString());
-
-
-
-    // TODO: check the threats
-
-    // TODO: check the result doesn't have orphans
-
-    assert.equal(true, false)
+    let board = createBoardState("AI", "ME", boardValues)
+    assert.deepEqual(jsonifyThreats(board.getThreats()), [
+      {
+        finderIndex: "1",
+        player: false,
+        played: [ { row: 6, col: 7 }, { row: 6, col: 8 } ],
+        expansions: 2,
+        span: 2,
+      },
+    ])
   })
 
-  // it("make sure joining works 1", function () {
-  //   let boardValues = [
-  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,"ME","ME",null,null,"ME","ME","ME",null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //   ]
-  //
-  //   let board = createEngineState("ME", "AI", boardValues)
-  //   console.log("board:", board);
-  //
-  //   let newBoard = board.move({ row: 6, col: 9 })
-  //   console.log("newBoard:", newBoard);
-  //
-  //   // TODO: copy this test, move one col less, flip two and three and duplicate again
-  //
-  //   // TODO: check the threats
-  //
-  //   // TODO: check the result doesn't have orphans
-  //
-  //   assert.equal(true, false)
-  // })
-  //
-  // it("make sure joining works 1", function () {
-  //   let boardValues = [
-  //     [null,"ME",null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //     ["AI","ME","ME","AI",null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,"ME",null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //   ]
-  //
-  //   let board = createEngineState("AI", "ME", boardValues)
-  //   assert.deepEquals(board.getThreats().toJS(), [
-  //     {
-  //       player: false,
-  //       finderIndex: 0,
-  //       played: [
-  //         { row: 0, col: 1 },
-  //         { row: 1, col: 1 },
-  //         { row: 2, col: 1 },
-  //       ],
-  //       expansions: 1,
-  //       span: 3,
-  //     },
-  //     {
-  //       player: false,
-  //       finderIndex: 1,
-  //       played: [
-  //         { row: 1, col: 1 },
-  //         { row: 1, col: 2 },
-  //       ],
-  //       expansions: 1,
-  //       span: 2,
-  //     },
-  //   ])
-  //
-  //   let newBoard = board.move({ row: 1, col: 3 })
-  //   assert.deepEquals(board.getThreats().toJS(), [
-  //     {
-  //       player: false,
-  //       finderIndex: 0,
-  //       played: [
-  //         { row: 0, col: 1 },
-  //         { row: 2, col: 1 },
-  //       ],
-  //       expansions: 1,
-  //       span: 3,
-  //     },
-  //     // TODO: the AI threat
-  //   ])
-  // })
+  it("extremely simple 2", function () {
+    let boardValues = [
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,"ME","ME","ME",null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+    ]
 
-  // it("doesn't accept invalid moves", function () {
-  //   let board = new Board()
-  //       .move({ row: 0, col: 0 })
-  //       .move({ row: 0, col: 0 })
-  //
-  //   assert.equal(board, undefined)
-  // })
-  //
-  // //                      0123456789
-  // it('moves from scratch: ..1..43..2.........', function () {
-  //   let startBoard = new Board()
-  //
-  //   assert(startBoard.getThreats().length === 0)
-  //
-  //   let row = 7
-  //   let board = startBoard.move({ row, col: 2 }).move({ row: 0, col: 0 })
-  //   assert(startBoard.getThreats().length === 0)
-  //   assert(board.getThreats().length === 0)
-  //
-  //   // TODO: check in play cells
-  //   // TODO: check we put the piece in the right place,
-  //   // didn't modify startBoard
-  //
-  //   board = board.move({ row, col: 9 }).move({ row: 0, col: 10 })
-  //   assert(board.getThreats().length === 0)
-  //
-  //   board = board.move({ row, col: 6 }).move({ row: 0, col: 18 })
-  //
-  //   // check the threats
-  //   assert.equal(board.getThreats().length, 2)
-  //   assert.deepEqual(_.omit(board.getThreats()[0], "score"), {
-  //     player: true,
-  //     finderIndex: "1",
-  //     played: [ { row, col: 2 }, { row, col: 6 } ],
-  //     skipped: [ { row, col: 3 }, { row, col: 4 }, { row, col: 5 } ],
-  //     expansions: [],
-  //     span: 5,
-  //   })
-  //   assert.deepEqual(_.omit(board.getThreats()[1], "score"), {
-  //     player: true,
-  //     finderIndex: "1",
-  //     played: [ { row, col: 6 }, { row, col: 9 } ],
-  //     skipped: [ { row, col: 7 }, { row, col: 8 } ],
-  //     expansions: [ { row, col: 5 }, { row, col: 10 } ],
-  //     span: 4,
-  //   })
-  //
-  //   // check cellThreats
-  //   let rowSeven = board.getCellThreats().getIn([1, 7])
-  //   assert.deepEqual(rowSeven.get(0).toJS(), {})
-  //   assert.deepEqual(rowSeven.get(1).toJS(), {})
-  //   assert.deepEqual(rowSeven.get(2).toJS(), { 0: true })
-  //   assert.deepEqual(rowSeven.get(3).toJS(), { 0: true })
-  //   assert.deepEqual(rowSeven.get(4).toJS(), { 0: true })
-  //   assert.deepEqual(rowSeven.get(5).toJS(), { 0: true })
-  //   assert.deepEqual(rowSeven.get(6).toJS(), { 0: true, 1: true })
-  //   assert.deepEqual(rowSeven.get(7).toJS(), { 1: true })
-  //   assert.deepEqual(rowSeven.get(8).toJS(), { 1: true })
-  //   assert.deepEqual(rowSeven.get(9).toJS(), { 1: true })
-  //   assert.deepEqual(rowSeven.get(10).toJS(), {})
-  //
-  //   board = board.move({ row, col: 5 })
-  //   assert.equal(board.getThreats().length, 2)
-  //   assert.deepEqual(_.omit(board.getThreats()[0], "score"), {
-  //     player: true,
-  //     finderIndex: "1",
-  //     played: [ { row, col: 2 }, { row, col: 5 }, { row, col: 6 } ],
-  //     skipped: [ { row, col: 3 }, { row, col: 4 } ],
-  //     expansions: [],
-  //     span: 5,
-  //   })
-  //   assert.deepEqual(_.omit(board.getThreats()[1], "score"), {
-  //     player: true,
-  //     finderIndex: "1",
-  //     played: [ { row, col: 5 }, { row, col: 6 }, { row, col: 9 } ],
-  //     skipped: [ { row, col: 7 }, { row, col: 8 } ],
-  //     expansions: [],
-  //     span: 5,
-  //   })
-  // })
-  //
-  // //                      01234567890123456789
-  // it('moves from scratch: .......1235...4.....', function () {
-  //   let board = new Board()
-  //
-  //   let row = 7;
-  //   board = board.move({ row, col: 7 }).move({ row: 0, col: 0 })
-  //   assert.equal(board.getThreats().length, 0)
-  //
-  //   board = board.move({ row, col: 8 }).move({ row: 0, col: 10 })
-  //   assert.equal(board.getThreats().length, 1)
-  //   assert.deepEqual(_.omit(board.getThreats()[0], "score"), {
-  //     player: true,
-  //     finderIndex: "1",
-  //     played: [ { row, col: 7 }, { row, col: 8 } ],
-  //     skipped: [],
-  //     expansions: [ { row, col: 6 }, { row, col: 9 } ],
-  //     span: 2,
-  //   })
-  //
-  //   board = board.move({ row, col: 9 }).move({ row: 0, col: 18 })
-  //   assert.equal(board.getThreats().length, 1)
-  //   assert.deepEqual(_.omit(board.getThreats()[0], "score"), {
-  //     player: true,
-  //     finderIndex: "1",
-  //     played: [ { row, col: 7 }, { row, col: 8 }, { row, col: 9 } ],
-  //     skipped: [],
-  //     expansions: [ { row, col: 6 }, { row, col: 10 } ],
-  //     span: 3,
-  //   })
-  //
-  //   board = board.move({ row, col: 14 }).move({ row: 18, col: 0 })
-  //               .move({ row, col: 10 })//.move({ row: 18, col: 10 })
-  //   assert.equal(board.getThreats().length, 2)
-  //   assert.deepEqual(_.omit(board.getThreats()[0], "score"), {
-  //     player: true,
-  //     finderIndex: "1",
-  //     played: [ { row, col: 7 }, { row, col: 8 }, { row, col: 9 }, { row, col: 10 } ],
-  //     skipped: [],
-  //     expansions: [ { row, col: 6 }, { row, col: 11 } ],
-  //     span: 4,
-  //   })
-  //   assert.deepEqual(_.omit(board.getThreats()[1], "score"), {
-  //     player: true,
-  //     finderIndex: "1",
-  //     played: [ { row, col: 10 }, { row, col: 14 } ],
-  //     skipped: [ { row, col: 11 }, { row, col: 12 }, { row, col: 13 } ],
-  //     expansions: [],
-  //     span: 5,
-  //   })
-  // })
-  //
-  // //                      01234567890123456789
-  // it('moves from scratch: .......1.3.2.........', function () {
-  //   let board = new Board()
-  //
-  //   let row = 7;
-  //   board = board.move({ row, col: 7 }).move({ row: 0, col: 0 })
-  //               .move({ row, col: 11 }).move({ row: 0, col: 10 })
-  //   assert.equal(board.getThreats().length, 1)
-  //   assert.deepEqual(_.omit(board.getThreats()[0], "score"), {
-  //     player: true,
-  //     finderIndex: "1",
-  //     played: [ { row, col: 7 }, { row, col: 11 } ],
-  //     skipped: [ { row, col: 8 }, { row, col: 9 }, { row, col: 10 } ],
-  //     expansions: [],
-  //     span: 5,
-  //   })
-  //
-  //   board = board.move({ row, col: 9 })
-  //   assert.equal(board.getThreats().length, 1)
-  //   assert.deepEqual(_.omit(board.getThreats()[0], "score"), {
-  //     player: true,
-  //     finderIndex: "1",
-  //     played: [ { row, col: 7 }, { row, col: 9 }, { row, col: 11 } ],
-  //     skipped: [ { row, col: 8 }, { row, col: 10 } ],
-  //     expansions: [],
-  //     span: 5,
-  //   })
-  // })
-  //
-  // //                      01234567890123456789
-  // it('moves from scratch: .....12..3..........', function () {
-  //   let board = new Board()
-  //
-  //   let row = 7;
-  //   board = board.move({ row, col: 5 }).move({ row: 0, col: 0 })
-  //               .move({ row, col: 6 }).move({ row: 0, col: 10 })
-  //               .move({ row, col: 9 })
-  //   assert.equal(board.getThreats().length, 1)
-  //   assert.deepEqual(_.omit(board.getThreats()[0], "score"), {
-  //     player: true,
-  //     finderIndex: "1",
-  //     played: [ { row, col: 5 }, { row, col: 6 }, { row, col: 9 } ],
-  //     skipped: [ { row, col: 7 }, { row, col: 8 } ],
-  //     expansions: [],
-  //     span: 5,
-  //   })
-  // })
-  //
-  // //                      01234567890123456789
-  // it('moves from scratch: .......3..12........', function () {
-  //   let board = new Board()
-  //
-  //   let row = 7;
-  //   board = board.move({ row, col: 10 }).move({ row: 0, col: 0 })
-  //               .move({ row, col: 11 }).move({ row: 0, col: 10 })
-  //               .move({ row, col: 7 })
-  //
-  //   assert.equal(board.getThreats().length, 1)
-  //   assert.deepEqual(_.omit(board.getThreats()[0], "score"), {
-  //     player: true,
-  //     finderIndex: "1",
-  //     played: [ { row, col: 7 }, { row, col: 10 }, { row, col: 11 } ],
-  //     skipped: [ { row, col: 8 }, { row, col: 9 } ],
-  //     expansions: [],
-  //     span: 5,
-  //   })
-  // })
-  //
-  // // force checking both threats on side to merge
-  // //                      01234567890123456789
-  // it('moves from scratch: ...3..14.2.........', function () {
-  //   let board = new Board()
-  //
-  //   let row = 7;
-  //   board = board.move({ row, col: 6 }).move({ row: 0, col: 0 })
-  //               .move({ row, col: 9 }).move({ row: 0, col: 10 })
-  //               .move({ row, col: 3 }).move({ row: 0, col: 18 })
-  //               .move({ row, col: 7 })
-  //
-  //   assert.equal(board.getThreats().length, 2)
-  // })
-  //
-  //
-  //
-  // it("don't join threats of opposite player", function () {
-  //   let board = new Board()
-  //
-  //   let col = 4
-  //   board = board.move({ row: 8, col }).move({ row: 9, col })
-  //               .move({ row: 7, col }).move({ row: 10, col })
-  //   assert.equal(board.getThreats().length, 2)
-  //   assert.deepEqual(_.omit(board.getThreats()[0], "score"), {
-  //     player: true,
-  //     finderIndex: "0",
-  //     played: [ { row: 7, col }, { row: 8, col } ],
-  //     skipped: [],
-  //     expansions: [ { row: 6, col } ],
-  //     span: 2,
-  //   })
-  //   assert.deepEqual(_.omit(board.getThreats()[1], "score"), {
-  //     player: false,
-  //     finderIndex: "0",
-  //     played: [ { row: 9, col }, { row: 10, col } ],
-  //     skipped: [],
-  //     expansions: [ { row: 11, col } ],
-  //     span: 2,
-  //   })
-  // })
-  //
-  // // make sure threats that don't have space aren't recorded
-  // it("doesn't find threats that can't expand", function () {
-  //   let board = new Board()
-  //
-  //   board = board.move({ row: 0, col: 1 }).move({ row: 17, col: 16 })
-  //               .move({ row: 1, col: 0 }).move({ row: 16, col: 17 })
-  //   assert.equal(board.getThreats().length, 0)
-  // })
-  //
-  // it("removes threats that can no longer expand", function () {
-  //   let board = new Board()
-  //
-  //   let col = 4
-  //   board = board.move({ row: 5, col }).move({ row: 7, col })
-  //               .move({ row: 6, col }).move({ row: 12, col: 0 })
-  //               .move({ row: 4, col })
-  //   assert.equal(board.getThreats().length, 1)
-  //   assert.deepEqual(_.omit(board.getThreats()[0], "score"), {
-  //     player: true,
-  //     finderIndex: "0",
-  //     played: [ { row: 4, col }, { row: 5, col }, { row: 6, col } ],
-  //     skipped: [],
-  //     expansions: [ { row: 3, col } ],
-  //     span: 3,
-  //   })
-  //
-  //   // block the true player from expanding
-  //   board = board.move({ row: 2, col })
-  //   assert.equal(board.getThreats().length, 1)
-  //   assert.equal(board.getThreats()[0], undefined)
-  // })
-  //
+    let board = createBoardState("AI", "ME", boardValues)
+    assert.deepEqual(jsonifyThreats(board.getThreats()), [
+      {
+        finderIndex: "1",
+        player: false,
+        played: [ { row: 6, col: 7 }, { row: 6, col: 8 }, { row: 6, col: 9 } ],
+        expansions: 2,
+        span: 3,
+      },
+    ])
+  })
+
+  it("splitting threats doesn't leave behind orphan threats", function () {
+    let boardValues = [
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,"ME","ME",null,"ME","ME","ME",null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+    ]
+
+    let row = 6
+    let board = createBoardState("AI", "ME", boardValues)
+    assert.deepEqual(jsonifyThreats(board.getThreats()), [
+      {
+        finderIndex: "1",
+        player: false,
+        played: [ { row, col: 7 }, { row, col: 8 }, { row, col: 10 }, { row, col: 11 } ],
+        expansions: 0,
+        span: 5,
+      },
+      {
+        finderIndex: "1",
+        player: false,
+        played: [ { row, col: 8 }, { row, col: 10 }, { row, col: 11 }, { row, col: 12 } ],
+        expansions: 0,
+        span: 5,
+      },
+    ])
+    assert.deepEqual(board.getCellThreats().toJS()[1][6], [
+      {},{},{},{},{},{},{},
+      { 0: false },
+      { 0: false, 1: false },
+      { 0: false, 1: false },
+      { 0: false, 1: false },
+      { 0: false, 1: false },
+      {           1: false },
+      {},{},{},{},{},{},
+    ])
+
+    console.log("\n\nRight before move");
+    board = board.move({ row: 6, col: 9 })
+    console.log("board.toString():", board.toString());
+    console.log("jsonifyThreats(board.getThreats()):", jsonifyThreats(board.getThreats()));
+    assert.deepEqual(jsonifyThreats(board.getThreats()), [
+      undefined,
+      undefined,
+      {
+        finderIndex: "1",
+        player: false,
+        played: [ { row, col: 7 }, { row, col: 8 } ],
+        expansions: 1,
+        span: 2,
+      },
+      {
+        finderIndex: "1",
+        player: false,
+        played: [ { row, col: 10 }, { row, col: 11 }, { row, col: 12 } ],
+        expansions: 1,
+        span: 3,
+      },
+    ])
+  })
+
+  it("splitting threats works hard", function () {
+    let boardValues = [
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,"ME",null,null,"ME","ME",null,"ME","ME","ME",null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+    ]
+
+    let row = 6
+    let board = createBoardState("AI", "ME", boardValues)
+    assert.deepEqual(jsonifyThreats(board.getThreats()), [
+      {
+        finderIndex: "1",
+        player: false,
+        played: [ { row, col: 4 }, { row, col: 7 }, { row, col: 8 } ],
+        expansions: 0,
+        span: 5,
+      },
+      {
+        finderIndex: "1",
+        player: false,
+        played: [ { row, col: 7 }, { row, col: 8 }, { row, col: 10 }, { row, col: 11 } ],
+        expansions: 0,
+        span: 5,
+      },
+      {
+        finderIndex: "1",
+        player: false,
+        played: [ { row, col: 8 }, { row, col: 10 }, { row, col: 11 }, { row, col: 12 } ],
+        expansions: 0,
+        span: 5,
+      },
+    ])
+
+    let newBoard = board.move({ row: 6, col: 9 })
+    assert.deepEqual(jsonifyThreats(newBoard.getThreats()), [
+      {
+        finderIndex: "1",
+        player: false,
+        played: [ { row, col: 4 }, { row, col: 7 }, { row, col: 8 } ],
+        expansions: 0,
+        span: 5,
+      },
+      undefined,
+      undefined,
+      {
+        finderIndex: "1",
+        player: false,
+        played: [ { row, col: 10 }, { row, col: 11 }, { row, col: 12 } ],
+        expansions: 1,
+        span: 3,
+      },
+    ])
+  })
+
+  //                      0123456789
+  it('moves from scratch: ..1..43..2.........', function () {
+    let startBoard = createBoardState("ME", "AI", blankValues)
+
+    assert(jsonifyThreats(startBoard.getThreats()).length === 0)
+
+    let row = 7
+    let board = startBoard.move({ row, col: 2 }).move({ row: 0, col: 0 })
+    assert(jsonifyThreats(startBoard.getThreats()).length === 0)
+    assert(jsonifyThreats(board.getThreats()).length === 0)
+
+    board = board.move({ row, col: 9 }).move({ row: 0, col: 10 })
+    assert(jsonifyThreats(board.getThreats()).length === 0)
+
+    board = board.move({ row, col: 6 }).move({ row: 0, col: 18 })
+
+    // check the threats
+    assert.equal(jsonifyThreats(board.getThreats()).length, 2)
+    assert.deepEqual(jsonifyThreats(board.getThreats())[0], {
+      player: true,
+      finderIndex: "1",
+      played: [ { row, col: 2 }, { row, col: 6 } ],
+      expansions: 0,
+      span: 5,
+    })
+    assert.deepEqual(_.omit(jsonifyThreats(board.getThreats())[1], "score"), {
+      player: true,
+      finderIndex: "1",
+      played: [ { row, col: 6 }, { row, col: 9 } ],
+      expansions: 2,
+      span: 4,
+    })
+
+    // check cellThreats
+    let rowSeven = board.getCellThreats().getIn([1, 7])
+    assert.deepEqual(rowSeven.get(0).toJS(), {})
+    assert.deepEqual(rowSeven.get(1).toJS(), {})
+    assert.deepEqual(rowSeven.get(2).toJS(), { 0: true })
+    assert.deepEqual(rowSeven.get(3).toJS(), { 0: true })
+    assert.deepEqual(rowSeven.get(4).toJS(), { 0: true })
+    assert.deepEqual(rowSeven.get(5).toJS(), { 0: true })
+    assert.deepEqual(rowSeven.get(6).toJS(), { 0: true, 1: true })
+    assert.deepEqual(rowSeven.get(7).toJS(), { 1: true })
+    assert.deepEqual(rowSeven.get(8).toJS(), { 1: true })
+    assert.deepEqual(rowSeven.get(9).toJS(), { 1: true })
+    assert.deepEqual(rowSeven.get(10).toJS(), {})
+
+    board = board.move({ row, col: 5 })
+    assert.equal(jsonifyThreats(board.getThreats()).length, 2)
+    assert.deepEqual(jsonifyThreats(board.getThreats())[0], {
+      player: true,
+      finderIndex: "1",
+      played: [ { row, col: 2 }, { row, col: 5 }, { row, col: 6 } ],
+      expansions: 0,
+      span: 5,
+    })
+    assert.deepEqual(jsonifyThreats(board.getThreats())[1], {
+      player: true,
+      finderIndex: "1",
+      played: [ { row, col: 5 }, { row, col: 6 }, { row, col: 9 } ],
+      expansions: 0,
+      span: 5,
+    })
+  })
+
+  //                      01234567890123456789
+  it('moves from scratch: .......1235...4.....', function () {
+    let board = createBoardState("ME", "AI", blankValues)
+
+    let row = 7;
+    board = board.move({ row, col: 7 }).move({ row: 0, col: 0 })
+    assert.equal(jsonifyThreats(board.getThreats()).length, 0)
+
+    board = board.move({ row, col: 8 }).move({ row: 0, col: 10 })
+    assert.equal(jsonifyThreats(board.getThreats()).length, 1)
+    assert.deepEqual(jsonifyThreats(board.getThreats())[0], {
+      player: true,
+      finderIndex: "1",
+      played: [ { row, col: 7 }, { row, col: 8 } ],
+      expansions: 2,
+      span: 2,
+    })
+
+    board = board.move({ row, col: 9 }).move({ row: 0, col: 18 })
+    assert.equal(jsonifyThreats(board.getThreats()).length, 1)
+    assert.deepEqual(jsonifyThreats(board.getThreats())[0], {
+      player: true,
+      finderIndex: "1",
+      played: [ { row, col: 7 }, { row, col: 8 }, { row, col: 9 } ],
+      expansions: 2,
+      span: 3,
+    })
+
+    board = board.move({ row, col: 14 }).move({ row: 18, col: 0 })
+                .move({ row, col: 10 })//.move({ row: 18, col: 10 })
+    assert.equal(jsonifyThreats(board.getThreats()).length, 2)
+    assert.deepEqual(jsonifyThreats(board.getThreats())[0], {
+      player: true,
+      finderIndex: "1",
+      played: [ { row, col: 7 }, { row, col: 8 }, { row, col: 9 }, { row, col: 10 } ],
+      expansions: 2,
+      span: 4,
+    })
+    assert.deepEqual(jsonifyThreats(board.getThreats())[1], {
+      player: true,
+      finderIndex: "1",
+      played: [ { row, col: 10 }, { row, col: 14 } ],
+      expansions: 0,
+      span: 5,
+    })
+  })
+
+  //                      01234567890123456789
+  it('moves from scratch: .......1.3.2.........', function () {
+    let board = createBoardState("ME", "AI", blankValues)
+
+    let row = 7;
+    board = board.move({ row, col: 7 }).move({ row: 0, col: 0 })
+                .move({ row, col: 11 }).move({ row: 0, col: 10 })
+    assert.equal(jsonifyThreats(board.getThreats()).length, 1)
+    assert.deepEqual(jsonifyThreats(board.getThreats())[0], {
+      player: true,
+      finderIndex: "1",
+      played: [ { row, col: 7 }, { row, col: 11 } ],
+      expansions: 0,
+      span: 5,
+    })
+
+    board = board.move({ row, col: 9 })
+    assert.equal(jsonifyThreats(board.getThreats()).length, 1)
+    assert.deepEqual(jsonifyThreats(board.getThreats())[0], {
+      player: true,
+      finderIndex: "1",
+      played: [ { row, col: 7 }, { row, col: 9 }, { row, col: 11 } ],
+      expansions: 0,
+      span: 5,
+    })
+  })
+
+  //                      01234567890123456789
+  it('moves from scratch: .....12..3..........', function () {
+    let board = createBoardState("ME", "AI", blankValues)
+
+    let row = 7;
+    board = board.move({ row, col: 5 }).move({ row: 0, col: 0 })
+                .move({ row, col: 6 }).move({ row: 0, col: 10 })
+                .move({ row, col: 9 })
+    assert.equal(jsonifyThreats(board.getThreats()).length, 1)
+    assert.deepEqual(jsonifyThreats(board.getThreats())[0], {
+      player: true,
+      finderIndex: "1",
+      played: [ { row, col: 5 }, { row, col: 6 }, { row, col: 9 } ],
+      expansions: 0,
+      span: 5,
+    })
+  })
+
+  //                      01234567890123456789
+  it('moves from scratch: .......3..12........', function () {
+    let board = createBoardState("ME", "AI", blankValues)
+
+    let row = 7;
+    board = board.move({ row, col: 10 }).move({ row: 0, col: 0 })
+                .move({ row, col: 11 }).move({ row: 0, col: 10 })
+                .move({ row, col: 7 })
+
+    assert.equal(jsonifyThreats(board.getThreats()).length, 1)
+    assert.deepEqual(jsonifyThreats(board.getThreats())[0], {
+      player: true,
+      finderIndex: "1",
+      played: [ { row, col: 7 }, { row, col: 10 }, { row, col: 11 } ],
+      expansions: 0,
+      span: 5,
+    })
+  })
+
+  // force checking both threats on side to merge
+  //                      01234567890123456789
+  it('moves from scratch: ...3..14.2.........', function () {
+    let board = createBoardState("ME", "AI", blankValues)
+
+    let row = 7;
+    board = board.move({ row, col: 6 }).move({ row: 0, col: 0 })
+                .move({ row, col: 9 }).move({ row: 0, col: 10 })
+                .move({ row, col: 3 }).move({ row: 0, col: 18 })
+                .move({ row, col: 7 })
+
+    assert.equal(jsonifyThreats(board.getThreats()).length, 2)
+  })
+
+  it("don't join threats of opposite player", function () {
+    let board = createBoardState("ME", "AI", blankValues)
+
+    let col = 4
+    board = board.move({ row: 8, col }).move({ row: 9, col })
+                .move({ row: 7, col }).move({ row: 10, col })
+    assert.equal(jsonifyThreats(board.getThreats()).length, 2)
+    assert.deepEqual(jsonifyThreats(board.getThreats())[0], {
+      player: true,
+      finderIndex: "0",
+      played: [ { row: 7, col }, { row: 8, col } ],
+      expansions: 1,
+      span: 2,
+    })
+    assert.deepEqual(jsonifyThreats(board.getThreats())[1], {
+      player: false,
+      finderIndex: "0",
+      played: [ { row: 9, col }, { row: 10, col } ],
+      expansions: 1,
+      span: 2,
+    })
+  })
+
+  // make sure threats that don't have space aren't recorded
+  it("doesn't find threats that can't expand", function () {
+    let board = createBoardState("ME", "AI", blankValues)
+
+    board = board.move({ row: 0, col: 1 }).move({ row: 18, col: 17 })
+                .move({ row: 1, col: 0 }).move({ row: 17, col: 18 })
+    assert.equal(jsonifyThreats(board.getThreats()).length, 0)
+  })
+
+  it("removes threats that can no longer expand", function () {
+    let board = createBoardState("ME", "AI", blankValues)
+
+    let col = 4
+    board = board.move({ row: 5, col }).move({ row: 7, col })
+                .move({ row: 6, col }).move({ row: 12, col: 0 })
+                .move({ row: 4, col })
+    assert.equal(jsonifyThreats(board.getThreats()).length, 1)
+    assert.deepEqual(jsonifyThreats(board.getThreats())[0], {
+      player: true,
+      finderIndex: "0",
+      played: [ { row: 4, col }, { row: 5, col }, { row: 6, col } ],
+      expansions: 1,
+      span: 3,
+    })
+
+    // block the true player from expanding
+    board = board.move({ row: 2, col })
+    assert.equal(jsonifyThreats(board.getThreats()).length, 1)
+    assert.equal(jsonifyThreats(board.getThreats())[0], undefined)
+  })
+
   // it("splits threats that are broken in two", function () {
-  //   let board = new Board()
+  //   let board = createBoardState("ME", "AI", blankValues)
   //
   //   let row = 4
   //   board = board.move({ row, col: 3 }).move({ col: 0, row: 0 })
@@ -432,8 +508,8 @@ describe('Gomoku engine', function () {
   //               .move({ row, col: 6 }).move({ col: 0, row: 18 })
   //               .move({ row, col: 7 })
   //
-  //   assert.equal(board.getThreats().length, 1)
-  //   assert.deepEqual(_.omit(board.getThreats()[0], "score"), {
+  //   assert.equal(jsonifyThreats(board.getThreats()).length, 1)
+  //   assert.deepEqual(jsonifyThreats(board.getThreats())[0], {
   //     player: true,
   //     finderIndex: "1",
   //     played: [
@@ -442,34 +518,47 @@ describe('Gomoku engine', function () {
   //       { row, col: 6 },
   //       { row, col: 7 },
   //     ],
-  //     skipped: [ { row, col: 5 } ],
-  //     expansions: [],
+  //     expansions: 0,
   //     span: 5,
   //   })
   //
   //   // bisect the threat (false to move)
   //   board = board.move({ row, col: 5 })
-  //   assert.equal(board.getThreats().length, 3)
-  //   assert.deepEqual(_.omit(board.getThreats()[1], "score"), {
+  //   assert.equal(jsonifyThreats(board.getThreats()).length, 3)
+  //   assert.deepEqual(jsonifyThreats(board.getThreats())[1], {
   //     player: true,
   //     finderIndex: "1",
   //     played: [ { row, col: 3 }, { row, col: 4 }, ],
-  //     skipped: [],
-  //     expansions: [ { row, col: 2 } ],
+  //     expansions: 1,
   //     span: 2,
   //   })
-  //   assert.deepEqual(_.omit(board.getThreats()[2], "score"), {
+  //   assert.deepEqual(jsonifyThreats(board.getThreats())[2], {
   //     player: true,
   //     finderIndex: "1",
   //     played: [ { row, col: 6 }, { row, col: 7 }, ],
-  //     skipped: [],
-  //     expansions: [ { row, col: 8 } ],
+  //     expansions: 1,
   //     span: 2,
   //   })
   // })
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   //
   // it("splits threats that are broken in two part 2", function () {
-  //   let board = new Board()
+  //   let board = createBoardState("ME", "AI", blankValues)
   //
   //   let col = 4
   //   board = board.move({ row: 3, col }).move({ row: 0, col: 0 })
@@ -478,8 +567,8 @@ describe('Gomoku engine', function () {
   //               .move({ row: 7, col }).move({ row: 18, col: 0 })
   //               .move({ row: 9, col })
   //
-  //   assert.equal(board.getThreats().length, 2)
-  //   assert.deepEqual(_.omit(board.getThreats()[0], "score"), {
+  //   assert.equal(jsonifyThreats(board.getThreats()).length, 2)
+  //   assert.deepEqual(_.omit(jsonifyThreats(board.getThreats())[0], "score"), {
   //     player: true,
   //     finderIndex: "0",
   //     played: [
@@ -492,7 +581,7 @@ describe('Gomoku engine', function () {
   //     expansions: [],
   //     span: 5,
   //   })
-  //   assert.deepEqual(_.omit(board.getThreats()[1], "score"), {
+  //   assert.deepEqual(_.omit(jsonifyThreats(board.getThreats())[1], "score"), {
   //     player: true,
   //     finderIndex: "0",
   //     played: [ { row: 6, col }, { row: 7, col }, { row: 9, col } ],
@@ -503,8 +592,8 @@ describe('Gomoku engine', function () {
   //
   //   // bisect the threat (false to move)
   //   board = board.move({ row: 5, col })
-  //   assert.equal(board.getThreats().length, 3)
-  //   assert.deepEqual(_.omit(board.getThreats()[2], "score"), {
+  //   assert.equal(jsonifyThreats(board.getThreats()).length, 3)
+  //   assert.deepEqual(_.omit(jsonifyThreats(board.getThreats())[2], "score"), {
   //     player: true,
   //     finderIndex: "0",
   //     played: [ { row: 3, col }, { row: 4, col }, ],
@@ -512,7 +601,7 @@ describe('Gomoku engine', function () {
   //     expansions: [ { row: 2, col } ],
   //     span: 2,
   //   })
-  //   assert.deepEqual(_.omit(board.getThreats()[1], "score"), {
+  //   assert.deepEqual(_.omit(jsonifyThreats(board.getThreats())[1], "score"), {
   //     player: true,
   //     finderIndex: "0",
   //     played: [ { row: 6, col }, { row: 7, col }, { row: 9, col } ],
@@ -523,7 +612,7 @@ describe('Gomoku engine', function () {
   // })
   //
   // it("inPlayCells works properly", function () {
-  //   let board = new Board()
+  //   let board = createBoardState("ME", "AI", blankValues)
   //
   //   let row = 7;
   //   board = board.move({ row: 7, col: 7 })
@@ -580,10 +669,10 @@ describe('Gomoku engine', function () {
   //   boardValues[4][6] = "black"
   //   boardValues[4][7] = "black"
   //
-  //   board = createEngineState("white", "black", boardValues)
+  //   board = createBoardState("white", "black", boardValues)
   //   assert.deepEqual(board.getBestMove(), { row: 4, col: 8 })
   //
-  //   board = createEngineState("black", "white", boardValues)
+  //   board = createBoardState("black", "white", boardValues)
   //   assert.deepEqual(board.getInPlayCells(), {
   //     0: {
   //       1: true,
@@ -627,8 +716,8 @@ describe('Gomoku engine', function () {
   //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
   //   ]
   //
-  //   let board = createEngineState("ME", "AI", boardValues)
-  //   let control = createEngineState("ME", "AI", boardValues)
+  //   let board = createBoardState("ME", "AI", boardValues)
+  //   let control = createBoardState("ME", "AI", boardValues)
   //
   //   // this line could corrupt the board so check afterwards if it has
   //   assert.isDefined(board.getBestMove())
@@ -660,7 +749,7 @@ describe('Gomoku engine', function () {
   //   ]
   //
   //   // AI goes first and is maximizing player
-  //   let state = createEngineState("AI", "ME", boardValues)
+  //   let state = createBoardState("AI", "ME", boardValues)
   //   assert.deepEqual(state.getStringBoard(), boardValues)
   // })
   //
@@ -687,7 +776,7 @@ describe('Gomoku engine', function () {
   //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
   //   ]
   //
-  //   let state = createEngineState("AI", "ME", boardValues)
+  //   let state = createBoardState("AI", "ME", boardValues)
   //   let bestMove = state.getBestMove()
   //   assert.deepEqual(bestMove, { row: 8, col: 9 })
   // })
@@ -715,7 +804,7 @@ describe('Gomoku engine', function () {
   //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
   //   ]
   //
-  //   let state = createEngineState("AI", "ME", boardValues)
+  //   let state = createBoardState("AI", "ME", boardValues)
   //   let bestMove = state.getBestMove()
   //   assert.deepEqual(bestMove, { row: 1, col: 5 })
   // })
@@ -731,7 +820,7 @@ describe('Gomoku engine', function () {
   //   boardValues[10][8] = "white"
   //   boardValues[11][10] = "black"
   //
-  //   board = createEngineState("white", "black", boardValues)
+  //   board = createBoardState("white", "black", boardValues)
   //   assert.equal(board.getThreats().length, 3)
   //   assert.deepEqual(_.omit(board.getThreats()[0], "score"), {
   //     player: true,
@@ -777,24 +866,24 @@ describe('Gomoku engine', function () {
   //   boardValues[10][10] = "black"
   //   boardValues[11][7] = "white"
   //
-  //   board = createEngineState("black", "white", boardValues)
+  //   board = createBoardState("black", "white", boardValues)
   //   assert.deepEqual(board.getBestMove(), { row: 7, col: 9 })
   //
   //   boardValues[8][10] = "black"
   //   boardValues[8][7] = "white"
-  //   board = createEngineState("black", "white", boardValues)
+  //   board = createBoardState("black", "white", boardValues)
   //   assert.deepEqual(board.getBestMove(), { row: 9, col: 10 })
   //
   //   boardValues[9][10] = "black"
   //   boardValues[12][6] = "white"
   //
-  //   board = createEngineState("black", "white", boardValues)
+  //   board = createBoardState("black", "white", boardValues)
   //   assert.equal(board.getWinningThreat().played, undefined)
   //
   //   // NOTE: black can win with { row: 7, col: 10 } or { row: 12, col: 10 }
   //   // play winning move and make sure it figures out we've won
   //   boardValues[7][10] = "black"
-  //   board = createEngineState("white", "black", boardValues)
+  //   board = createBoardState("white", "black", boardValues)
   //   assert.deepEqual(board.getWinningThreat().played, [
   //     { row: 7, col: 10 },
   //     { row: 8, col: 10 },
@@ -1043,7 +1132,7 @@ describe('Gomoku engine', function () {
   //   ]
   //
   //   // ensure everything is kosher with the threats generated
-  //   let state = createEngineState("BL", "WH", boardValues)
+  //   let state = createBoardState("BL", "WH", boardValues)
   //   assert.equal(state.toString(), "next move will be by BL\n" +
   //     "B = BL\n" +
   //     "W = WH\n" +
@@ -1488,5 +1577,5 @@ describe('Gomoku engine', function () {
   //
   // // remove threats that are no longer a thing/remove that single square from it
   //
-  // // figure out why createEngineState was being weird with the order of the two players
+  // // figure out why createBoardState was being weird with the order of the two players
 })

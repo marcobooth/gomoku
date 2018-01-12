@@ -3,7 +3,7 @@ import { check } from 'meteor/check';
 import { Games } from '../collections.js'
 const { exec } = require('child_process');
 import { ensureLoggedIn } from '../../utilities/ensureLoggedIn.js'
-import { createEngineState } from "../../engine/gomokuEngine"
+import { createBoardState } from "../../engine/gomokuEngine"
 
 Meteor.methods({
   'games.handleMove'(gameId, row, col) {
@@ -29,7 +29,7 @@ Meteor.methods({
 
     let otherPlayer = game.currentPlayer === game.p1 ? game.p2 : game.p1
 
-    let state = createEngineState(game.currentPlayer, game.currentPlayer,
+    let state = createBoardState(game.currentPlayer, game.currentPlayer,
         otherPlayer, game.board)
     state = state.move({ row, col })
 

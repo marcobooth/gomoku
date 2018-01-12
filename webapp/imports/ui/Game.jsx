@@ -8,7 +8,7 @@ import Board from './Board.jsx'
 import GameInfo from './GameInfo.jsx'
 import PieceColour from './PieceColour.jsx'
 import GameMessages from './GameMessages.jsx'
-import { createEngineState } from "../engine/gomokuEngine"
+import { createBoardState } from "../engine/gomokuEngine"
 
 class Game extends Component {
 
@@ -26,7 +26,7 @@ class Game extends Component {
         } else if (game.currentPlayer === "AI" &&
             (userId === game.p1 || userId === game.p2)) {
           console.log("AI's turn -- running the engine");
-          let state = createEngineState("AI", "AI", userId, game.board)
+          let state = createBoardState("AI", "AI", userId, game.board)
 
           let start = new Date().getTime()
           let bestMove = state.getBestMove()
