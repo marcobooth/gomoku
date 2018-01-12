@@ -521,8 +521,6 @@ describe('Gomoku engine', function () {
 
     // bisect the threat (false to move)
     board = board.move({ row, col: 5 })
-    console.log("board.toString():", board.toString());
-    console.log("jsonifyThreats(board.getThreats()):", jsonifyThreats(board.getThreats()));
     assert.equal(jsonifyThreats(board.getThreats()).length, 3)
     assert.deepEqual(jsonifyThreats(board.getThreats())[1], {
       player: true,
@@ -541,72 +539,58 @@ describe('Gomoku engine', function () {
   })
 
 
+  it("splits threats that are broken in two part 2", function () {
+    let board = createBoardState("ME", "AI", blankValues)
 
+    let col = 4
+    board = board.move({ row: 3, col }).move({ row: 0, col: 0 })
+                .move({ row: 4, col }).move({ row: 0, col: 10 })
+                .move({ row: 6, col }).move({ row: 0, col: 18 })
+                .move({ row: 7, col }).move({ row: 18, col: 0 })
+                .move({ row: 9, col })
 
+    assert.equal(jsonifyThreats(board.getThreats()).length, 2)
+    assert.deepEqual(jsonifyThreats(board.getThreats())[0], {
+      player: true,
+      finderIndex: "0",
+      played: [
+        { row: 3, col },
+        { row: 4, col },
+        { row: 6, col },
+        { row: 7, col },
+      ],
+      expansions: 0,
+      span: 5,
+    })
+    assert.deepEqual(jsonifyThreats(board.getThreats())[1], {
+      player: true,
+      finderIndex: "0",
+      played: [ { row: 6, col }, { row: 7, col }, { row: 9, col } ],
+      expansions: 2,
+      span: 4,
+    })
 
+    // bisect the threat (false to move)
+    board = board.move({ row: 5, col })
+    assert.equal(jsonifyThreats(board.getThreats()).length, 3)
+    console.log("board.toString():", board.toString());
+    console.log("jsonifyThreats(board.getThreats()):", jsonifyThreats(board.getThreats()));
+    assert.deepEqual(jsonifyThreats(board.getThreats())[1], {
+      player: true,
+      finderIndex: "0",
+      played: [ { row: 6, col }, { row: 7, col }, { row: 9, col } ],
+      expansions: 1,
+      span: 4,
+    })
+    assert.deepEqual(jsonifyThreats(board.getThreats())[2], {
+      player: true,
+      finderIndex: "0",
+      played: [ { row: 3, col }, { row: 4, col } ],
+      expansions: 1,
+      span: 2,
+    })
+  })
 
-
-
-
-
-
-
-
-  //
-  // it("splits threats that are broken in two part 2", function () {
-  //   let board = createBoardState("ME", "AI", blankValues)
-  //
-  //   let col = 4
-  //   board = board.move({ row: 3, col }).move({ row: 0, col: 0 })
-  //               .move({ row: 4, col }).move({ row: 0, col: 10 })
-  //               .move({ row: 6, col }).move({ row: 0, col: 18 })
-  //               .move({ row: 7, col }).move({ row: 18, col: 0 })
-  //               .move({ row: 9, col })
-  //
-  //   assert.equal(jsonifyThreats(board.getThreats()).length, 2)
-  //   assert.deepEqual(_.omit(jsonifyThreats(board.getThreats())[0], "score"), {
-  //     player: true,
-  //     finderIndex: "0",
-  //     played: [
-  //       { row: 3, col },
-  //       { row: 4, col },
-  //       { row: 6, col },
-  //       { row: 7, col },
-  //     ],
-  //     skipped: [ { row: 5, col } ],
-  //     expansions: [],
-  //     span: 5,
-  //   })
-  //   assert.deepEqual(_.omit(jsonifyThreats(board.getThreats())[1], "score"), {
-  //     player: true,
-  //     finderIndex: "0",
-  //     played: [ { row: 6, col }, { row: 7, col }, { row: 9, col } ],
-  //     skipped: [ { row: 8, col } ],
-  //     expansions: [ { row: 5, col }, { row: 10, col } ],
-  //     span: 4,
-  //   })
-  //
-  //   // bisect the threat (false to move)
-  //   board = board.move({ row: 5, col })
-  //   assert.equal(jsonifyThreats(board.getThreats()).length, 3)
-  //   assert.deepEqual(_.omit(jsonifyThreats(board.getThreats())[2], "score"), {
-  //     player: true,
-  //     finderIndex: "0",
-  //     played: [ { row: 3, col }, { row: 4, col }, ],
-  //     skipped: [],
-  //     expansions: [ { row: 2, col } ],
-  //     span: 2,
-  //   })
-  //   assert.deepEqual(_.omit(jsonifyThreats(board.getThreats())[1], "score"), {
-  //     player: true,
-  //     finderIndex: "0",
-  //     played: [ { row: 6, col }, { row: 7, col }, { row: 9, col } ],
-  //     skipped: [ { row: 8, col } ],
-  //     expansions: [ { row: 10, col } ],
-  //     span: 4,
-  //   })
-  // })
-  //
   // it("inPlayCells works properly", function () {
   //   let board = createBoardState("ME", "AI", blankValues)
   //
@@ -818,7 +802,7 @@ describe('Gomoku engine', function () {
   //
   //   board = createBoardState("white", "black", boardValues)
   //   assert.equal(board.getThreats().length, 3)
-  //   assert.deepEqual(_.omit(board.getThreats()[0], "score"), {
+  //   assert.deepEqual(board.getThreats()[0], {
   //     player: true,
   //     finderIndex: '0',
   //     played: [ { row: 8, col: 9 }, { row: 9, col: 9 } ],
@@ -826,7 +810,7 @@ describe('Gomoku engine', function () {
   //     expansions: [ { row: 7, col: 9 } ],
   //     span: 2,
   //   })
-  //   assert.deepEqual(_.omit(board.getThreats()[1], "score"), {
+  //   assert.deepEqual(board.getThreats()[1], {
   //     player: true,
   //     finderIndex: '3',
   //     played: [ { row: 10, col: 8 }, { row: 9, col: 9 } ],
@@ -834,7 +818,7 @@ describe('Gomoku engine', function () {
   //     expansions: [ { row: 11, col: 7 }, { row: 8, col: 10 } ],
   //     span: 2,
   //   })
-  //   assert.deepEqual(_.omit(board.getThreats()[2], "score"), {
+  //   assert.deepEqual(board.getThreats()[2], {
   //     player: false,
   //     finderIndex: '2',
   //     played: [ { row: 9, col: 8 }, { row: 10, col: 9 }, { row: 11, col: 10 } ],
@@ -845,7 +829,7 @@ describe('Gomoku engine', function () {
   //
   //   // continue the game for a single move...
   //   board = board.move({ row: 12, col: 11 }) // white
-  //   assert.deepEqual(_.omit(board.getThreats()[2], "score"), {
+  //   assert.deepEqual(board.getThreats()[2], {
   //     player: false,
   //     finderIndex: '2',
   //     played: [
@@ -896,7 +880,7 @@ describe('Gomoku engine', function () {
   //       .move({ row, col: 8 }).move({ row, col: 9 })
   //       .move({ row, col: 7 })
   //
-  //   assert.deepEqual(_.omit(board.getThreats()[0], "score"), {
+  //   assert.deepEqual(board.getThreats()[0], {
   //     player: true,
   //     finderIndex: "1",
   //     played:[
@@ -915,7 +899,7 @@ describe('Gomoku engine', function () {
   //   assert.equal(board.threats[0], undefined)
   //   assert.equal(board.threats.length, 2)
   //
-  //   assert.deepEqual(_.omit(board.threats[1], "score"), {
+  //   assert.deepEqual(board.threats[1], {
   //     player: false,
   //     finderIndex: "1",
   //     played:[ { row, col: 6 }, { row, col: 9 } ],
@@ -964,7 +948,7 @@ describe('Gomoku engine', function () {
   //   // 8 w . . . . . . . . . . . . . . . . . .
   //
   //   assert.equal(board.threats.length, 5)
-  //   assert.deepEqual(_.omit(board.getThreats()[0], "score"), {
+  //   assert.deepEqual(board.getThreats()[0], {
   //     player: true,
   //     finderIndex: "1",
   //     played:[ { row, col: 7 }, { row, col: 8 } ],
@@ -1002,55 +986,55 @@ describe('Gomoku engine', function () {
   //
   //   assert.equal(board.threats.length, 10)
   //   assert.equal(board.threats[0], undefined)
-  //   assert.deepEqual(_.omit(board.threats[1], "score"), {
+  //   assert.deepEqual(board.threats[1], {
   //     player: false, finderIndex: "1", span: 2,
   //     played: [ { row: 7, col: 7 }, { row: 7, col: 8 } ],
   //     skipped: [],
   //     expansions: [ { row: 7, col: 6 }, { row: 7, col: 9 } ]
   //   })
-  //   assert.deepEqual(_.omit(board.threats[2], "score"), {
+  //   assert.deepEqual(board.threats[2], {
   //     player: false, finderIndex: "1", span: 2,
   //     played: [ { row: 9, col: 7 }, { row: 9, col: 8 } ],
   //     skipped: [],
   //     expansions: [ { row: 9, col: 6 }, { row:9, col: 9 } ]
   //   })
-  //   assert.deepEqual(_.omit(board.threats[3], "score"), {
+  //   assert.deepEqual(board.threats[3], {
   //     player: false, finderIndex: "2", span: 2,
   //     played: [ { row: 7, col: 8 }, { row: 8, col: 9 } ],
   //     skipped: [],
   //     expansions: [ { row: 6, col: 7 }, { row: 9, col: 10 } ]
   //   })
-  //   assert.deepEqual(_.omit(board.threats[4], "score"), {
+  //   assert.deepEqual(board.threats[4], {
   //     player: false, finderIndex: "3", span: 2,
   //     played: [ { row: 9, col: 8 }, { row: 8, col: 9 } ],
   //     skipped: [],
   //     expansions: [ { row: 10, col: 7 }, { row: 7, col: 10 } ]
   //   })
-  //   assert.deepEqual(_.omit(board.threats[5], "score"), {
+  //   assert.deepEqual(board.threats[5], {
   //     player: false, finderIndex: "0", span: 3,
   //     played: [ { row: 7, col: 7 }, { row: 9, col: 7 } ],
   //     skipped: [{ row: 8, col: 7 } ],
   //     expansions: [ { row: 6, col: 7 }, { row: 10, col: 7 } ]
   //   })
-  //   assert.deepEqual(_.omit(board.threats[6], "score"), {
+  //   assert.deepEqual(board.threats[6], {
   //     player: false, finderIndex: "1", span: 4,
   //     played: [ { row: 8, col: 6 }, { row: 8, col: 9 } ],
   //     skipped: [{ row: 8, col: 7}, { row: 8, col: 8 } ],
   //     expansions: [ { row: 8, col: 5 }, { row: 8, col: 10 } ]
   //   })
-  //   assert.deepEqual(_.omit(board.threats[7], "score"), {
+  //   assert.deepEqual(board.threats[7], {
   //     player: false, finderIndex: "0", span: 3,
   //     played: [ { row: 7, col: 8 }, { row: 9, col: 8 } ],
   //     skipped: [{ row: 8, col: 8 } ],
   //     expansions: [ { row: 6, col: 8 }, { row: 10, col: 8 } ]
   //   })
-  //   assert.deepEqual(_.omit(board.threats[8], "score"), {
+  //   assert.deepEqual(board.threats[8], {
   //     player: false, finderIndex: "3", span: 2,
   //     played: [ { row: 8, col: 6 }, { row: 7, col: 7 } ],
   //     skipped: [],
   //     expansions: [ { row: 9, col: 5 }, { row: 6, col: 8 } ]
   //   })
-  //   assert.deepEqual(_.omit(board.threats[9], "score"), {
+  //   assert.deepEqual(board.threats[9], {
   //     player: false, finderIndex: "2", span: 2,
   //     played: [ { row: 8, col: 6 }, { row: 9, col: 7 } ],
   //     skipped: [],
@@ -1091,7 +1075,7 @@ describe('Gomoku engine', function () {
   //   // 8 w . . . . . . . . . . . . . . . . . .
   //
   //   assert.equal(board.threats.length, 5)
-  //   assert.deepEqual(_.omit(board.getThreats()[0], "score"), {
+  //   assert.deepEqual(board.getThreats()[0], {
   //     player: true,
   //     finderIndex: "1",
   //     played:[ { row, col: 7 }, { row, col: 8 } ],
