@@ -730,7 +730,6 @@ describe('Gomoku engine', function () {
     let control = createBoardState("ME", "AI", boardValues)
 
     // this line could corrupt the board so check afterwards if it has
-    console.log("\n\n\nAbout to run the command");
     assert.isDefined(board.getBestMove())
 
     assert.deepEqual(board.getValues(), control.getValues())
@@ -878,7 +877,6 @@ describe('Gomoku engine', function () {
     boardValues[11][7] = "white"
 
     board = createBoardState("black", "white", boardValues)
-    console.log("board.toString():", board.toString());
     assert.deepEqual(board.getBestMove(), { row: 8, col: 10 })
 
     boardValues[8][10] = "black"
@@ -905,48 +903,50 @@ describe('Gomoku engine', function () {
     ])
   })
 
-  // it("simple capturing pieces", function () {
-  //   let row = 8
-  //
-  //   let board = new Board()
-  //       .move({ row, col: 8 }).move({ row, col: 9 })
-  //       .move({ row, col: 7 })
-  //
-  //   assert.deepEqual(jsonifyThreats(board.getThreats())[0], {
-  //     player: true,
-  //     finderIndex: "1",
-  //     played:[
-  //       { row, col: 7 },
-  //       { row, col: 8 }
-  //     ],
-  //     skipped:[],
-  //     expansions:[ { row, col: 6 } ],
-  //     span: 2,
-  //   })
-  //
-  //   board = board.move({ row, col: 6 })
-  //
-  //   assert.equal(board.values[8][8], null)
-  //   assert.equal(board.values[8][7], null)
-  //   assert.equal(board.threats[0], undefined)
-  //   assert.equal(board.threats.length, 2)
-  //
-  //   assert.deepEqual(board.threats[1], {
-  //     player: false,
-  //     finderIndex: "1",
-  //     played:[ { row, col: 6 }, { row, col: 9 } ],
-  //     skipped:[ { row, col: 7 }, { row, col: 8 } ],
-  //     expansions:[ { row, col: 5 }, { row, col: 10 } ],
-  //     span: 4,
-  //   })
-  //
-  //   assert.deepEqual(board.cellThreats.toJS()[1][8], [
-  //     {},{},{},{},{},{},
-  //     {"1":false}, {"1":false}, {"1":false}, {"1":false},
-  //     {},{},{},{},{},{},{},{},{}
-  //   ])
-  // })
-  //
+  it("simple capturing pieces", function () {
+    let row = 8
+
+    let board = createBoardState("X", "O", blankValues)
+        .move({ row, col: 8 }).move({ row, col: 9 })
+        .move({ row, col: 7 })
+
+    assert.deepEqual(jsonifyThreats(board.getThreats())[0], {
+      player: true,
+      finderIndex: "1",
+      played:[
+        { row, col: 7 },
+        { row, col: 8 }
+      ],
+      skipped:[],
+      expansions:[ { row, col: 6 } ],
+      span: 2,
+    })
+
+    console.log("board.toString():", board.toString());
+    board = board.move({ row, col: 6 })
+    console.log("board.toString():", board.toString());
+
+    assert.equal(board.values.toJS()[8][8], null)
+    assert.equal(board.values.toJS()[8][7], null)
+    assert.equal(board.threats[0], undefined)
+    assert.equal(board.threats.length, 2)
+
+    assert.deepEqual(board.threats[1], {
+      player: false,
+      finderIndex: "1",
+      played:[ { row, col: 6 }, { row, col: 9 } ],
+      skipped:[ { row, col: 7 }, { row, col: 8 } ],
+      expansions:[ { row, col: 5 }, { row, col: 10 } ],
+      span: 4,
+    })
+
+    assert.deepEqual(board.cellThreats.toJS()[1][8], [
+      {},{},{},{},{},{},
+      {"1":false}, {"1":false}, {"1":false}, {"1":false},
+      {},{},{},{},{},{},{},{},{}
+    ])
+  })
+
   // it("more difficult capturing pieces", function () {
   //   let row = 8
   //
