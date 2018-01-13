@@ -495,8 +495,8 @@ export class Board {
     if (depth === 0 || this.hasWinner()) {
       return {
         // this is the heuristic
-        value: _.reduce(this.threats.values(), (memo, threat) => {
-          return memo + threat ? threat.score : 0
+        value: _.reduce(this.threats.valueSeq().toArray(), (memo, threat) => {
+          return memo + (threat ? threat.score : 0)
         }, 0)
       }
     }
