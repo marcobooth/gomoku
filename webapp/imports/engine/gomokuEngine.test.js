@@ -567,7 +567,6 @@ describe('Gomoku engine', function () {
     })
   })
 
-
   it("splits threats that are broken in two part 2", function () {
     let board = createBoardState("ME", "AI", blankValues)
 
@@ -681,7 +680,6 @@ describe('Gomoku engine', function () {
     boardValues[4][7] = "black"
 
     board = createBoardState("white", "black", boardValues)
-    console.log("board.toString():", board.toString());
     assert.deepEqual(board.getBestMove(), { row: 4, col: 8 })
 
     board = createBoardState("black", "white", boardValues)
@@ -703,208 +701,210 @@ describe('Gomoku engine', function () {
     assert.deepEqual(board.getBestMove(), { row: 4, col: 8 })
   })
 
-  // it("doesn't change board to check for best move", function () {
-  //   this.timeout(5000)
-  //
-  //   let boardValues = [
-  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,"AI",null,null,null,null,null,"AI",null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,"ME",null,null,null,"ME",null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,"ME",null,"ME",null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,null,"ME",null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,"ME","AI","ME",null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,"AI",null,"AI",null,"AI",null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,"AI","AI",null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //   ]
-  //
-  //   let board = createBoardState("ME", "AI", boardValues)
-  //   let control = createBoardState("ME", "AI", boardValues)
-  //
-  //   // this line could corrupt the board so check afterwards if it has
-  //   assert.isDefined(board.getBestMove())
-  //
-  //   assert.deepEqual(board.getValues(), control.getValues())
-  // })
-  //
-  // it("before and after string board should match", function () {
-  //   let boardValues = [
-  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,null,"ME",null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,"ME","AI",null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,"AI",null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //   ]
-  //
-  //   // AI goes first and is maximizing player
-  //   let state = createBoardState("AI", "ME", boardValues)
-  //   assert.deepEqual(state.getStringBoard(), boardValues)
-  // })
-  //
-  // it("shouldn't crash if no way of winning", function () {
-  //   let boardValues = [
-  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,null,"ME",null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,"ME","AI",null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,"ME","AI",null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,"ME","AI",null,null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //   ]
-  //
-  //   let state = createBoardState("AI", "ME", boardValues)
-  //   let bestMove = state.getBestMove()
-  //   assert.deepEqual(bestMove, { row: 8, col: 9 })
-  // })
-  //
-  // it("should win if possible", function () {
-  //   let boardValues = [
-  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,"ME",null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,"ME","AI",null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,"ME","AI",null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,"ME","AI",null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,"AI",null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-  //   ]
-  //
-  //   let state = createBoardState("AI", "ME", boardValues)
-  //   let bestMove = state.getBestMove()
-  //   assert.deepEqual(bestMove, { row: 1, col: 5 })
-  // })
-  //
-  // it("a normal game", function () {
-  //   this.timeout(4000)
-  //
-  //   let boardValues = JSON.parse(JSON.stringify(blankValues))
-  //   boardValues[8][9] = "white"
-  //   boardValues[9][8] = "black"
-  //   boardValues[9][9] = "white"
-  //   boardValues[10][9] = "black"
-  //   boardValues[10][8] = "white"
-  //   boardValues[11][10] = "black"
-  //
-  //   board = createBoardState("white", "black", boardValues)
-  //   assert.equal(board.getThreats().length, 3)
-  //   assert.deepEqual(board.getThreats()[0], {
-  //     player: true,
-  //     finderIndex: '0',
-  //     played: [ { row: 8, col: 9 }, { row: 9, col: 9 } ],
-  //     skipped: [],
-  //     expansions: [ { row: 7, col: 9 } ],
-  //     span: 2,
-  //   })
-  //   assert.deepEqual(board.getThreats()[1], {
-  //     player: true,
-  //     finderIndex: '3',
-  //     played: [ { row: 10, col: 8 }, { row: 9, col: 9 } ],
-  //     skipped: [],
-  //     expansions: [ { row: 11, col: 7 }, { row: 8, col: 10 } ],
-  //     span: 2,
-  //   })
-  //   assert.deepEqual(board.getThreats()[2], {
-  //     player: false,
-  //     finderIndex: '2',
-  //     played: [ { row: 9, col: 8 }, { row: 10, col: 9 }, { row: 11, col: 10 } ],
-  //     skipped: [],
-  //     expansions: [ { row: 8, col: 7 }, { row: 12, col: 11 } ],
-  //     span: 3,
-  //   })
-  //
-  //   // continue the game for a single move...
-  //   board = board.move({ row: 12, col: 11 }) // white
-  //   assert.deepEqual(board.getThreats()[2], {
-  //     player: false,
-  //     finderIndex: '2',
-  //     played: [
-  //       { row: 9, col: 8 },
-  //       { row: 10, col: 9 },
-  //       { row: 11, col: 10 },
-  //     ],
-  //     skipped: [],
-  //     expansions: [ { row: 8, col: 7 } ],
-  //     span: 3,
-  //   })
-  //
-  //   boardValues[12][11] = "white"
-  //   boardValues[10][10] = "black"
-  //   boardValues[11][7] = "white"
-  //
-  //   board = createBoardState("black", "white", boardValues)
-  //   assert.deepEqual(board.getBestMove(), { row: 7, col: 9 })
-  //
-  //   boardValues[8][10] = "black"
-  //   boardValues[8][7] = "white"
-  //   board = createBoardState("black", "white", boardValues)
-  //   assert.deepEqual(board.getBestMove(), { row: 9, col: 10 })
-  //
-  //   boardValues[9][10] = "black"
-  //   boardValues[12][6] = "white"
-  //
-  //   board = createBoardState("black", "white", boardValues)
-  //   assert.equal(board.getWinningThreat().played, undefined)
-  //
-  //   // NOTE: black can win with { row: 7, col: 10 } or { row: 12, col: 10 }
-  //   // play winning move and make sure it figures out we've won
-  //   boardValues[7][10] = "black"
-  //   board = createBoardState("white", "black", boardValues)
-  //   assert.deepEqual(board.getWinningThreat().played, [
-  //     { row: 7, col: 10 },
-  //     { row: 8, col: 10 },
-  //     { row: 9, col: 10 },
-  //     { row: 10, col: 10 },
-  //     { row: 11, col: 10 },
-  //   ])
-  // })
-  //
+  it("doesn't change board to check for best move", function () {
+    this.timeout(5000)
+
+    let boardValues = [
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,"AI",null,null,null,null,null,"AI",null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,"ME",null,null,null,"ME",null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,"ME",null,"ME",null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,"ME",null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,"ME","AI","ME",null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,"AI",null,"AI",null,"AI",null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,"AI","AI",null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+    ]
+
+    let board = createBoardState("ME", "AI", boardValues)
+    let control = createBoardState("ME", "AI", boardValues)
+
+    // this line could corrupt the board so check afterwards if it has
+    console.log("\n\n\nAbout to run the command");
+    assert.isDefined(board.getBestMove())
+
+    assert.deepEqual(board.getValues(), control.getValues())
+  })
+
+  it("before and after string board should match", function () {
+    let boardValues = [
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,"ME",null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,"ME","AI",null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,"AI",null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+    ]
+
+    // AI goes first and is maximizing player
+    let state = createBoardState("AI", "ME", boardValues)
+    assert.deepEqual(state.getStringBoard(), boardValues)
+  })
+
+  it("shouldn't crash if no way of winning", function () {
+    let boardValues = [
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,"ME",null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,"ME","AI",null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,"ME","AI",null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,"ME","AI",null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+    ]
+
+    let state = createBoardState("AI", "ME", boardValues)
+    let bestMove = state.getBestMove()
+    assert.deepEqual(bestMove, { row: 8, col: 9 })
+  })
+
+  it("should win if possible", function () {
+    let boardValues = [
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,"ME",null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,"ME","AI",null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,"ME","AI",null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,"ME","AI",null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,"AI",null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+    ]
+
+    let state = createBoardState("AI", "ME", boardValues)
+    let bestMove = state.getBestMove()
+    assert.deepEqual(bestMove, { row: 1, col: 5 })
+  })
+
+  it("a normal game", function () {
+    this.timeout(4000)
+
+    let boardValues = JSON.parse(JSON.stringify(blankValues))
+    boardValues[8][9] = "white"
+    boardValues[9][8] = "black"
+    boardValues[9][9] = "white"
+    boardValues[10][9] = "black"
+    boardValues[10][8] = "white"
+    boardValues[11][10] = "black"
+
+    board = createBoardState("white", "black", boardValues)
+    assert.equal(jsonifyThreats(board.getThreats()).length, 3)
+    assert.deepEqual(jsonifyThreats(board.getThreats())[0], {
+      player: true,
+      finderIndex: '0',
+      played: [ { row: 8, col: 9 }, { row: 9, col: 9 } ],
+      skipped: [],
+      expansions: [ { row: 7, col: 9 } ],
+      span: 2,
+    })
+    assert.deepEqual(jsonifyThreats(board.getThreats())[1], {
+      player: true,
+      finderIndex: '3',
+      played: [ { row: 10, col: 8 }, { row: 9, col: 9 } ],
+      skipped: [],
+      expansions: [ { row: 11, col: 7 }, { row: 8, col: 10 } ],
+      span: 2,
+    })
+    assert.deepEqual(jsonifyThreats(board.getThreats())[2], {
+      player: false,
+      finderIndex: '2',
+      played: [ { row: 9, col: 8 }, { row: 10, col: 9 }, { row: 11, col: 10 } ],
+      skipped: [],
+      expansions: [ { row: 8, col: 7 }, { row: 12, col: 11 } ],
+      span: 3,
+    })
+
+    // continue the game for a single move...
+    board = board.move({ row: 12, col: 11 }) // white
+    assert.deepEqual(jsonifyThreats(board.getThreats())[2], {
+      player: false,
+      finderIndex: '2',
+      played: [
+        { row: 9, col: 8 },
+        { row: 10, col: 9 },
+        { row: 11, col: 10 },
+      ],
+      skipped: [],
+      expansions: [ { row: 8, col: 7 } ],
+      span: 3,
+    })
+
+    boardValues[12][11] = "white"
+    boardValues[10][10] = "black"
+    boardValues[11][7] = "white"
+
+    board = createBoardState("black", "white", boardValues)
+    console.log("board.toString():", board.toString());
+    assert.deepEqual(board.getBestMove(), { row: 8, col: 10 })
+
+    boardValues[8][10] = "black"
+    boardValues[8][7] = "white"
+    board = createBoardState("black", "white", boardValues)
+    assert.deepEqual(board.getBestMove(), { row: 9, col: 10 })
+
+    boardValues[9][10] = "black"
+    boardValues[12][6] = "white"
+
+    board = createBoardState("black", "white", boardValues)
+    assert.equal(board.getWinningThreat().played, undefined)
+
+    // NOTE: black can win with { row: 7, col: 10 } or { row: 12, col: 10 }
+    // play winning move and make sure it figures out we've won
+    boardValues[7][10] = "black"
+    board = createBoardState("white", "black", boardValues)
+    assert.deepEqual(board.getWinningThreat().played, [
+      { row: 7, col: 10 },
+      { row: 8, col: 10 },
+      { row: 9, col: 10 },
+      { row: 10, col: 10 },
+      { row: 11, col: 10 },
+    ])
+  })
+
   // it("simple capturing pieces", function () {
   //   let row = 8
   //
@@ -912,7 +912,7 @@ describe('Gomoku engine', function () {
   //       .move({ row, col: 8 }).move({ row, col: 9 })
   //       .move({ row, col: 7 })
   //
-  //   assert.deepEqual(board.getThreats()[0], {
+  //   assert.deepEqual(jsonifyThreats(board.getThreats())[0], {
   //     player: true,
   //     finderIndex: "1",
   //     played:[
@@ -980,7 +980,7 @@ describe('Gomoku engine', function () {
   //   // 8 w . . . . . . . . . . . . . . . . . .
   //
   //   assert.equal(board.threats.length, 5)
-  //   assert.deepEqual(board.getThreats()[0], {
+  //   assert.deepEqual(jsonifyThreats(board.getThreats())[0], {
   //     player: true,
   //     finderIndex: "1",
   //     played:[ { row, col: 7 }, { row, col: 8 } ],
@@ -1107,7 +1107,7 @@ describe('Gomoku engine', function () {
   //   // 8 w . . . . . . . . . . . . . . . . . .
   //
   //   assert.equal(board.threats.length, 5)
-  //   assert.deepEqual(board.getThreats()[0], {
+  //   assert.deepEqual(jsonifyThreats(board.getThreats())[0], {
   //     player: true,
   //     finderIndex: "1",
   //     played:[ { row, col: 7 }, { row, col: 8 } ],
@@ -1590,4 +1590,6 @@ describe('Gomoku engine', function () {
   // // remove threats that are no longer a thing/remove that single square from it
   //
   // // figure out why createBoardState was being weird with the order of the two players
+
+  // check potentialSpan < 5 thing - create threat where it can't grow and make sure it isn't added
 })

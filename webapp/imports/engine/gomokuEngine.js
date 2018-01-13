@@ -3,7 +3,8 @@ import Immutable from "immutable"
 // Constants and helpers
 
 export const BOARD_SIZE = 19
-export const GLOBAL_DEPTH = 1
+export const GLOBAL_DEPTH = 3
+var L = {}
 
 // define in which ways threats can be found
 // NOTE: step functions modify the passed object
@@ -154,6 +155,7 @@ export class Threat {
       let returnValue = joined.updateDependents(board, threatIndex)
       if (!returnValue) {
         console.log("board.toString():", board.toString());
+        console.log("threatIndex:", threatIndex);
         console.log("joined:", joined);
       }
       console.assert(returnValue,
@@ -292,13 +294,14 @@ export class Board {
           }
         }
 
-        // check if we've found a novel threat
-        if (newThreat.played.length < 2) continue nextThreat
+        // check if we've found a novel threat that has enough space to grow
+        if (newThreat.played.length < 2 || potentialSpan < 5) {
+          continue nextThreat
+        }
 
         // by this point if a threat were within another threat it would have
         // joined that threat instead of getting here
 
-        // TODO: make sure when creating a threat there's enough space to grow
         this.addThreat(newThreat)
       }
     }
@@ -377,33 +380,57 @@ export class Board {
           if (Board.outsideBoard(loc)) continue otherDirection
 
           let value = this.values.getIn([loc.row, loc.col])
-          if (value === null) continue
-          if (value === !this.player) continue otherDirection
+          if (value !== null) {
+            if (value === this.player) {
+              let threatsThere =
+                  this.cellThreats.getIn([finderIndex, loc.row, loc.col])
 
-          let threatsThere =
-              this.cellThreats.getIn([finderIndex, loc.row, loc.col])
-          for ([threatIndex, threatPlayer] of threatsThere.entrySeq()) {
-            if (threatPlayer === this.player) {
-              let threat = this.threats.get(threatIndex)
+              nextThreat: for ([threatIndex, threatPlayer] of
+                  threatsThere.entrySeq()) {
+                // if there's not enough space for the threat grow, remove it
+                let threat = this.threats.get(threatIndex)
 
-              // if there's not enough space for the threat grow, remove it
-              if (extraSpace === 0) {
-                // if it's right next to it re-finalize the treat
-                newThreat = new Threat(threat.finderIndex, threat.player,
-                    threat.played, threat.span)
-                if (newThreat.finalize(this, threatIndex)) {
-                  this.threats = this.threats.set(threatIndex, newThreat)
-                } else {
-                  this.removeThreat(threatIndex)
+                let space = extraSpace + threat.span
+                if (space >= 5) continue
+
+                // skip over the threat itself
+                let far = _.clone(loc)
+                _.times(threat.span, () => {
+                  threatFinders[finderIndex](far, delta)
+                })
+
+                let removed = false
+                while (space < 5) {
+                  if (this.values.getIn([far.row, far.col]) === !this.player) {
+                    removed = true
+                    this.removeThreat(threatIndex)
+                    break
+                  } else {
+                    threatFinders[finderIndex](far, delta)
+                    space++
+                  }
                 }
-              } else if (extraSpace > 0 && extraSpace + threat.span < 5 &&
-                    threat.expansions.length === 1) {
-                this.removeThreat(threatIndex)
+
+                if (extraSpace === 0 && !removed) {
+                  // if it's right next to it re-finalize to update expansions
+                  newThreat = new Threat(threat.finderIndex, threat.player,
+                      threat.played, threat.span)
+                  if (!newThreat.finalize(this, threatIndex)) {
+                    console.log("this.toString():", this.toString());
+                    console.log("threatIndex:", threatIndex);
+                    console.log("this.threats.toJS()[3]:", this.threats.toJS()[3]);
+                    throw "wtf"
+                  }
+                  // console.assert(newThreat.finalize(this, threatIndex),
+                  //     "Didn't look far enough")
+
+                  this.threats = this.threats.set(threatIndex, newThreat)
+                }
               }
             }
-          }
 
-          continue otherDirection
+            continue otherDirection
+          }
         }
       }
     }
@@ -578,7 +605,7 @@ export class Board {
 
   // return the thing we get from the input (strings)
   getStringBoard() {
-    return _.map(this.values, (row) => {
+    return _.map(this.values.toJS(), (row) => {
       return _.map(row, (value) => {
         return this.playerNameMap[value] || null
       })
