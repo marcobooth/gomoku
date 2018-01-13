@@ -215,6 +215,26 @@ export class Board {
     }
   }
 
+  addThreat(threat) {
+    if (threat.finalize(this, this.threats.size)) {
+      this.threats = this.threats.push(threat)
+    }
+  }
+
+  removeThreat(threatIndex) {
+    let threat = this.threats.get(threatIndex)
+    let current = _.clone(threat.played[0])
+
+    _.times(threat.span, () => {
+      let path = [threat.finderIndex, current.row, current.col, threatIndex]
+      this.cellThreats = this.cellThreats.deleteIn(path)
+
+      threatFinders[threat.finderIndex](current, 1)
+    })
+
+    this.threats = this.threats.set(threatIndex, undefined)
+  }
+
   addMergeThreats({ row, col }) {
     // figure out if we need to add/join any threats for the current player
     for (finderIndex in threatFinders) {
@@ -307,34 +327,97 @@ export class Board {
     }
   }
 
-  checkCaptures({ row, col }) {
-    // TODO
-  }
+  // checkCaptures({ row, col }) {
+  //   for (let finderIndex in threatFinders) {
+  //     for (lelt delta in [ -1, 1 ]) {
+  //       let checking = { row, col }
+  //       threatFinders[finderIndex](checking, delta)
+  //
+  //       let value = this.values.getIn([checking.row, checking.col])
+  //       let threatsThere =
+  //           this.cellThreats.getIn([finderIndex, checking.row, checking.col])
+  //       for ([threatIndex, threatPlayer] of threatsThere.entrySeq()) {
+  //         let threat = this.threats.get(threatIndex)
+  //
+  //         if (threat.span === 2 && )
+  //       }
+  //     }
+  //   }
+  // }
 
-  addThreat(threat) {
-    if (threat.finalize(this, this.threats.size)) {
-      this.threats = this.threats.push(threat)
+  blockAndCapture({ row, col }) {
+    for (finderIndex in threatFinders) {
+      // remove blocked threats next to the move (look at expansions count)
+      otherDirection: for (let delta of [-1, 1]) {
+        let loc = { row, col }
+        for (let extraSpace = 0; extraSpace < 2; extraSpace++) {
+          threatFinders[finderIndex](loc, delta)
+          if (Board.outsideBoard(loc)) continue otherDirection
+
+          let value = this.values.getIn([loc.row, loc.col])
+          if (value !== null) {
+            if (value === this.player) {
+              let threatsThere =
+                  this.cellThreats.getIn([finderIndex, loc.row, loc.col])
+
+              for ([threatIndex, threatPlayer] of threatsThere.entrySeq()) {
+                // if there's not enough space for the threat grow, remove it
+                let threat = this.threats.get(threatIndex)
+
+                let space = extraSpace + threat.span
+                if (space >= 5) continue
+
+                // skip over the threat itself
+                let far = _.clone(loc)
+                _.times(threat.span, () => {
+                  threatFinders[finderIndex](far, delta)
+                })
+
+                let removed = false
+                while (space < 5) {
+                  if (this.values.getIn([far.row, far.col]) === !this.player) {
+                    removed = true
+                    this.removeThreat(threatIndex)
+
+                    // if this threat was just captured, remove moves also
+                    if (threat.span === 2) {
+                      for (let move of threat.played) {
+                        this.values =
+                            this.values.setIn([ move.row, move.col ], null)
+                      }
+                    }
+
+                    break
+                  } else {
+                    threatFinders[finderIndex](far, delta)
+                    space++
+                  }
+                }
+
+                if (extraSpace === 0 && !removed) {
+                  // if it's right next to it re-finalize to update expansions
+                  // and possibly capture it (removing it from the board)
+                  newThreat = new Threat(threat.finderIndex, threat.player,
+                      threat.played, threat.span)
+                  console.assert(newThreat.finalize(this, threatIndex),
+                      "Didn't look far enough")
+
+                  this.threats = this.threats.set(threatIndex, newThreat)
+                }
+              }
+            }
+
+            continue otherDirection
+          }
+        }
+      }
     }
   }
 
-  removeThreat(threatIndex) {
-    let threat = this.threats.get(threatIndex)
-    let current = _.clone(threat.played[0])
-
-    _.times(threat.span, () => {
-      let path = [threat.finderIndex, current.row, current.col, threatIndex]
-      this.cellThreats = this.cellThreats.deleteIn(path)
-
-      threatFinders[threat.finderIndex](current, 1)
-    })
-
-    this.threats = this.threats.set(threatIndex, undefined)
-  }
-
-  splitBlockOpponent({ row, col }) {
+  splitOpponents({ row, col }) {
     for (finderIndex in threatFinders) {
-      // split opponent's threats
       let threatsHere = this.cellThreats.getIn([finderIndex, row, col])
+
       for ([threatIndex, threatPlayer] of threatsHere.entrySeq()) {
         // if the move splits the opponent delete it and then try to
         // cannibalize it into smaller threats
@@ -372,67 +455,7 @@ export class Board {
         }
       }
 
-      // remove blocked threats next to the move (look at expansions count)
-      otherDirection: for (let delta of [-1, 1]) {
-        let loc = { row, col }
-        for (let extraSpace = 0; extraSpace < 2; extraSpace++) {
-          threatFinders[finderIndex](loc, delta)
-          if (Board.outsideBoard(loc)) continue otherDirection
 
-          let value = this.values.getIn([loc.row, loc.col])
-          if (value !== null) {
-            if (value === this.player) {
-              let threatsThere =
-                  this.cellThreats.getIn([finderIndex, loc.row, loc.col])
-
-              nextThreat: for ([threatIndex, threatPlayer] of
-                  threatsThere.entrySeq()) {
-                // if there's not enough space for the threat grow, remove it
-                let threat = this.threats.get(threatIndex)
-
-                let space = extraSpace + threat.span
-                if (space >= 5) continue
-
-                // skip over the threat itself
-                let far = _.clone(loc)
-                _.times(threat.span, () => {
-                  threatFinders[finderIndex](far, delta)
-                })
-
-                let removed = false
-                while (space < 5) {
-                  if (this.values.getIn([far.row, far.col]) === !this.player) {
-                    removed = true
-                    this.removeThreat(threatIndex)
-                    break
-                  } else {
-                    threatFinders[finderIndex](far, delta)
-                    space++
-                  }
-                }
-
-                if (extraSpace === 0 && !removed) {
-                  // if it's right next to it re-finalize to update expansions
-                  newThreat = new Threat(threat.finderIndex, threat.player,
-                      threat.played, threat.span)
-                  if (!newThreat.finalize(this, threatIndex)) {
-                    console.log("this.toString():", this.toString());
-                    console.log("threatIndex:", threatIndex);
-                    console.log("this.threats.toJS()[3]:", this.threats.toJS()[3]);
-                    throw "wtf"
-                  }
-                  // console.assert(newThreat.finalize(this, threatIndex),
-                  //     "Didn't look far enough")
-
-                  this.threats = this.threats.set(threatIndex, newThreat)
-                }
-              }
-            }
-
-            continue otherDirection
-          }
-        }
-      }
     }
   }
 
@@ -464,10 +487,13 @@ export class Board {
     newBoard.values = newBoard.values.setIn([row, col], this.player)
 
     // check if we need to split any opponent threats
-    newBoard.splitBlockOpponent({ row, col })
+    newBoard.splitOpponents({ row, col })
 
-    // remove any captured pieces and update threats around those empty cells
-    newBoard.checkCaptures({ row, col })
+    // // remove any captured pieces and update threats around those empty cells
+    // newBoard.checkCaptures({ row, col })
+
+    // block opponent threats
+    newBoard.blockAndCapture({ row, col })
 
     // search for new threats for the player that just played
     newBoard.addMergeThreats({ row, col })
