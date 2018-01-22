@@ -152,12 +152,23 @@ export class Threat {
     })
     let span = Threat.getSpan(played)
 
+    if (L.b && threatIndex == "1") {
+      console.log("allPlayed:", allPlayed);
+      console.log("span:", span);
+    }
+
     if (span <= 5) {
       let joined = new Threat(this.finderIndex, this.player, played)
       joined.span = span
 
-      console.assert(joined.updateDependents(board, threatIndex),
-          "We've got a threat that can't grow")
+      if (!joined.updateDependents(board, threatIndex)) {
+        console.log("board.toString():", board.toString());
+        console.log("joined:", joined);
+
+        console.assert(false,
+            "We've got a threat that can't grow")
+      }
+
 
       return joined
     }
@@ -264,28 +275,26 @@ export class Board {
         }
       }
 
-      this.addMergeThreats(move)
+      L.a = L.l && move.row === 8 && move.col === 7
+      this.addMergeThreats(move, true)
+      L.a = false
     }
   }
 
-  addMergeThreats({ row, col }) {
-    if (L.l) {
-      console.log("addMergeThreats:", row, col);
-      if (col === 8) {
-        L.a = true
-      } else {
-        L.a = false
-      }
-      console.log("\n");
-    }
-
+  addMergeThreats({ row, col }, afterCapture = false) {
     // figure out if we need to add/join any threats for the current player
     for (finderIndex in threatFinders) {
+      if (L.a) {
+        console.log("finderIndex:", finderIndex);
+
+        L.b = finderIndex === "0";
+      }
       let deltas = [ -1, 1 ]
 
       // go backwards and then forwards, adding to the threat in each direction,
       // and then do the reverse of all that
-      nextThreat: for (firstBit of [ false, true ]) {
+      nextThreat: for (firstDir of [ false, true ]) {
+        if (L.b) console.log("    firstDir:", firstDir);
         let newThreat = new Threat(finderIndex)
 
         // if the cell has been played, start with that
@@ -299,23 +308,26 @@ export class Board {
         let potentialSpan = 1
         let playedSpan = newThreat.span
 
-        otherDirection: for (secondBit of [ false, true ]) {
+        otherDirection: for (secondDir of [ false, true ]) {
+          if (L.b) console.log("        otherDirection:", secondDir);
           let current = { row, col }
 
           // if cell is blank, going backwards, and we we've found something...
-          if (this.values.getIn([row, col]) === null && secondBit === true
+          if (this.values.getIn([row, col]) === null && secondDir === true
               && newThreat.played.length > 0) {
             playedSpan++
           }
 
           let skippedCount = 0
-          nextCell: for (i = 0; (i < 5) &&
+          nextCell: for (i = 0; (i < 4) &&
               (playedSpan + skippedCount < 5); i++) {
             // ^ is XOR: http://stackoverflow.com/a/3618366
-            threatFinders[finderIndex](current, deltas[firstBit ^ secondBit])
+            threatFinders[finderIndex](current, deltas[firstDir ^ secondDir])
             if (Board.outsideBoard(current)) break
 
             value = this.values.getIn([current.row, current.col])
+
+            if (L.b) console.log("                i, playedSpan, skippedCount, value, current:", i, playedSpan, skippedCount, value, current);
 
             if (newThreat.player === null) {
               // if nothing is interesting than just continue on
@@ -357,7 +369,19 @@ export class Board {
 
               // if it joined any of the treats then move on
               if (joinedThreat) {
-                continue nextThreat
+                if (L.b) {
+                  console.log("                going to the next threat");
+                }
+                if (afterCapture && !secondDir) {
+                  // make a copy of the joined threat and continue in the
+                  // other direction with that
+                  newThreat = new Threat(joinedThreat.finderIndex,
+                      joinedThreat.player, joinedThreat.played)
+
+                  continue otherDirection
+                } else {
+                  continue nextThreat
+                }
               }
             } else {
               skippedCount++
