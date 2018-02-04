@@ -9,12 +9,16 @@ import GameInfo from './GameInfo.jsx'
 import PieceColour from './PieceColour.jsx'
 import GameMessages from './GameMessages.jsx'
 import { createBoardState } from "../engine/gomokuEngine"
+import Winner from './Winner.jsx'
 
 class Game extends Component {
 
-  componentWillMount() {
-    window.Games = Games
+  constructor(props) {
+    super(props)
+    this.state = { timeTaken: "0.0s" }
+  }
 
+  componentWillMount() {
     this.engine = Tracker.autorun(() => {
       let game = Games.findOne(FlowRouter.getParam("_id"))
       window.Games = Games
@@ -34,7 +38,9 @@ class Game extends Component {
           let start = new Date().getTime()
           let bestMove = state.getBestMove()
           let end = new Date().getTime()
-
+          this.setState({
+            timeTaken: `${end - start}ms`
+          })
           console.assert(bestMove, "Couldn't find a best move!!!")
 
           let { row, col } = bestMove
@@ -52,12 +58,19 @@ class Game extends Component {
 
   render() {
     if (!this.props.loaded) {
-      return <div><button className="ui loading button"></button>Loading...</div>
+      return (
+        <div>
+          <button className="ui loading button"></button>
+          Loading...
+        </div>
+      )
     }
+
+    console.log("state", this.state)
 
     // let game, status, currentUser = { this.props... }
     if (!this.props.game) {
-      return <div>Invalid game!</div>
+      return (<div>Invalid game!</div>)
     }
 
     let { currentUser, game } = this.props
@@ -75,13 +88,14 @@ class Game extends Component {
 
     return (
       <div className="ui container spaceHeader">
+        <Winner game={this.props.game} currentUser={this.props.currentUser} />
         <div className="ui very relaxed stackable grid">
           <div className="eight wide column">
             <Board game={this.props.game} readonly={readonly} />
           </div>
           <div className="eight wide column">
             <h2 className="center">Game Information</h2>
-            <GameInfo game={this.props.game} spectatorMode={spectatorMode} readonly={readonly} currentUser={this.props.currentUser} />
+            <GameInfo game={this.props.game} spectatorMode={spectatorMode} readonly={readonly} currentUser={this.props.currentUser} timeTaken={this.state.timeTaken} />
             <PieceColour game={this.props.game} currentUser={this.props.currentUser} />
             <GameMessages />
           </div>

@@ -41,6 +41,12 @@ Meteor.methods({
 
     // TODO: check for full board ==> tie
 
+    Games.update(gameId, {
+      $inc: {
+        movesTaken: 1
+      },
+    });
+
     if (state.hasWinner()) {
       Games.update(gameId, {
         $set: {

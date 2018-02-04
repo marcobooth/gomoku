@@ -2,7 +2,7 @@ import React, { Component, PropTypes } from 'react';
 import ReactDOM from 'react-dom';
 import { Meteor } from 'meteor/meteor';
 
-export default class Board extends Component {
+export default class GameInfo extends Component {
 
   handleJoinGame() {
     Meteor.call('games.join', this.props.game._id);
@@ -38,7 +38,8 @@ export default class Board extends Component {
     return (
       <div className="center">
         { this.props.spectatorMode === true ? this.renderSpectatorBox() : this.renderCurrentTurn(this.props.readonly)}
-        { "Moves taken: " + this.props.game.movesTaken }
+        <div>{ "Moves taken: " + this.props.game.movesTaken }</div>
+        <div>{ "Time taken: " + this.props.timeTaken }</div>
       </div>
     )
   }
