@@ -32,6 +32,9 @@ Meteor.methods({
     let state = createBoardState(game.currentPlayer, game.currentPlayer,
         otherPlayer, game.board)
     state = state.move({ row, col })
+    if (!state) {
+      return new Meteor.Error("invalid-move")
+    }
 
     if (!state) {
       return new Meteor.Error("invalid-move")
