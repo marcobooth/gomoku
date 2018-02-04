@@ -3,10 +3,11 @@ import ReactDOM from 'react-dom';
 import { Meteor } from 'meteor/meteor';
 
 export default class Board extends Component {
+  handleGameMove(row, col) {
+    let { readonly, game } = this.props
 
-  handleGameMove(rowIndex, pointIndex) {
-    if (!this.props.readonly) {
-      Meteor.call('games.handleMove', this.props.game._id, rowIndex, pointIndex);
+    if (!readonly) {
+      Meteor.call('games.handleMove', game._id, row, col);
     }
   }
 
@@ -22,11 +23,9 @@ export default class Board extends Component {
             background = this.props.game.p2Colour
           }
 
-          return <div className="boardSquare" key={pointIndex}>
-            <div className="content"
-                 style={{ background }}
-                 onClick={this.handleGameMove.bind(this, rowIndex, pointIndex)}>
-            </div>
+          return <div className="boardSquare" key={pointIndex}
+              onClick={this.handleGameMove.bind(this, rowIndex, pointIndex)}>
+            <div className="content" style={{ background }}></div>
           </div>
         })}
       </div>

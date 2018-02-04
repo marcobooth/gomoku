@@ -8,8 +8,44 @@ import Board from './Board.jsx'
 import GameInfo from './GameInfo.jsx'
 import PieceColour from './PieceColour.jsx'
 import GameMessages from './GameMessages.jsx'
+import { createBoardState } from "../engine/gomokuEngine"
 
 class Game extends Component {
+
+  componentWillMount() {
+    window.Games = Games
+
+    this.engine = Tracker.autorun(() => {
+      let game = Games.findOne(FlowRouter.getParam("_id"))
+
+      if (game && game.status === "started") {
+        let userId = Meteor.userId()
+
+        if (game.currentPlayer === userId) {
+          console.log("our turn")
+        } else if (game.currentPlayer === "AI" &&
+            (userId === game.p1 || userId === game.p2)) {
+          console.log("AI's turn -- running the engine");
+          let state = createBoardState("AI", "AI", userId, game.board)
+
+          let start = new Date().getTime()
+          let bestMove = state.getBestMove()
+          let end = new Date().getTime()
+
+          console.assert(bestMove, "Couldn't find a best move!!!")
+
+          let { row, col } = bestMove
+          console.log(`took ${end - start}ms to generate best move: ` +
+              `(${row}, ${col})`)
+          Meteor.call('games.handleMove', game._id, row, col);
+        }
+      }
+    })
+  }
+
+  componentWillUnmount() {
+    this.engine.stop()
+  }
 
   render() {
     if (!this.props.loaded) {
@@ -30,7 +66,8 @@ class Game extends Component {
       readonly = true
     } else {
       // checks if game has started, is over, or if this player has the current turn
-      readonly = game.status === "creating" || game.status === "winner" || (currentUser._id != game.currentPlayer)
+      readonly = game.status === "creating" || game.status === "winner" ||
+          (currentUser._id != game.currentPlayer)
     }
 
     return (
