@@ -196,7 +196,7 @@ export class Board {
   //                    Immutable [threatFinder, row, col, threatIndex] => player
   // - winningThreat  winning threat if it exists
   constructor(playerNameMap, player, values, inPlayCells, threats, cellThreats,
-      winningThreat) {
+      winningThreat, settingUp) {
     this.playerNameMap = playerNameMap
 
     if (typeof(player) === "boolean") {
@@ -206,6 +206,7 @@ export class Board {
       this.threats = threats
       this.cellThreats = cellThreats
       this.winningThreat = winningThreat
+      this.settingUp = settingUp
     } else {
       // create a new board from scratch
       this.player = true
@@ -219,6 +220,7 @@ export class Board {
           .fill(Array(BOARD_SIZE)
             .fill({}))))
       this.winningThreat = null
+      this.settingUp = true
     }
   }
 
@@ -510,6 +512,7 @@ export class Board {
 
               for ([threatIndex, threatPlayer] of threatsThere.entrySeq()) {
                 // if there's not enough space for the threat grow, remove it
+                // console.log("threatIndex:", threatIndex);
                 let threat = this.threats.get(threatIndex)
 
                 let space = extraSpace + threat.span
@@ -527,7 +530,7 @@ export class Board {
                     removed = true
                     this.removeThreat(threatIndex)
 
-                    if (threat.span === 2) {
+                    if (!this.settingUp && threat.span === 2) {
                       this.captureThreat(threatIndex, threat)
                     }
 
@@ -623,7 +626,8 @@ export class Board {
     console.assert(!Board.outsideBoard({ row, col }), "Outside board")
 
     let newBoard = new Board(this.playerNameMap, !this.player, this.values,
-        this.inPlayCells, this.threats, this.cellThreats, this.winningThreat)
+        this.inPlayCells, this.threats, this.cellThreats, this.winningThreat,
+        this.settingUp)
 
     // put the piece down
     newBoard.values = newBoard.values.setIn([row, col], this.player)
@@ -857,6 +861,7 @@ export function createBoardState(nextPlayer, otherPlayer, stringBoard) {
 
   // set the next player
   board.player = true
+  board.settingUp = false;
 
   return board
 }
