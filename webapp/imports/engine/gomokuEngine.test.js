@@ -1353,11 +1353,10 @@ describe('Gomoku engine', function () {
     // let bestMove = board.getBestMove()
     // assert.deepEqual(bestMove, { row: 7, col: 10 })
 
-    console.log("board.toString():", board.toString());
+    console.log("jsonifyThreats(board.getThreats())[2]:", jsonifyThreats(board.getThreats())[1]);
     L.l = true
     board = board.move({ row: 8, col: 6 })
     L.l = false
-    console.log("\nboard.toString():", board.toString());
     assert.equal(board.toString(), "next move will be by WH\n" +
       "B = BL\n" +
       "W = WH\n" +
@@ -1381,7 +1380,7 @@ describe('Gomoku engine', function () {
       "16: . . . . W . . . . . . . . . . . . . .\n" +
       "17: . . W . . . . . . . . . . . . . . . .\n" +
       "18: W . . . . . . W . . . . . . . . . . .\n")
-    console.log("jsonifyThreats(board.getThreats())[1]:", jsonifyThreats(board.getThreats())[1]);
+    console.log("\nboard.toString():", board.toString());
     assert.deepEqual(jsonifyThreats(board.getThreats())[1], {
       player: true,
       finderIndex: '0',

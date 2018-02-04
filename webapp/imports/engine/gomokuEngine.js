@@ -152,11 +152,6 @@ export class Threat {
     })
     let span = Threat.getSpan(played)
 
-    if (L.b && threatIndex == "1") {
-      console.log("allPlayed:", allPlayed);
-      console.log("span:", span);
-    }
-
     if (span <= 5) {
       let joined = new Threat(this.finderIndex, this.player, played)
       joined.span = span
@@ -168,7 +163,6 @@ export class Threat {
         console.assert(false,
             "We've got a threat that can't grow")
       }
-
 
       return joined
     }
@@ -248,53 +242,14 @@ export class Board {
     this.threats = this.threats.set(threatIndex, undefined)
   }
 
-  captureThreat(threatIndex, threat) {
-    for (let move of threat.played) {
-      this.values =
-          this.values.setIn([ move.row, move.col ], null)
-
-      // recalculate threats that changed because of the capture
-      let modifyIndexes = _.reduce(threatFinders, (memo, finder, index) => {
-        let path = [index, move.row, move.col]
-        return memo.concat(this.cellThreats.getIn(path).keySeq().toArray())
-      }, [])
-
-      for (let modifyIndex of modifyIndexes) {
-        let modifying = this.threats.get(modifyIndex)
-
-        let newPlayed = _.filter(modifying.played, (playMove) => {
-          return Board.compareLocs(playMove, move) !== 0
-        })
-        let newThreat =
-            new Threat(modifying.finderIndex, modifying.player, newPlayed)
-
-        if (newPlayed.length >= 2 && newThreat.finalize(this, modifyIndex)) {
-          this.threats = this.threats.set(modifyIndex, newThreat)
-        } else {
-          this.removeThreat(modifyIndex)
-        }
-      }
-
-      L.a = L.l && move.row === 8 && move.col === 7
-      this.addMergeThreats(move, true)
-      L.a = false
-    }
-  }
-
-  addMergeThreats({ row, col }, afterCapture = false) {
+  addMergeAfterCapture({ row, col }) {
     // figure out if we need to add/join any threats for the current player
     for (finderIndex in threatFinders) {
-      if (L.a) {
-        console.log("finderIndex:", finderIndex);
-
-        L.b = finderIndex === "0";
-      }
       let deltas = [ -1, 1 ]
 
       // go backwards and then forwards, adding to the threat in each direction,
       // and then do the reverse of all that
       nextThreat: for (firstDir of [ false, true ]) {
-        if (L.b) console.log("    firstDir:", firstDir);
         let newThreat = new Threat(finderIndex)
 
         // if the cell has been played, start with that
@@ -309,7 +264,6 @@ export class Board {
         let playedSpan = newThreat.span
 
         otherDirection: for (secondDir of [ false, true ]) {
-          if (L.b) console.log("        otherDirection:", secondDir);
           let current = { row, col }
 
           // if cell is blank, going backwards, and we we've found something...
@@ -326,8 +280,6 @@ export class Board {
             if (Board.outsideBoard(current)) break
 
             value = this.values.getIn([current.row, current.col])
-
-            if (L.b) console.log("                i, playedSpan, skippedCount, value, current:", i, playedSpan, skippedCount, value, current);
 
             if (newThreat.player === null) {
               // if nothing is interesting than just continue on
@@ -369,14 +321,153 @@ export class Board {
 
               // if it joined any of the treats then move on
               if (joinedThreat) {
-                if (L.b) {
-                  console.log("                going to the next threat");
+                if (!secondDir) {
+                  // make a copy of the joined threat and continue in the
+                  // other direction with that
+                  newThreat = new Threat(joinedThreat.finderIndex,
+                      joinedThreat.player, joinedThreat.played.slice(0))
+
+                  continue otherDirection
+                } else {
+                  continue nextThreat
                 }
+              }
+            } else {
+              skippedCount++
+            }
+          }
+        }
+
+        // check if we've found a novel threat that has enough space to grow
+        if (newThreat.played.length < 2 || potentialSpan < 5) {
+          continue nextThreat
+        }
+
+        // by this point if a threat were within another threat it would have
+        // joined that threat instead of getting here
+
+        this.addThreat(newThreat)
+      }
+    }
+  }
+
+  captureThreat(threatIndex, threat) {
+    for (let move of threat.played) {
+      this.values =
+          this.values.setIn([ move.row, move.col ], null)
+
+      // recalculate threats that changed because of the capture
+      let modifyIndexes = _.reduce(threatFinders, (memo, finder, index) => {
+        let path = [index, move.row, move.col]
+        return memo.concat(this.cellThreats.getIn(path).keySeq().toArray())
+      }, [])
+
+      for (let modifyIndex of modifyIndexes) {
+        let modifying = this.threats.get(modifyIndex)
+
+        let newPlayed = _.filter(modifying.played, (playMove) => {
+          return Board.compareLocs(playMove, move) !== 0
+        })
+        let newThreat =
+            new Threat(modifying.finderIndex, modifying.player, newPlayed)
+
+        if (newPlayed.length >= 2 && newThreat.finalize(this, modifyIndex)) {
+          this.threats = this.threats.set(modifyIndex, newThreat)
+        } else {
+          this.removeThreat(modifyIndex)
+        }
+      }
+
+      L.a = L.l && move.row === 8 && move.col === 7
+      this.addMergeAfterCapture(move, true)
+      L.a = false
+    }
+  }
+
+  addMergeThreats({ row, col }, afterCapture = false) {
+    // figure out if we need to add/join any threats for the current player
+    for (finderIndex in threatFinders) {
+      let deltas = [ -1, 1 ]
+
+      // go backwards and then forwards, adding to the threat in each direction,
+      // and then do the reverse of all that
+      nextThreat: for (firstDir of [ false, true ]) {
+        let newThreat = new Threat(finderIndex)
+
+        // if the cell has been played, start with that
+        let value = this.values.getIn([row, col])
+        if (value !== null) {
+          newThreat.player = value
+          newThreat.played.push({ row, col })
+          newThreat.span++
+        }
+
+        let potentialSpan = 1
+        let playedSpan = newThreat.span
+
+        otherDirection: for (secondDir of [ false, true ]) {
+          let current = { row, col }
+
+          // if cell is blank, going backwards, and we we've found something...
+          if (this.values.getIn([row, col]) === null && secondDir === true
+              && newThreat.played.length > 0) {
+            playedSpan++
+          }
+
+          let skippedCount = 0
+          nextCell: for (i = 0; (i < 4) &&
+              (playedSpan + skippedCount < 5); i++) {
+            // ^ is XOR: http://stackoverflow.com/a/3618366
+            threatFinders[finderIndex](current, deltas[firstDir ^ secondDir])
+            if (Board.outsideBoard(current)) break
+
+            value = this.values.getIn([current.row, current.col])
+
+            if (newThreat.player === null) {
+              // if nothing is interesting than just continue on
+              if (value === null) {
+                continue nextCell
+              }
+
+              // claim the threat for this player if the cell's not blank
+              newThreat.player = value
+            }
+
+            // on finding an opponent cell stop looking in this direction
+            if (value === !newThreat.player) {
+              continue otherDirection
+            }
+
+            potentialSpan++
+
+            if (newThreat.player !== null && value === newThreat.player) {
+              playedSpan += skippedCount + 1
+              skippedCount = 0
+
+              newThreat.played.push(_.clone(current))
+
+              // if the cell we're looking at is part of threats with
+              // this finder, check to see if we should join any of those
+              let currentThreats = this.cellThreats.getIn([
+                finderIndex, current.row, current.col
+              ])
+
+              let joinedThreat = undefined
+              for (let threatIndex of currentThreats.keys()) {
+                if (joinedThreat =
+                    newThreat.joinIfPossible(this.threats.get(threatIndex),
+                        this, threatIndex)) {
+                  this.threats = this.threats.set(threatIndex, joinedThreat)
+                }
+              }
+
+              // if it joined any of the treats then move on
+              if (joinedThreat) {
                 if (afterCapture && !secondDir) {
                   // make a copy of the joined threat and continue in the
                   // other direction with that
                   newThreat = new Threat(joinedThreat.finderIndex,
-                      joinedThreat.player, joinedThreat.played)
+                      joinedThreat.player, joinedThreat.played.slice(0))
 
                   continue otherDirection
                 } else {
@@ -507,8 +598,6 @@ export class Board {
           })
         }
       }
-
-
     }
   }
 
