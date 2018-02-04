@@ -530,7 +530,8 @@ export class Board {
                     removed = true
                     this.removeThreat(threatIndex)
 
-                    if (!this.settingUp && threat.span === 2) {
+                    if (!this.settingUp && extraSpace === 0 &&
+                        threat.span === 2 && space === 2) {
                       this.captureThreat(threatIndex, threat)
                     }
 
