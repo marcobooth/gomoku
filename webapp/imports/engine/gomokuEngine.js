@@ -100,8 +100,8 @@ export class Threat {
       console.log("board.toString():", board.toString());
       console.log("this:", this);
     }
-    console.assert(skipped.length === this.span - this.played.length,
-        "Skipped length is incorrect")
+    // console.assert(skipped.length === this.span - this.played.length,
+    //     "Skipped length is incorrect")
 
     // if the threat can't grow it shouldn't be added
     if (skipped.length + expansions.length === 0 && this.played.length !== 5) {
@@ -547,8 +547,9 @@ export class Board {
                   // and possibly capture it (removing it from the board)
                   let newThreat = new Threat(threat.finderIndex, threat.player,
                       threat.played)
-                  console.assert(newThreat.finalize(this, threatIndex),
-                      "Didn't look far enough")
+                  newThreat.finalize(this, threatIndex)
+                  // console.assert(newThreat.finalize(this, threatIndex),
+                  //     "Didn't look far enough")
 
                   this.threats = this.threats.set(threatIndex, newThreat)
                 }
@@ -623,8 +624,8 @@ export class Board {
   }
 
   move({ row, col }) {
-    console.assert(this.values.getIn([row, col]) === null, "Invalid move")
-    console.assert(!Board.outsideBoard({ row, col }), "Outside board")
+    // console.assert(this.values.getIn([row, col]) === null, "Invalid move")
+    // console.assert(!Board.outsideBoard({ row, col }), "Outside board")
 
     let newBoard = new Board(this.playerNameMap, !this.player, this.values,
         this.inPlayCells, this.threats, this.cellThreats, this.winningThreat,

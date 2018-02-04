@@ -1677,4 +1677,31 @@ describe('Gomoku engine', function () {
 
     board.getBestMove()
   })
+
+  it("doesn't crash 2", function () {
+    let values = JSON.parse(
+      '[[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],\
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],\
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],\
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],\
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],\
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],\
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],\
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,"AI","ME"],\
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,"AI","AI"],\
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,"AI","ME"],\
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,"ME","ME"],\
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,"ME"],\
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,"ME"],\
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,"AI"],\
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],\
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],\
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],\
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],\
+      [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null]]')
+
+    let board = createBoardState("AI", "ME", values)
+
+    console.log("board.getBestMove():", board.getBestMove());
+  })
 })
