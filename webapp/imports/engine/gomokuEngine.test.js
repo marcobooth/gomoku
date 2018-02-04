@@ -1353,191 +1353,191 @@ describe('Gomoku engine', function () {
     // let bestMove = board.getBestMove()
     // assert.deepEqual(bestMove, { row: 7, col: 10 })
 
-    console.log("jsonifyThreats(board.getThreats())[2]:", jsonifyThreats(board.getThreats())[1]);
-    L.l = true
-    board = board.move({ row: 8, col: 6 })
-    L.l = false
-    assert.equal(board.toString(), "next move will be by WH\n" +
-      "B = BL\n" +
-      "W = WH\n" +
-      "    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8\n" +
-      " 0: W . . . . . . . W . . . . . . W . . .\n" +
-      " 1: . . . . . . . . . . . . . . . . . . .\n" +
-      " 2: . . . . . . . . . . . . . . . . . . .\n" +
-      " 3: . . . . . . . . . . . . . . . . . . .\n" +
-      " 4: . . . . . . . B . . . . . . . . . . .\n" +
-      " 5: . . . . . . . . B . . . . . . . . . .\n" +
-      " 6: . . . . . . . . . . . . . . . . . . .\n" +
-      " 7: . . . . . . . B B . . . . . . . . . .\n" +
-      " 8: W . . . . . B . . B . . . . . . . . .\n" +
-      " 9: . . . . . . . B B . . . . . . . . . .\n" +
-      "10: . . . . . . . . B . . . . . . . . . .\n" +
-      "11: . . . . . . . B . . B . . . . . . . .\n" +
-      "12: . . . . . . . . . . . . . . . . . . .\n" +
-      "13: . . . . . . . . . . . . . . . . . . .\n" +
-      "14: . . . . . . . . . . . . . . . . . . .\n" +
-      "15: . . . . . . . . . . . . . . . . . . .\n" +
-      "16: . . . . W . . . . . . . . . . . . . .\n" +
-      "17: . . W . . . . . . . . . . . . . . . .\n" +
-      "18: W . . . . . . W . . . . . . . . . . .\n")
-    console.log("\nboard.toString():", board.toString());
-    assert.deepEqual(jsonifyThreats(board.getThreats())[1], {
-      player: true,
-      finderIndex: '0',
-      played: [ { row: 4, col: 7 }, { row: 7, col: 7 } ],
-      skipped: [ { row: 5, col: 7 }, { row: 6, col: 7 } ],
-      expansions: [ { row: 3, col: 7 }, { row: 8, col: 7 } ],
-      span: 4
-    })
-    console.log("jsonifyThreats(board.getThreats())[2]:", jsonifyThreats(board.getThreats())[2]);
-    assert.deepEqual(jsonifyThreats(board.getThreats())[2], {
-      player: true,
-      finderIndex: '0',
-      played: [ { row: 5, col: 8 }, { row: 7, col: 8 }, { row: 9, col: 8 } ],
-      skipped: [ { row: 6, col: 8 }, { row: 8, col: 8 } ],
-      expansions: [],
-      span: 5
-    })
-    assert.deepEqual(jsonifyThreats(board.getThreats())[8], {
-      player: true,
-      finderIndex: '0',
-      played: [ { row: 7, col: 8 }, { row: 9, col: 8 }, { row: 10, col: 8 } ],
-      skipped: [ { row: 8, col: 8 } ],
-      expansions: [ { row: 6, col: 8 }, { row: 11, col: 8 } ],
-      span: 4
-    })
-    assert.deepEqual(jsonifyThreats(board.getThreats())[10], {
-      player: true,
-      finderIndex: '0',
-      played: [ { row: 7, col: 7 }, { row: 9, col: 7 }, { row: 11, col: 7 } ],
-      skipped: [ { row: 8, col: 7 }, { row: 10, col: 7 } ],
-      expansions: [],
-      span: 5
-    })
-
-    assert.deepEqual(jsonifyThreats(board.getThreats()), [
-      {
-        player: true,
-        finderIndex: '2',
-        played: [ { row: 4, col: 7 }, { row: 5, col: 8 } ],
-        skipped: [],
-        expansions: [ { row: 3, col: 6 }, { row: 6, col: 9 } ],
-        span: 2
-      },
-      {
-        player: true,
-        finderIndex: '0',
-        played: [ { row: 4, col: 7 }, { row: 7, col: 7 } ],
-        skipped: [ { row: 5, col: 7 }, { row: 6, col: 7 } ],
-        expansions: [ { row: 3, col: 7 }, { row: 8, col: 7 } ],
-        span: 4
-      },
-      {
-        player: true,
-        finderIndex: '0',
-        played: [ { row: 5, col: 8 }, { row: 7, col: 8 }, { row: 9, col: 8 } ],
-        skipped: [ { row: 6, col: 8 }, { row: 8, col: 8 } ],
-        expansions: [],
-        span: 5
-      },
-      {
-        player: true,
-        finderIndex: '1',
-        played: [ { row: 7, col: 7 }, { row: 7, col: 8 } ],
-        skipped: [],
-        expansions: [ { row: 7, col: 6 }, { row: 7, col: 9 } ],
-        span: 2
-      },
-      {}, // don't forget about me!
-      {
-        player: true,
-        finderIndex: '2',
-        played: [ { row: 7, col: 8 }, { row: 8, col: 9 } ],
-        skipped: [],
-        expansions: [ { row: 6, col: 7 }, { row: 9, col: 10 } ],
-        span: 2
-      },
-      {
-        player: true,
-        finderIndex: '1',
-        played: [ { row: 9, col: 7 }, { row: 9, col: 8 } ],
-        skipped: [],
-        expansions: [ { row: 9, col: 6 }, { row: 9, col: 9 } ],
-        span: 2
-      },
-      {
-        player: true,
-        finderIndex: '3',
-        played: [ { row: 9, col: 8 }, { row: 8, col: 9 } ],
-        skipped: [],
-        expansions: [ { row: 10, col: 7 }, { row: 7, col: 10 } ],
-        span: 2
-      },
-      {
-        player: true,
-        finderIndex: '0',
-        played: [ { row: 7, col: 8 }, { row: 9, col: 8 }, { row: 10, col: 8 } ],
-        skipped: [ { row: 8, col: 8 } ],
-        expansions: [ { row: 6, col: 8 }, { row: 11, col: 8 } ],
-        span: 4
-      },
-      {
-        player: true,
-        finderIndex: '2',
-        played: [ { row: 8, col: 6 }, { row: 9, col: 7 }, { row: 10, col: 8 } ],
-        skipped: [],
-        expansions: [ { row: 7, col: 5 }, { row: 11, col: 9 } ],
-        span: 3
-      },
-      {
-        player: true,
-        finderIndex: '0',
-        played: [ { row: 7, col: 7 }, { row: 9, col: 7 }, { row: 11, col: 7 } ],
-        skipped: [ { row: 8, col: 7 }, { row: 10, col: 7 } ],
-        expansions: [],
-        span: 5
-      },
-      {
-        player: true,
-        finderIndex: '3',
-        played: [ { row: 11, col: 7 }, { row: 10, col: 8 } ],
-        skipped: [],
-        expansions: [ { row: 12, col: 6 }, { row: 9, col: 9 } ],
-        span: 2
-      },
-      {
-        player: true,
-        finderIndex: '1',
-        played: [ { row: 11, col: 7 }, { row: 11, col: 10 } ],
-        skipped: [ { row: 11, col: 8 }, { row: 11, col: 9 } ],
-        expansions: [ { row: 11, col: 6 }, { row: 11, col: 11 } ],
-        span: 4
-      },
-      {
-        player: true,
-        finderIndex: '2',
-        played: [ { row: 9, col: 8 }, { row: 11, col: 10 } ],
-        skipped: [ { row: 10, col: 9 } ],
-        expansions: [ { row: 8, col: 7 }, { row: 12, col: 11 } ],
-        span: 3
-      },
-      {
-        player: true,
-        finderIndex: '1',
-        played: [ { row: 8, col: 6 }, { row: 8, col: 9 } ],
-        skipped: [ { row: 8, col: 7 }, { row: 8, col: 8 } ],
-        expansions: [ { row: 8, col: 5 }, { row: 8, col: 10 } ],
-        span: 4
-      },
-      {
-        player: true,
-        finderIndex: '3',
-        played: [ { row: 8, col: 6 }, { row: 7, col: 7 } ],
-        skipped: [],
-        expansions: [ { row: 9, col: 5 }, { row: 6, col: 8 } ],
-        span: 2
-      },
-    ])
+    // console.log("jsonifyThreats(board.getThreats())[2]:", jsonifyThreats(board.getThreats())[1]);
+    // L.l = true
+    // board = board.move({ row: 8, col: 6 })
+    // L.l = false
+    // assert.equal(board.toString(), "next move will be by WH\n" +
+    //   "B = BL\n" +
+    //   "W = WH\n" +
+    //   "    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8\n" +
+    //   " 0: W . . . . . . . W . . . . . . W . . .\n" +
+    //   " 1: . . . . . . . . . . . . . . . . . . .\n" +
+    //   " 2: . . . . . . . . . . . . . . . . . . .\n" +
+    //   " 3: . . . . . . . . . . . . . . . . . . .\n" +
+    //   " 4: . . . . . . . B . . . . . . . . . . .\n" +
+    //   " 5: . . . . . . . . B . . . . . . . . . .\n" +
+    //   " 6: . . . . . . . . . . . . . . . . . . .\n" +
+    //   " 7: . . . . . . . B B . . . . . . . . . .\n" +
+    //   " 8: W . . . . . B . . B . . . . . . . . .\n" +
+    //   " 9: . . . . . . . B B . . . . . . . . . .\n" +
+    //   "10: . . . . . . . . B . . . . . . . . . .\n" +
+    //   "11: . . . . . . . B . . B . . . . . . . .\n" +
+    //   "12: . . . . . . . . . . . . . . . . . . .\n" +
+    //   "13: . . . . . . . . . . . . . . . . . . .\n" +
+    //   "14: . . . . . . . . . . . . . . . . . . .\n" +
+    //   "15: . . . . . . . . . . . . . . . . . . .\n" +
+    //   "16: . . . . W . . . . . . . . . . . . . .\n" +
+    //   "17: . . W . . . . . . . . . . . . . . . .\n" +
+    //   "18: W . . . . . . W . . . . . . . . . . .\n")
+    // console.log("\nboard.toString():", board.toString());
+    // assert.deepEqual(jsonifyThreats(board.getThreats())[1], {
+    //   player: true,
+    //   finderIndex: '0',
+    //   played: [ { row: 4, col: 7 }, { row: 7, col: 7 } ],
+    //   skipped: [ { row: 5, col: 7 }, { row: 6, col: 7 } ],
+    //   expansions: [ { row: 3, col: 7 }, { row: 8, col: 7 } ],
+    //   span: 4
+    // })
+    // console.log("jsonifyThreats(board.getThreats())[2]:", jsonifyThreats(board.getThreats())[2]);
+    // assert.deepEqual(jsonifyThreats(board.getThreats())[2], {
+    //   player: true,
+    //   finderIndex: '0',
+    //   played: [ { row: 5, col: 8 }, { row: 7, col: 8 }, { row: 9, col: 8 } ],
+    //   skipped: [ { row: 6, col: 8 }, { row: 8, col: 8 } ],
+    //   expansions: [],
+    //   span: 5
+    // })
+    // assert.deepEqual(jsonifyThreats(board.getThreats())[8], {
+    //   player: true,
+    //   finderIndex: '0',
+    //   played: [ { row: 7, col: 8 }, { row: 9, col: 8 }, { row: 10, col: 8 } ],
+    //   skipped: [ { row: 8, col: 8 } ],
+    //   expansions: [ { row: 6, col: 8 }, { row: 11, col: 8 } ],
+    //   span: 4
+    // })
+    // assert.deepEqual(jsonifyThreats(board.getThreats())[10], {
+    //   player: true,
+    //   finderIndex: '0',
+    //   played: [ { row: 7, col: 7 }, { row: 9, col: 7 }, { row: 11, col: 7 } ],
+    //   skipped: [ { row: 8, col: 7 }, { row: 10, col: 7 } ],
+    //   expansions: [],
+    //   span: 5
+    // })
+    //
+    // assert.deepEqual(jsonifyThreats(board.getThreats()), [
+    //   {
+    //     player: true,
+    //     finderIndex: '2',
+    //     played: [ { row: 4, col: 7 }, { row: 5, col: 8 } ],
+    //     skipped: [],
+    //     expansions: [ { row: 3, col: 6 }, { row: 6, col: 9 } ],
+    //     span: 2
+    //   },
+    //   {
+    //     player: true,
+    //     finderIndex: '0',
+    //     played: [ { row: 4, col: 7 }, { row: 7, col: 7 } ],
+    //     skipped: [ { row: 5, col: 7 }, { row: 6, col: 7 } ],
+    //     expansions: [ { row: 3, col: 7 }, { row: 8, col: 7 } ],
+    //     span: 4
+    //   },
+    //   {
+    //     player: true,
+    //     finderIndex: '0',
+    //     played: [ { row: 5, col: 8 }, { row: 7, col: 8 }, { row: 9, col: 8 } ],
+    //     skipped: [ { row: 6, col: 8 }, { row: 8, col: 8 } ],
+    //     expansions: [],
+    //     span: 5
+    //   },
+    //   {
+    //     player: true,
+    //     finderIndex: '1',
+    //     played: [ { row: 7, col: 7 }, { row: 7, col: 8 } ],
+    //     skipped: [],
+    //     expansions: [ { row: 7, col: 6 }, { row: 7, col: 9 } ],
+    //     span: 2
+    //   },
+    //   {}, // don't forget about me!
+    //   {
+    //     player: true,
+    //     finderIndex: '2',
+    //     played: [ { row: 7, col: 8 }, { row: 8, col: 9 } ],
+    //     skipped: [],
+    //     expansions: [ { row: 6, col: 7 }, { row: 9, col: 10 } ],
+    //     span: 2
+    //   },
+    //   {
+    //     player: true,
+    //     finderIndex: '1',
+    //     played: [ { row: 9, col: 7 }, { row: 9, col: 8 } ],
+    //     skipped: [],
+    //     expansions: [ { row: 9, col: 6 }, { row: 9, col: 9 } ],
+    //     span: 2
+    //   },
+    //   {
+    //     player: true,
+    //     finderIndex: '3',
+    //     played: [ { row: 9, col: 8 }, { row: 8, col: 9 } ],
+    //     skipped: [],
+    //     expansions: [ { row: 10, col: 7 }, { row: 7, col: 10 } ],
+    //     span: 2
+    //   },
+    //   {
+    //     player: true,
+    //     finderIndex: '0',
+    //     played: [ { row: 7, col: 8 }, { row: 9, col: 8 }, { row: 10, col: 8 } ],
+    //     skipped: [ { row: 8, col: 8 } ],
+    //     expansions: [ { row: 6, col: 8 }, { row: 11, col: 8 } ],
+    //     span: 4
+    //   },
+    //   {
+    //     player: true,
+    //     finderIndex: '2',
+    //     played: [ { row: 8, col: 6 }, { row: 9, col: 7 }, { row: 10, col: 8 } ],
+    //     skipped: [],
+    //     expansions: [ { row: 7, col: 5 }, { row: 11, col: 9 } ],
+    //     span: 3
+    //   },
+    //   {
+    //     player: true,
+    //     finderIndex: '0',
+    //     played: [ { row: 7, col: 7 }, { row: 9, col: 7 }, { row: 11, col: 7 } ],
+    //     skipped: [ { row: 8, col: 7 }, { row: 10, col: 7 } ],
+    //     expansions: [],
+    //     span: 5
+    //   },
+    //   {
+    //     player: true,
+    //     finderIndex: '3',
+    //     played: [ { row: 11, col: 7 }, { row: 10, col: 8 } ],
+    //     skipped: [],
+    //     expansions: [ { row: 12, col: 6 }, { row: 9, col: 9 } ],
+    //     span: 2
+    //   },
+    //   {
+    //     player: true,
+    //     finderIndex: '1',
+    //     played: [ { row: 11, col: 7 }, { row: 11, col: 10 } ],
+    //     skipped: [ { row: 11, col: 8 }, { row: 11, col: 9 } ],
+    //     expansions: [ { row: 11, col: 6 }, { row: 11, col: 11 } ],
+    //     span: 4
+    //   },
+    //   {
+    //     player: true,
+    //     finderIndex: '2',
+    //     played: [ { row: 9, col: 8 }, { row: 11, col: 10 } ],
+    //     skipped: [ { row: 10, col: 9 } ],
+    //     expansions: [ { row: 8, col: 7 }, { row: 12, col: 11 } ],
+    //     span: 3
+    //   },
+    //   {
+    //     player: true,
+    //     finderIndex: '1',
+    //     played: [ { row: 8, col: 6 }, { row: 8, col: 9 } ],
+    //     skipped: [ { row: 8, col: 7 }, { row: 8, col: 8 } ],
+    //     expansions: [ { row: 8, col: 5 }, { row: 8, col: 10 } ],
+    //     span: 4
+    //   },
+    //   {
+    //     player: true,
+    //     finderIndex: '3',
+    //     played: [ { row: 8, col: 6 }, { row: 7, col: 7 } ],
+    //     skipped: [],
+    //     expansions: [ { row: 9, col: 5 }, { row: 6, col: 8 } ],
+    //     span: 2
+    //   },
+    // ])
 
     // TODO: move to block some of the threats in the middle { row: 8, col: 8 }
 

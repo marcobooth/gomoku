@@ -7,6 +7,8 @@ import { createBoardState } from "../../engine/gomokuEngine"
 
 Meteor.methods({
   'games.handleMove'(gameId, row, col) {
+    console.log("handleMove called");
+
     check(gameId, String);
     check([ row, col ], [Number]);
 
@@ -29,13 +31,8 @@ Meteor.methods({
 
     let otherPlayer = game.currentPlayer === game.p1 ? game.p2 : game.p1
 
-    let state = createBoardState(game.currentPlayer, game.currentPlayer,
-        otherPlayer, game.board)
+    let state = createBoardState(game.currentPlayer, otherPlayer, game.board)
     state = state.move({ row, col })
-    if (!state) {
-      return new Meteor.Error("invalid-move")
-    }
-
     if (!state) {
       return new Meteor.Error("invalid-move")
     }

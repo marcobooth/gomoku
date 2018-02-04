@@ -17,6 +17,7 @@ class Game extends Component {
 
     this.engine = Tracker.autorun(() => {
       let game = Games.findOne(FlowRouter.getParam("_id"))
+      window.Games = Games
 
       if (game && game.status === "started") {
         let userId = Meteor.userId()
@@ -25,8 +26,10 @@ class Game extends Component {
           console.log("our turn")
         } else if (game.currentPlayer === "AI" &&
             (userId === game.p1 || userId === game.p2)) {
+          console.log("game:", game);
           console.log("AI's turn -- running the engine");
-          let state = createBoardState("AI", "AI", userId, game.board)
+          let state = createBoardState("AI", userId, game.board)
+          console.log("state:", state);
 
           let start = new Date().getTime()
           let bestMove = state.getBestMove()
