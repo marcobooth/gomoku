@@ -121,6 +121,7 @@ export class Threat {
     })
 
     // update the score
+    if (this.played.length > 5 || this.played.length < 2) return false;
     let magnitude = scoreMagnitude[this.played.length][this.expansions.length]
     this.score = magnitude * (this.player ? 1 : -1)
 
