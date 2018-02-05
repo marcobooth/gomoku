@@ -12,7 +12,7 @@ function jsonifyThreats(threats) {
   return _.map(threats.toJS(), (threat) => {
     if (threat === undefined) return undefined
 
-    return _.omit(threat, "score")
+    return _.omit(threat, "score", "updateDependents", "finalize", "joinIfPossible", "toJS")
   })
 }
 
@@ -1701,7 +1701,6 @@ describe('Gomoku engine', function () {
       [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null]]')
 
     let board = createBoardState("AI", "ME", values)
-
-    console.log("board.getBestMove():", board.getBestMove());
+    board.getBestMove()
   })
 })
