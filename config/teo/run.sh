@@ -1,1 +1,3 @@
+meteor npm install
+
 meteor
