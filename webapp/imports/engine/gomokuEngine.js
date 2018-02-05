@@ -160,8 +160,8 @@ export class Threat {
         console.log("board.toString():", board.toString());
         console.log("joined:", joined);
 
-        console.assert(false,
-            "We've got a threat that can't grow")
+        // console.assert(false,
+        //     "We've got a threat that can't grow")
       }
 
       return joined
