@@ -9,11 +9,12 @@ Accounts.onCreateUser(function (options, user) {
 })
 
 // insert the AI user if it doesn't exist
-Meteor.users.upsert({ _id: "AI" }, {
-  $set: {
-    username: "HAL 9000",
-    won: 0,
-    lost: 0,
-    drawn: 0
-  }
-})
+if ( Meteor.users.findOne({ _id: "AI"}) === undefined ) {
+  Meteor.users.insert({
+      _id: "AI",
+      username: "HAL 9000",
+      won: 0,
+      lost: 0,
+      drawn: 0
+  })
+}

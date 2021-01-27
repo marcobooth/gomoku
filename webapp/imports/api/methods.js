@@ -18,17 +18,21 @@ Meteor.methods({
 
     let newBoard = {
       board: board,
-      currentPlayer: user._id,
       p1: user._id,
       p1Username: user.username,
       status: 'started'
     }
 
     if (isAI === true) {
-      _.extend(newBoard, { p2: 'AI', p2Username: 'AI', status: 'started' })
+      _.extend(newBoard, { p2: 'AI', p2Username: 'AI', status: 'started', currentPlayer: user._id })
+      if (_.random(0, 1) === 1) {
+        newBoard.board[9][9] = 'AI'
+      }
     } else {
       _.extend(newBoard, { status: 'creating' })
     }
+
+
     return Games.insert(newBoard)
   },
   'games.join'(gameId) {
@@ -37,6 +41,8 @@ Meteor.methods({
     ensureLoggedIn(this.userId)
 
     let user = Meteor.user()
+    let game = Games.findOne({_id: gameId, status: 'creating'})
+    let currentPlayer = _.random(0, 1) === 1 ? game.p1 : user._id
 
     Games.update({
       _id: gameId,
@@ -45,6 +51,7 @@ Meteor.methods({
       $set: {
         p2: user._id,
         p2Username: user.username,
+        currentPlayer,
         status: 'started'
       }
     })

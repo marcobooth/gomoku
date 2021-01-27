@@ -18,7 +18,8 @@ Games.attachSchema(new SimpleSchema({
     type: [[String]]
   },
   currentPlayer: {
-    type: String
+    type: String,
+    optional: true
   },
   p1: {
     type: String
